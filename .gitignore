@@ -33,6 +33,7 @@
 # Ha mégis commitolni akarod, töröld ezt a sort.
 # -----------------------
 legacy/
+app/.env
 
 # OS zaj
 .DS_Store

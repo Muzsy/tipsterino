@@ -1,0 +1,31 @@
+steps:
+  - name: Dokumentációs & canvases alapok
+    description: >
+      Ellenőrizd az OutshotCoach mintájára a `docs/`, `canvases/`, `codex/` struktúrát, és készítsd el a Tipsterino specifikus vászon+yaml párt.
+      Dokumentáld röviden az új architektúrát és környezeti elvárásokat a `documents/` alatt (ha szükséges).
+    outputs:
+      - "canvases/tipsterino_foundation_bootstrap.md"
+      - "codex/goals/canvases/fill_canvas_tipsterino_foundation_bootstrap.yaml"
+  - name: Tipsterino app foundation + Supabase auth
+    description: >
+      Állítsd vissza vagy építsd újra az `app/` Flutter appot go_router + Riverpod + Material3 stackre, Supabase init guarddal, login/register képernyőkkel, négy tabos shell-lel, env handling-gel és lokalizációval.
+      Ügyelj rá, hogy a Supabase init crash nélkül menjen, ha nincs `SUPABASE_*` env, és az auth UI is reagáljon offline állapotra.
+    outputs:
+      - "app/lib/main.dart"
+      - "app/lib/src/app.dart"
+      - "app/lib/src/router/app_router.dart"
+      - "app/lib/src/providers/auth_provider.dart"
+      - "app/lib/src/screens/**"
+      - "app/lib/src/theme/app_theme.dart"
+      - "lib/l10n/app_(hu|en).arb"
+      - ".env.example"
+  - name: Tesztek, checklist, report, dokumentáció
+    description: >
+      Adj hozzá widget + l10n teszteket és egy integration smoke-t, futtasd: `dart format .`, `flutter analyze`, `flutter test`, az integrációs tesztet a fizikai eszközön (ha elérhető). Készíts checklistát és riportot (`codex/`), dokumentálj mindent `documents/app_architecture.md`-ben.
+    outputs:
+      - "test/widget/app_smoke_test.dart"
+      - "test/widget/l10n_test.dart"
+      - "integration_test/app_test.dart"
+      - "codex/codex_checklist/tipsterino_foundation_bootstrap.md"
+      - "codex/reports/tipsterino_foundation_bootstrap.md"
+      - "documents/app_architecture.md"
