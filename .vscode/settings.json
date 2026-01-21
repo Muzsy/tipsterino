@@ -1,0 +1,19 @@
+{
+  "files.exclude": {
+    "**/legacy/**": true
+  },
+  "search.exclude": {
+    "**/legacy/**": true
+  },
+  "files.watcherExclude": {
+    "**/legacy/**": true
+  },
+
+  // Dart-Code: legacy kizárása az analizálásból + project detectionből
+  "dart.analysisExcludedFolders": [
+    "legacy"
+  ],
+
+  // Csak root + 1 szint mélyen keressen Dart/Flutter projekteket (app/, tool/ még belefér)
+  "dart.projectSearchDepth": 2
+}

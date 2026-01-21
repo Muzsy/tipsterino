@@ -1,0 +1,38 @@
+# -----------------------
+# Flutter / Dart (app + tool + bármi nested)
+# -----------------------
+**/.dart_tool/
+**/.packages
+**/.pub/
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.metadata
+
+# Platform / IDE cache
+**/android/.gradle/
+**/android/local.properties
+**/ios/Pods/
+**/ios/Runner.xcworkspace/
+**/macos/Pods/
+
+# -----------------------
+# IDE
+# -----------------------
+.idea/
+*.iml
+
+# VS Code: ne verziózz mindent, csak a repo-szintű beállításokat
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+
+# -----------------------
+# Legacy (AJÁNLOTT: legyen local-only, ne commitold)
+# Ha mégis commitolni akarod, töröld ezt a sort.
+# -----------------------
+legacy/
+
+# OS zaj
+.DS_Store
