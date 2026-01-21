@@ -58,7 +58,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get offlineDescription =>
-      'Add SUPABASE_URL and SUPABASE_ANON_KEY in .env to enable authentication.';
+      'Define SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define to enable authentication.';
 
   @override
   String get authGenericError => 'Authentication failed';

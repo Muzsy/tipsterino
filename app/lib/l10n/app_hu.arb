@@ -16,7 +16,7 @@
   "dontHaveAccountPrompt": "Nincs még fiókod? Regisztrálj",
   "alreadyHaveAccount": "Már van fiókod? Jelentkezz be",
   "offlineNotice": "A Supabase nincs konfigurálva",
-  "offlineDescription": "Add meg a SUPABASE_URL és SUPABASE_ANON_KEY értékeket az `.env` fájlban.",
+  "offlineDescription": "Állítsd be a SUPABASE_URL és SUPABASE_ANON_KEY define-okat `--dart-define` segítségével az autentikációhoz.",
   "authGenericError": "Hitelesítési hiba",
   "registerSuccess": "Fiókod elkészült! Ellenőrizd az emailed.",
   "homeTab": "Kezdőlap",

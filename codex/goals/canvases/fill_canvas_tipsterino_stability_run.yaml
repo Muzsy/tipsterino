@@ -1,0 +1,27 @@
+steps:
+  - name: Doki, Canvas, Docs align
+    description: >
+      Igazítsd a `canvases/`, `codex/`, `docs/` és `documents/` hivatkozásokat az aktuális `app/` fájlstruktúrához, készítsd el az OutshotCoach-szerű `docs/README.md` vázat és a Supabase konfigurációt leíró `documents/supabase_configuration.md`-t.
+    outputs:
+      - "canvases/tipsterino_stability_run.md"
+      - "docs/README.md"
+      - "documents/app_architecture.md"
+      - "documents/supabase_configuration.md"
+  - name: Supabase és env resilience
+    description: >
+      Vezesd be a `--dart-define` alapú `SUPABASE_URL`/`SUPABASE_ANON_KEY` leolvasást, távolítsd el az optional `.env` dependency-ket / importokat, frissítsd a `app/lib/l10n` üzeneteket és a generált lokalizációs fájlt, hogy a hiányzó konfiguráció az offline UI-val induljon.
+    outputs:
+      - "app/lib/main.dart"
+      - "app/pubspec.yaml"
+      - "app/pubspec.lock"
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+  - name: Teszt + ellenőrzés
+    description: >
+      Stabilizáld az integration tesztet (offline/configolt állapot), töröld a felesleges importokat, majd futtasd a `dart format .`, `flutter analyze`, `flutter test` és az `integration_test` futtatását a csatlakoztatott Android eszközön; dokumentáld az eredményt checklistben és reportban.
+    outputs:
+      - "integration_test/app_test.dart"
+      - "app/test/widget/app_smoke_test.dart"
+      - "codex/codex_checklist/tipsterino_stability_run.md"
+      - "codex/reports/tipsterino_stability_run.md"

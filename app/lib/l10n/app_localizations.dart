@@ -197,7 +197,7 @@ abstract class AppLocalizations {
   /// No description provided for @offlineDescription.
   ///
   /// In en, this message translates to:
-  /// **'Add SUPABASE_URL and SUPABASE_ANON_KEY in .env to enable authentication.'**
+  /// **'Define SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define to enable authentication.'**
   String get offlineDescription;
 
   /// No description provided for @authGenericError.

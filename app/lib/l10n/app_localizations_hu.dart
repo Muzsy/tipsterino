@@ -58,7 +58,7 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get offlineDescription =>
-      'Add meg a SUPABASE_URL és SUPABASE_ANON_KEY értékeket az `.env` fájlban.';
+      'Állítsd be a SUPABASE_URL és SUPABASE_ANON_KEY define-okat `--dart-define` segítségével az autentikációhoz.';
 
   @override
   String get authGenericError => 'Hitelesítési hiba';

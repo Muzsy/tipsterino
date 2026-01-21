@@ -6,26 +6,42 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'src/app.dart';
 import 'src/providers/supabase_provider.dart';
 
+const _supabaseUrlDefine = String.fromEnvironment('SUPABASE_URL');
+const _supabaseAnonKeyDefine = String.fromEnvironment('SUPABASE_ANON_KEY');
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final envLoaded = await dotenv
-      .load(fileName: '.env')
-      .then((_) => true)
-      .catchError((_) => false);
 
-  final supabaseUrl = envLoaded ? dotenv.env['SUPABASE_URL'] : null;
-  final supabaseAnonKey = envLoaded ? dotenv.env['SUPABASE_ANON_KEY'] : null;
+  String? supabaseUrl = _supabaseUrlDefine.isNotEmpty
+      ? _supabaseUrlDefine
+      : null;
+  String? supabaseAnonKey = _supabaseAnonKeyDefine.isNotEmpty
+      ? _supabaseAnonKeyDefine
+      : null;
+
+  if (supabaseUrl == null || supabaseAnonKey == null) {
+    final envLoaded = await dotenv
+        .load(fileName: '.env')
+        .then((_) => true)
+        .catchError((_) => false);
+    if (envLoaded) {
+      supabaseUrl ??= dotenv.env['SUPABASE_URL'];
+      supabaseAnonKey ??= dotenv.env['SUPABASE_ANON_KEY'];
+    }
+  }
+
+  final hasSupabaseConfig =
+      (supabaseUrl?.isNotEmpty ?? false) &&
+      (supabaseAnonKey?.isNotEmpty ?? false);
+
   bool isSupabaseReady = false;
   SupabaseClient? client;
 
-  if (supabaseUrl != null &&
-      supabaseUrl.isNotEmpty &&
-      supabaseAnonKey != null &&
-      supabaseAnonKey.isNotEmpty) {
+  if (hasSupabaseConfig) {
     try {
       await Supabase.initialize(
-        url: supabaseUrl,
-        anonKey: supabaseAnonKey,
+        url: supabaseUrl!,
+        anonKey: supabaseAnonKey!,
         debug: false,
       );
       client = Supabase.instance.client;

@@ -16,7 +16,7 @@
   "dontHaveAccountPrompt": "Don't have an account? Register",
   "alreadyHaveAccount": "Already have an account? Log in",
   "offlineNotice": "Supabase not configured",
-  "offlineDescription": "Add SUPABASE_URL and SUPABASE_ANON_KEY in .env to enable authentication.",
+  "offlineDescription": "Define SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define to enable authentication.",
   "authGenericError": "Authentication failed",
   "registerSuccess": "Account created! Check your inbox for confirmation.",
   "homeTab": "Home",
