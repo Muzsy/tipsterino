@@ -11,6 +11,6 @@
 - [x] L10n HU/EN gyűjtés és `flutter gen-l10n` generálta a `app_localizations.dart` fájlokat.
 
 ## C3 – Tesztelés + gate
-- [x] Widget tesztek (`test/widget/`) ✅
-- [x] Integration teszt (`integration_test/app_test.dart`) a fizikai `GAB7N18604000884` eszközön lefutott (build + install). 
-- [x] `dart format .`, `flutter analyze`, `flutter test` végrehajtva.
+- [x] Widget tesztek (`app/test/widget/`) ✅
+- [x] Integration teszt (`app/integration_test/app_test.dart`) a fizikai eszközön lefutott (build + install) `cd app && flutter test integration_test/app_test.dart -d <deviceId>` parancssal.
+- [x] `cd app && dart format .`, `cd app && flutter analyze`, `cd app && flutter test` végrehajtva.

@@ -7,7 +7,7 @@
 - [x] Elkészült a `docs/README.md` OutshotCoach-struktúra leírása és a `documents/supabase_configuration.md` útmutató, amelyek kapcsolódnak az új vászonhoz.
 
 ## P3 – Stabil Supabase konfiguráció
-- [x] `app/lib/main.dart` compile-time `SUPABASE_URL`/`SUPABASE_ANON_KEY` értékekkel dolgozik, optional `.env` fallback van, és az `app/lib/l10n` offline üzenetek a `--dart-define` workflow-t írják le.
+- [x] `app/lib/main.dart` compile-time `SUPABASE_URL`/`SUPABASE_ANON_KEY` értékekkel dolgozik, nincs `.env` fallback, és az `app/lib/l10n` offline üzenetek a `--dart-define` workflow-t írják le.
 
 ## P4 – Integration teszt
 - [x] Az `integration_test/app_test.dart` mind offline, mind konfigurált állapotot ellenőrzi (offline notice, disabled gomb, illetve login/home render), nem ragad az offline notice-hoz.
@@ -16,4 +16,4 @@
 - [x] `flutter gen-l10n` lefutott, az ARB fájlok és a generált lokalizációs kódok (`app/lib/l10n/app_localizations*.dart`) frissültek, a `app/lib/main.dart`, `integration_test/app_test.dart` kódja tiszta.
 
 ## P6 – Analyze / tesztek / integration
-- [x] `dart format .`, `flutter analyze`, `flutter test` és `flutter test integration_test -d GAB7N18604000884` mind sikeresen lefutott.
+- [x] `cd app && dart format .`, `cd app && flutter analyze`, `cd app && flutter test` és `cd app && flutter test integration_test -d <deviceId>` mind sikeresen lefutott.

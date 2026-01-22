@@ -1,15 +1,16 @@
 steps:
-  - name: Doki, Canvas, Docs align
+  - name: Dokumentációs hivatkozások átnézése
     description: >
-      Igazítsd a `canvases/`, `codex/`, `docs/` és `documents/` hivatkozásokat az aktuális `app/` fájlstruktúrához, készítsd el az OutshotCoach-szerű `docs/README.md` vázat és a Supabase konfigurációt leíró `documents/supabase_configuration.md`-t.
+      Igazítsd a `canvases/`, `codex/`, `documents/` és `docs/` fájlok hivatkozásait, hogy minden `app/...` artefakt valós legyen, és nem maradt `.env` logika csak `--dart-define`.
+      Helyezd el szükséges frissítések a `documents/supabase_configuration.md`, `documents/app_architecture.md` és `docs/README.md` fájlokban.
     outputs:
       - "canvases/tipsterino_stability_run.md"
-      - "docs/README.md"
       - "documents/app_architecture.md"
       - "documents/supabase_configuration.md"
-  - name: Supabase és env resilience
+      - "docs/README.md"
+  - name: `--dart-define` Supabase flow és l10n
     description: >
-      Vezesd be a `--dart-define` alapú `SUPABASE_URL`/`SUPABASE_ANON_KEY` leolvasást, távolítsd el az optional `.env` dependency-ket / importokat, frissítsd a `app/lib/l10n` üzeneteket és a generált lokalizációs fájlt, hogy a hiányzó konfiguráció az offline UI-val induljon.
+      Vezesd be a `--dart-define` alapján beolvasott `SUPABASE_URL`/`SUPABASE_ANON_KEY` értékeket, távolítsd el a `flutter_dotenv` dependency-t és `.env` logikát, és frissítsd a `app/lib/l10n` üzeneteket, hogy az offline állapotnál a gombok disabled és a lokalizáció a `--dart-define` folyamatot írja le.
     outputs:
       - "app/lib/main.dart"
       - "app/pubspec.yaml"
@@ -19,9 +20,10 @@ steps:
       - "app/lib/l10n/app_localizations.dart"
   - name: Teszt + ellenőrzés
     description: >
-      Stabilizáld az integration tesztet (offline/configolt állapot), töröld a felesleges importokat, majd futtasd a `dart format .`, `flutter analyze`, `flutter test` és az `integration_test` futtatását a csatlakoztatott Android eszközön; dokumentáld az eredményt checklistben és reportban.
+      Stabilizáld az integration tesztet (offline és konfigurált állapot), ellenőrizd a widget/l10n teszteket, majd futtasd `cd app && dart format .`, `cd app && flutter analyze`, `cd app && flutter test` és `cd app && flutter test integration_test -d <deviceId>` parancsokat; dokumentáld az eredményeket checklistben és reportban.
     outputs:
-      - "integration_test/app_test.dart"
       - "app/test/widget/app_smoke_test.dart"
+      - "app/test/widget/l10n_test.dart"
+      - "app/integration_test/app_test.dart"
       - "codex/codex_checklist/tipsterino_stability_run.md"
       - "codex/reports/tipsterino_stability_run.md"

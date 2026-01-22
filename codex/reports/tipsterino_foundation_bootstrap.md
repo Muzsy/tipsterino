@@ -1,28 +1,29 @@
 ## Mit találtunk?
-- Az `app/` gyökér benne volt egy új Flutter projekt, de a sablonhívások (`MyApp`, template counter) miatt nem volt készen a új architektúra.
-- Hiányzott a go_router/supabase auth stack, az env handling, illetve a canvas/codex struktúra, ami a Tipsterino launchja számára szükséges.
-- A Supabase inicializáció a `SUPABASE_URL`/`SUPABASE_ANON_KEY` hiányában leállt, ezért az offline futtatás külön guard-ot igényelt.
+- A `canvases/`, `documents/` és `codex/` anyagok a valós `app/` struktúrához képest még mindig régi `test/`/`integration_test/` hivatkozásokat és `.env` fallback-dokumentációt tartalmaztak, így a fejlesztők nem tudtak biztosan eligazodni a jelenlegi projektgyökérben.
+- A Supabase inicializáció a `flutter_dotenv`-re és egy lokális `.env` fájlra támaszkodott, ami nem kompatibilis a monorepo új `app/` gyökérrel és a `--dart-define`-ban gondolkodó tesztszuítekkel.
+- A dokumentációk és a lokalizáció még mindig említették a `.env` workflow-t, ami ellentmondott az új, `String.fromEnvironment` alapú megközelítésnek.
 
 ## Mit módosítottunk?
-- `app/lib/main.dart` → `String.fromEnvironment` + Supabase init only when both defines are filled, offline fallback, `ProviderScope` override.
-- `app/lib/src/` → Riverpod providers, go_router shell+redirect, theme, screens, login/register UI, Supabase auth guard, localization wiring + `app/lib/l10n/` ARB fájlok és generált `app_localizations.dart`.
-- `.env.example`, `documents/app_architecture.md`, `documents/supabase_configuration.md`, `codex/` checklist + report, `canvases/tipsterino_foundation_bootstrap.md`, `integration_test` + `test/widget` tesztjei; `sign_in_with_apple` verziófrissítés Supabase 2.12 mellett.
+- `app/lib/main.dart`: eltávolítottuk a `flutter_dotenv` logicát, így csak `String.fromEnvironment('SUPABASE_URL')`/`('SUPABASE_ANON_KEY')` értékeket használunk, és offline állapotban disabled gombok + offline notice jelenik meg.
+- `app/pubspec.yaml`/`app/pubspec.lock`: kivetkőztük a `flutter_dotenv` dependency-t, a lockfájl újra generálódott a mostani függőségekkel.
+- `documents/app_architecture.md` és `documents/supabase_configuration.md`: igényesen leírják a `--dart-define` workflow-t, a `cd app && ...` parancsokat és hogy a `app/.env.example` csak sablon, nem futtatási szükséglet.
+- `canvases/tipsterino_foundation_bootstrap.md` és `canvases/tipsterino_stability_run.md`: minden path most `app/...`, a Supabase info kizárólag `--dart-define`-re hivatkozik.
+- `codex/goals/canvases` és `codex/codex_checklist`: a YAML-ok és checklisták is frissültek, hogy `app/test`/`app/integration_test` útvonalakat, `cd app`-os parancsokat és a `flutter_dotenv` eltávolítását tüntessék fel.
 
 ## Tesztek
-- `dart format .` – PASS
-- `flutter analyze` – PASS
-- `flutter test` – PASS (widget + l10n smoke)
-- `flutter test integration_test/app_test.dart -d GAB7N18604000884` – PASS (fizikai eszköz, `AppLocalizations` alapú login vér.)
+- `cd app && dart format .` – PASS
+- `cd app && flutter analyze` – PASS
+- `cd app && flutter test` – PASS (widget + l10n smoke)
+- `cd app && flutter test integration_test/app_test.dart -d GAB7N18604000884` – PASS (fizikai Android: offline notice + konfigurált login/home viselkedés ellenőrzése)
 
 ## Manuális smoke
-- Fizikai `flutter run` parancsot nem futtattam, mert a kért autentikáció és env guard miatt az ilyen futtatás interaktív beavatkozást igényel; az integration teszt lefuttatása adja a legközelebbi valós környezetet.
+- Fizikai `flutter run` futtatását most nem végeztük el, mert az integration teszt lefuttatása lefedi a főbb start-up útvonalakat; az offline guard és a `--dart-define` használata miatt a teszt környezet stabil.
 
 ## Ismert korlátok / TODO
-- Supabase login és register csak akkor működik teljesen, ha a `SUPABASE_URL`/`SUPABASE_ANON_KEY` compile-time define értékek helyesek vagy a Supabase backend elérhető, erről a `documents/supabase_configuration.md` szól.
-- A placeholder képernyők (Home, Tickets, Leaderboard, Settings) csak statikus UI-k.
-- A Supabase auth eseménykezelés offline guard és a `sign_in_with_apple` plugin verziója 7-es sorozatot használ; további Supabase szervízlogika még hiányzik (pl. statisztikák, feed).
+- Az auth UI placeholder képernyők (Home/Tickets/Leaderboard/Settings) továbbra is statikusak, nem használják a backend adatokat.
+- Az éles Supabase backend még nincs beállítva, a Supabase eseménykezelés bővítése (session badge, logout guard) várat magára.
 
 ## Következő javasolt lépések
-1. Éles Supabase backend csatlakoztatása + a `SUPABASE_URL`/`SUPABASE_ANON_KEY` értékek titkos kezelése (`--dart-define`, secrets manager, GitHub Secrets, stb.).
-2. Tickets/Leaderboard logika RTP + provider integráció (adatlapok, mock adatokkal a tesztekhez).
-3. Auth UI fejlesztése (jelszó reset, error handling, Supabase session badge a Settings-ben) + új integration tesztek (logout, nav guard).
+1. Éles Supabase backend csatlakoztatása és a titkos `SUPABASE_URL`/`SUPABASE_ANON_KEY` értékek `--dart-define` kezelésének automatizálása (GitHub Secrets, Secret Manager).
+2. Tickets/Leaderboard logika + provider integráció, hogy a placeholder képernyők valódi adatokkal működjenek és a widget tesztek is erre reflektáljanak.
+3. Auth UI fejlesztése (jelszó reset, error handling, Supabase session badge a Settingsben) és további integration tesztek (logout, nav guard).

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -12,23 +11,10 @@ const _supabaseAnonKeyDefine = String.fromEnvironment('SUPABASE_ANON_KEY');
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  String? supabaseUrl = _supabaseUrlDefine.isNotEmpty
-      ? _supabaseUrlDefine
-      : null;
-  String? supabaseAnonKey = _supabaseAnonKeyDefine.isNotEmpty
+  final supabaseUrl = _supabaseUrlDefine.isNotEmpty ? _supabaseUrlDefine : null;
+  final supabaseAnonKey = _supabaseAnonKeyDefine.isNotEmpty
       ? _supabaseAnonKeyDefine
       : null;
-
-  if (supabaseUrl == null || supabaseAnonKey == null) {
-    final envLoaded = await dotenv
-        .load(fileName: '.env')
-        .then((_) => true)
-        .catchError((_) => false);
-    if (envLoaded) {
-      supabaseUrl ??= dotenv.env['SUPABASE_URL'];
-      supabaseAnonKey ??= dotenv.env['SUPABASE_ANON_KEY'];
-    }
-  }
 
   final hasSupabaseConfig =
       (supabaseUrl?.isNotEmpty ?? false) &&

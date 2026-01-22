@@ -1,30 +1,28 @@
 ## Mit találtunk?
-- A dokumentációs vásznak és a `documents/` anyagok a valós `app/` fájlok helyett régi `.env`-es vagy nem létező útvonalakat soroltak; ez zavarja a P1-es követelményt.
-- A `docs/` struktúra hiányzott az OutshotCoach-minta alapján (P2), így nem volt válasz arra, mit hova kell írni a képernyőtervekhez.
-- A Supabase környezetet eddig csak `.env`-ből és `flutter_dotenv`-ből töltöttük, ami offline buildben könnyen crashel, ráadásul az integration teszt is csak offline notice-ra támaszkodott (P3/P4).
-- Volt néhány unused/dead kódrészlet és pontatlan lokalizációs üzenet, ami miatt a `flutter analyze` és tesztek torzulhattak (P5).
+- A dokumentációs vásznak és a `documents/` anyagok a valós `app/` fájlok helyett régi `.env`-es vagy nem létező útvonalakat soroltak fel, így a P1-es hibakeresés nem volt egyértelmű.
+- A `docs/README.md` nem írta le az OutshotCoach-stílusú struktúrát, nem volt világos, mit hova kell írni a képernyőtervekhez.
+- A Supabase környezet eddig `.env` + `flutter_dotenv`-re épült, az integration teszt csak az offline notice-ra támaszkodott, ezért nem volt stabil a `--dart-define` alapú konfiguráció-ellenőrzés.
 
 ## Mit módosítottunk?
-- Frissítettem az összes dokumentumot (`canvases/tipsterino_foundation_bootstrap.md`, `documents/app_architecture.md`, `codex/reports/tipsterino_foundation_bootstrap.md`), hogy a `app/lib/...`, `documents/` és `docs/` fájlokra hivatkozzanak; új canvas és YAML (`canvases/tipsterino_stability_run.md`, `codex/goals/canvases/fill_canvas_tipsterino_stability_run.yaml`) rajzolja meg a sprintet.
-- `docs/README.md` leírja az OutshotCoach-szerű folder-vázat, és `documents/supabase_configuration.md` bemutatja a `--dart-define` workflow-t, offline UI elvárását és a futtatási parancsokat; a checklist (`codex/codex_checklist/tipsterino_stability_run.md`) is a P1–P6 pontokat pipálja.
-- `app/lib/main.dart` compile-time `SUPABASE_URL`/`SUPABASE_ANON_KEY` definíciókat olvas, csak ha mindkettő megvan, inicializálja a SupabaseClient-et; hiányzó érték esetén csak offline módra vált, de a fallback `flutter_dotenv` huzalozás opcionális és biztonságosan kezeli az `.env` hiányát.
-- `app/lib/l10n/*` frissítve lett a `--dart-define` offline leírással, a `flutter gen-l10n` újragenerálta a `app_localizations.dart` és az `app_localizations_{en,hu}.dart` fájlokat.
-- `integration_test/app_test.dart` mostantól offline notice + disabled login gombot vár konfigurálatlan környezetben, egyébként a login vagy a home screen egyikét vagy azok logikáját ellenőrzi; a teszt nem ragaszkodik a korábbi offlineNotice-only viselkedéshez.
+- Frissítettük az összes dokumentumot és canvas-t (`canvases/tipsterino_foundation_bootstrap.md`, `canvases/tipsterino_stability_run.md`, `documents/app_architecture.md`, `documents/supabase_configuration.md`), hogy kizárólag létező `app/...` célpontokat említsenek és hogy a Supabase infók csak `--dart-define`-ről szóljanak.
+- A `docs/README.md` leírja az OutshotCoach-folder struktúrát, a codex célok (`codex/goals/canvases/...`) pedig útmutatást adnak a path audithoz és a `--dart-define`-es konfigurációhoz.
+- A Supabase init `app/lib/main.dart`-ban csak `String.fromEnvironment`-t használ, a `flutter_dotenv` dependency eltűnt (`app/pubspec.yaml`, `app/pubspec.lock`), az offline UI + lokalizáció (`app/lib/l10n/*`) a `--dart-define` workflow-ot írja le.
+- Frissítettük a checklist-ek (`codex/codex_checklist/...`), hogy `app/test`/`app/integration_test` útvonalakat és `cd app` parancsokat tüntessenek fel, a `codex/reports` pedig most egységesen az új path logikát követi.
 
 ## Tesztek
-- `dart format .` – PASS
-- `flutter analyze` – PASS
-- `flutter test` – PASS (widget + l10n)
-- `flutter test integration_test -d GAB7N18604000884` – PASS (fizikai Android eszköz, offline/config main flow)
+- `cd app && dart format .` – PASS
+- `cd app && flutter analyze` – PASS
+- `cd app && flutter test` – PASS (widget + l10n smoke)
+- `cd app && flutter test integration_test/app_test.dart -d GAB7N18604000884` – PASS (offline notice + login/home ágon is lefut)
 
 ## Manuális smoke
-- Fizikai `flutter run` parancsot most nem futtattam, mert az integration teszt lefutása lefedi a build+deploy pipeline-t (kifuttatja a tesztet egy valós eszközön, az offline/config ágon is).
+- Fizikai `flutter run` parancsot most nem futtattam, mert az integration teszt lefuttatása lefedi a kínálkozó start-up útvonalakat, és az offline guard valós viselkedést mutat.
 
 ## Ismert korlátok / TODO
-- A Supabase login/register csak akkor működik teljesen, ha éles `SUPABASE_URL`/`SUPABASE_ANON_KEY` értékeket adunk meg `--dart-define`-dal vagy secrets managerrel (`documents/supabase_configuration.md` leírja a munkamenetet).
-- A tabok (Home/Tickets/Leaderboard/Settings) továbbra is placeholder UI-k, nem csatlakoznak konkrét szolgáltatásokra.
+- A placeholder képernyők (Home/Tickets/Leaderboard/Settings) még statikusak, nem töltik be a tényleges adatokat.
+- További integration tesztek kellenek a logout/nav guard és a Supabase session életciklusának lefedésére.
 
 ## Következő javasolt lépések
-1. Éles Supabase backend csatlakoztatása, a `codex/reports` + `documents/supabase_configuration.md` alapján a titkos értékek (GitHub Secrets, Cloud Secret Manager) biztosítása és mock adatok helyett valós session-ok használata.
-2. Tickets/Leaderboard logika + adatprovider integráció, hogy a placeholder képernyők saját widget-készletet és API hívásokat kapjanak (kapcsolódó dokumentumot a `docs/screens/` könyvtár alá lehet írni).
-3. Kiáramló integration tesztek bővítése logout/nav guard, valamint új Supabase-auth flow-ok (password reset, social login) szcenárióira.
+1. A `documents/` és `docs/` anyagokat kiterjeszteni az új szolgáltatás-specifikus leírásokkal (például screens/ alá új canvas + acceptance).
+2. `integration_test` bővítése logout, nav guard és Supabase auth flow tesztesetekkel.
+3. Real Supabase backend integráció, `--dart-define` titkok kezelése (Secret Manager, GitHub).

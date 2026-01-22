@@ -1,0 +1,27 @@
+steps:
+  - name: Path audit és artefakt-frissítés
+    description: Az összes canvas, goal YAML, checklist, report és dokumentum `lib/`, `test/`, `integration_test/`, `.env.example` hivatkozását `app/...`-ra kell cserélni, illetve ellenőrizni kell a Supabase útvonalakat és a `flutter_dotenv` utalásokat.
+    outputs:
+      - canvases/tipsterino_foundation_bootstrap.md
+      - canvases/tipsterino_stability_run.md
+      - codex/goals/canvases/fill_canvas_tipsterino_foundation_bootstrap.yaml
+      - documents/app_architecture.md
+      - documents/supabase_configuration.md
+  - name: --dart-define alapú konfiguráció
+    description: A `flutter_dotenv` dependency eltávolítása a `pubspec.yaml`-ból és a `app/lib/main.dart`-ból, Supabase változók `String.fromEnvironment`-nel, offline üzenet + gomb tiltás pszichója.
+    outputs:
+      - app/pubspec.yaml
+      - app/lib/main.dart
+      - app/lib/l10n/app_en.arb
+      - app/lib/l10n/app_hu.arb
+  - name: Tesztállapot stabilizálása
+    description: `app/test` és `app/integration_test` futtatása pontosságért, anélkül hogy `.env` fájlra támaszkodnának; offline módot szimulálva a login gomb tiltása, konfigurált módon a home/login stabil betöltése.
+    outputs:
+      - app/test/widget/app_smoke_test.dart
+      - app/test/widget/l10n_test.dart
+      - app/integration_test/app_test.dart
+  - name: Dokumentáció és checklist zárás
+    description: Checklist és report létrehozása a canvas kiegészítéséhez, valamint a Supabase dokumentáció `--dart-define`-re hivatkozása és a helyes parancsok említése (`cd app`-től kezdve).
+    outputs:
+      - codex/codex_checklist/tipsterino_paths_and_dotenv_cleanup.md
+      - codex/reports/tipsterino_paths_and_dotenv_cleanup.md
