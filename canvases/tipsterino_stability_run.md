@@ -12,8 +12,8 @@ A Tipsterino app startupjához tartozó teendők (P1–P5) célja a dokumentáci
 ## 🧠 Fejlesztési részletek
 
 * `app/lib/main.dart` → `const` compile-time Supabase konstansok, nincs `.env` load, supabase guard provider override, `app/pubspec.yaml`-ból `flutter_dotenv` eltávolítva, `app/pubspec.lock` frissül.
-* `app/lib/l10n/app_{en,hu}.arb` + generált `app/localizations.dart` → offline üzenet a dart-define beállításról szól (nem `.env`).
-* `integration_test/app_test.dart` → pillanatnyi állapot olvasása (ha offline, ellenőrzi a `loc.offlineNotice`/`loc.offlineDescription` + tiltott gomb, ha konfigurált, akkor login vagy home képernyő), a teszt nem hagyatkozik offlineNotice-ra minden esetben.
+* `app/lib/l10n/app_{en,hu}.arb` + generált `app/lib/l10n/app_localizations.dart` → offline üzenet a dart-define beállításról szól (nem `.env`).
+* `app/integration_test/app_test.dart` → pillanatnyi állapot olvasása (ha offline, ellenőrzi a `loc.offlineNotice`/`loc.offlineDescription` + tiltott gomb, ha konfigurált, akkor login vagy home képernyő), a teszt nem hagyatkozik offlineNotice-ra minden esetben.
 * `documents/app_architecture.md`, `documents/supabase_configuration.md`, `canvases/tipsterino_foundation_bootstrap.md`, `codex/reports/tipsterino_foundation_bootstrap.md` → hivatkozások frissítve `app/...` prefixre, a Supabase infók naprakészek.
 * `docs/README.md` → röviden leírja, mit várunk az egyes mappáktól (architect, core_logic, ...), hogy OutshotCoach stílusú struktúra legyen.
 * Tesztparancsok: `dart format .`, `flutter analyze`, `flutter test`, `flutter devices`, `flutter test integration_test -d <eszköz>` (android). Ezek szerepelnek a canvas `Tesztállapot` részeként is.

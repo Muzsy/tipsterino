@@ -10,10 +10,10 @@
 - [x] `app/lib/main.dart` compile-time `SUPABASE_URL`/`SUPABASE_ANON_KEY` értékekkel dolgozik, nincs `.env` fallback, és az `app/lib/l10n` offline üzenetek a `--dart-define` workflow-t írják le.
 
 ## P4 – Integration teszt
-- [x] Az `integration_test/app_test.dart` mind offline, mind konfigurált állapotot ellenőrzi (offline notice, disabled gomb, illetve login/home render), nem ragad az offline notice-hoz.
+- [x] Az `app/integration_test/app_test.dart` mind offline, mind konfigurált állapotot ellenőrzi (offline notice, disabled gomb, illetve login/home render), nem ragad az offline notice-hoz.
 
 ## P5 – Cleanup és lokalizáció
-- [x] `flutter gen-l10n` lefutott, az ARB fájlok és a generált lokalizációs kódok (`app/lib/l10n/app_localizations*.dart`) frissültek, a `app/lib/main.dart`, `integration_test/app_test.dart` kódja tiszta.
+- [x] `flutter gen-l10n` lefutott, az ARB fájlok és a generált lokalizációs kódok (`app/lib/l10n/app_localizations*.dart`) frissültek, a `app/lib/main.dart`, `app/integration_test/app_test.dart` kódja tiszta.
 
 ## P6 – Analyze / tesztek / integration
 - [x] `cd app && dart format .`, `cd app && flutter analyze`, `cd app && flutter test` és `cd app && flutter test integration_test -d <deviceId>` mind sikeresen lefutott.

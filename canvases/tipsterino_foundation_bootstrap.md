@@ -28,7 +28,7 @@ A Tipsterino új `app/` gyökérprojektje Material3 alapú theminggel, Riverpod+
 ## 🌍 Lokalizáció
 
 * Támogatott nyelvek: `hu`, `en`. Az `Lang`-választás a `MaterialApp` `supportedLocales`-ában van.
-* Kulcsok: `appTitle`, `loginTitle`, `registerTitle`, `emailLabel`, `passwordLabel`, `logoutLabel`, `homeTab`, `ticketsTab`, `leaderboardTab`, `settingsTab`, `offlineNotice`, `submitButton`, `registerPrompt`, `alreadyHaveAccount`, `passwordRepeatLabel`.
+* Kulcsok: `appTitle`, `loginTitle`, `loginSubtitle`, `registerTitle`, `registerSubtitle`, `emailLabel`, `passwordLabel`, `passwordRepeatLabel`, `enterPasswordError`, `invalidEmailError`, `passwordMismatchError`, `logInButton`, `registerButton`, `dontHaveAccountPrompt`, `alreadyHaveAccount`, `offlineNotice`, `offlineDescription`, `authGenericError`, `registerSuccess`, `homeTab`, `ticketsTab`, `leaderboardTab`, `settingsTab`, `logoutLabel`.
 
 ## 📎 Kapcsolódások
 

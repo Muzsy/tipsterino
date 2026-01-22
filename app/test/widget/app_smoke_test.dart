@@ -1,11 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:tipsterino/l10n/app_localizations.dart';
 import 'package:tipsterino/src/app.dart';
 import 'package:tipsterino/src/providers/supabase_provider.dart';
 
 void main() {
   testWidgets('App boots to login screen without Supabase', (tester) async {
+    final loc = await AppLocalizations.delegate.load(const Locale('en'));
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -19,12 +22,12 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text('Log in'), findsWidgets);
-    expect(find.text("Don't have an account? Register"), findsOneWidget);
+    expect(find.text(loc.logInButton), findsWidgets);
+    expect(find.text(loc.dontHaveAccountPrompt), findsOneWidget);
 
-    await tester.tap(find.text("Don't have an account? Register"));
+    await tester.tap(find.text(loc.dontHaveAccountPrompt));
     await tester.pumpAndSettle();
 
-    expect(find.text('Register'), findsWidgets);
+    expect(find.text(loc.registerTitle), findsWidgets);
   });
 }

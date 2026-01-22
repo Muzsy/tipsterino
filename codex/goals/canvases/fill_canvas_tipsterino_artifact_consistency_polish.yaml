@@ -1,0 +1,21 @@
+steps:
+  - name: .env.jegyzet tisztítása
+    description: >
+      Frissítsd az `app/.env.example` kommentjét és leírását, hogy egyértelmű legyen: nincs `.env` load, csak `--dart-define` definíciók,
+      és a fájl kizárólag template/notes szerepet tölt be.
+    outputs:
+      - app/.env.example
+  - name: Artefakt hivatkozások auditja
+    description: >
+      Ellenőrizd a `canvases/tipsterino_stability_run.md`, `codex/codex_checklist/tipsterino_stability_run.md` és a kapcsolódó dokumentumok
+      hivatkozásait; minden hivatkozás repo útvonalra mutasson (`app/integration_test/app_test.dart`, `app/lib/l10n/app_localizations.dart`), a parancsoknál pedig maradjon `cd app`.
+    outputs:
+      - canvases/tipsterino_stability_run.md
+      - codex/codex_checklist/tipsterino_stability_run.md
+  - name: Lokalizációs kulcslista + teszt erősítés
+    description: >
+      Az `app/lib/l10n/app_{en,hu}.arb` valid kulcsait tüntesd fel a `canvases/tipsterino_foundation_bootstrap.md` lokalizációs listájában,
+      és a `app/test/widget/app_smoke_test.dart` a `AppLocalizations`-t használja a stringekhez (locale-nként pumpolva).
+    outputs:
+      - canvases/tipsterino_foundation_bootstrap.md
+      - app/test/widget/app_smoke_test.dart
