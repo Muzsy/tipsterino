@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'src/app.dart';
-import 'src/providers/supabase_provider.dart';
+import 'src/app/app.dart';
+import 'src/core/clients/supabase_provider.dart';
 
 const _supabaseUrlDefine = String.fromEnvironment('SUPABASE_URL');
 const _supabaseAnonKeyDefine = String.fromEnvironment('SUPABASE_ANON_KEY');

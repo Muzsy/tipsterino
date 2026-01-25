@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../providers/auth_provider.dart';
-import '../screens/app_shell.dart';
-import '../screens/auth/login_screen.dart';
-import '../screens/auth/register_screen.dart';
-import '../screens/home_screen.dart';
-import '../screens/leaderboard_screen.dart';
-import '../screens/settings_screen.dart';
-import '../screens/tickets_screen.dart';
+import 'app_shell.dart';
+import 'package:tipsterino/src/features/auth/presentation/state/auth_provider.dart';
+import 'package:tipsterino/src/features/auth/presentation/screens/login_screen.dart';
+import 'package:tipsterino/src/features/auth/presentation/screens/register_screen.dart';
+import '../../screens/home_screen.dart';
+import '../../screens/leaderboard_screen.dart';
+import '../../screens/settings_screen.dart';
+import '../../screens/tickets_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = ref.watch(authRefreshNotifierProvider);

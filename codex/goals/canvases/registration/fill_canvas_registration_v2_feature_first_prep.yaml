@@ -1,0 +1,40 @@
+steps:
+  - name: "Canvas dokumentálása"
+    description: >
+      Foglald össze a feature-first átstrukturálás célját, scope-át és kockázatait a canvasban, beleértve a mozgandó auth/router/core fájlokat, az érintett importokat és a teszt tervet.
+    outputs:
+      - "canvases/registration/registration_v2_feature_first_prep.md"
+
+  - name: "Goal YAML létrehozása"
+    description: >
+      Készítsd el ezt a goal YAML-t, ami lépésenként leírja a fájlok mozgatását, az importok frissítését és a tesztek lefuttatását a feature-first struktúrára történő áttéréshez.
+    outputs:
+      - "codex/goals/canvases/registration/fill_canvas_registration_v2_feature_first_prep.yaml"
+
+  - name: "App entry és router átszervezése"
+    description: >
+      Mozgasd az `app.dart`, `app_router.dart`, `app_shell.dart` és `app_theme.dart` fájlokat az új `app/` és `shared/theme/` helyükre, frissítsd a `main.dart`-ot és a smoke testet az új importokra, majd ellenőrizd, hogy a `GoRouter` továbbra is a megfelelő screeneket töltse be.
+    outputs:
+      - "app/lib/src/app/app.dart"
+      - "app/lib/src/app/router/app_router.dart"
+      - "app/lib/src/app/router/app_shell.dart"
+      - "app/lib/src/shared/theme/app_theme.dart"
+      - "app/lib/main.dart"
+      - "app/test/widget/app_smoke_test.dart"
+
+  - name: "Auth provider és képernyők migrációja"
+    description: >
+      Mozgasd és importáld át az `auth_provider.dart`, `supabase_provider.dart`, valamint a login/register képernyőket az új `core/clients` és `features/auth/presentation` mappákba, frissítsd a settings screen importját, és győződj meg róla, hogy az auth state a package-utasításokkal hivatkozik az új helyekre.
+    outputs:
+      - "app/lib/src/core/clients/supabase_provider.dart"
+      - "app/lib/src/features/auth/presentation/state/auth_provider.dart"
+      - "app/lib/src/features/auth/presentation/screens/login_screen.dart"
+      - "app/lib/src/features/auth/presentation/screens/register_screen.dart"
+      - "app/lib/src/screens/settings_screen.dart"
+
+  - name: "Teszt és Codex artefaktok"
+    description: >
+      Futtasd a `cd app && dart format .` parancsot, majd `./scripts/check.sh`-t; jegyezd le az eredményeket, és frissítsd a Codex checklistet és reportot a végrehajtott lépésekkel és a teszteredménnyel.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_feature_first_prep.md"
+      - "codex/reports/registration/registration_v2_feature_first_prep.md"

@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, AuthState, Session;
 
-import 'supabase_provider.dart';
+import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated, offline }
 

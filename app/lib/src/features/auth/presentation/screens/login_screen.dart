@@ -3,8 +3,8 @@ import 'package:tipsterino/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../providers/auth_provider.dart';
-import '../../providers/supabase_provider.dart';
+import 'package:tipsterino/src/features/auth/presentation/state/auth_provider.dart';
+import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

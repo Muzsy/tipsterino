@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:tipsterino/l10n/app_localizations.dart';
-import 'package:tipsterino/src/app.dart';
-import 'package:tipsterino/src/providers/supabase_provider.dart';
+import 'package:tipsterino/src/app/app.dart';
+import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 
 void main() {
   testWidgets('App boots to login screen without Supabase', (tester) async {
