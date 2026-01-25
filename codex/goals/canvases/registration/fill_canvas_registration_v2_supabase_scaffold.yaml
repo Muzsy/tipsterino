@@ -1,0 +1,39 @@
+steps:
+  - name: "Canvas dokumentálása"
+    description: >
+      Foglald össze a Supabase CLI scaffold célját és kimeneteit (supabase/ struktúra, gitignore és wrapper) a canvasban, beleértve a teszt tervet.
+    outputs:
+      - "canvases/registration/registration_v2_supabase_scaffold.md"
+
+  - name: "Goal YAML létrehozása"
+    description: >
+      Készítsd el ezt a goal YAML-t, amely pontosan felsorolja a Supabase scaffold fájlokat, a gitignore frissítéseket, a wrapper scriptet és a tesztek futtatását.
+    outputs:
+      - "codex/goals/canvases/registration/fill_canvas_registration_v2_supabase_scaffold.yaml"
+
+  - name: "Supabase scaffold fájlok"
+    description: >
+      Hozd létre a `supabase/README.md`-et, valamint a `supabase/migrations/.gitkeep` és `supabase/functions/.gitkeep` fájlokat úgy, hogy a cél a későbbi migrációk és funkciók fogadása.
+    outputs:
+      - "supabase/README.md"
+      - "supabase/migrations/.gitkeep"
+      - "supabase/functions/.gitkeep"
+
+  - name: ".gitignore frissítése"
+    description: >
+      Add hozzá a Supabase CLI lokális állapotát (`supabase/.temp/`, `.branches/`, `.cache/`, `.local/`) ignoráló bejegyzéseket, hogy ezek ne kerülhessenek commitba, miközben a `supabase/migrations/` marad a verziókövetés részén.
+    outputs:
+      - ".gitignore"
+
+  - name: "Supabase wrapper script"
+    description: >
+      Hozd létre a `scripts/supabase.sh`-t, ami ellenőrzi, hogy a `supabase` parancs elérhető, majd `exec supabase "$@"` formában futtatja a CLI-t a repo gyökeréből.
+    outputs:
+      - "scripts/supabase.sh"
+
+  - name: "Teszt és Codex artefaktok"
+    description: >
+      Futtasd a `bash -n scripts/supabase.sh` szintaxis-ellenőrzést, majd `./scripts/check.sh`-t; rögzítsd az eredményeket a reportban és pipáld ki a checklistet.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_supabase_scaffold.md"
+      - "codex/reports/registration/registration_v2_supabase_scaffold.md"

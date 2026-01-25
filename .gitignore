@@ -35,5 +35,11 @@
 legacy/
 app/.env
 
+# Supabase CLI helyi állapot (migrációk commitolhatóak, de a CLI cache és állapot nem)
+supabase/.temp/
+supabase/.branches/
+supabase/.cache/
+supabase/.local/
+
 # OS zaj
 .DS_Store
