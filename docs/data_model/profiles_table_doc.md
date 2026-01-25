@@ -8,7 +8,7 @@ Ez a dokumentum a `profiles` tábla felépítését és a hozzá tartozó hozzá
 A `profiles` tábla a felhasználó alkalmazáson belüli identitását tárolja, és 1:1-ben kapcsolódik a Supabase Auth felhasználóhoz (`auth.users`).
 
 **Publikusság (kötelező elv):**
-- A `nickname` és az `avatar_path` **publikus profiladat**.
+- A `nickname` és az `avatar_key` **publikus profiladat**.
 - Ezek az adatok **bárki számára elérhetők** (bejelentkezés nélkül is), mert az alkalmazás anon felhasználóinak is megjelenhetnek közösségi felületeken.
 
 Következmény:
@@ -54,22 +54,18 @@ Következmény:
 **Módosíthatóság:**
 - a `nickname` **nem módosítható**. A felhasználó regisztrációkor választja ki, és a későbbiekben állandó azonosítóként szolgál.
 
-#### 3) `avatar_path` (text)
+#### 3) `avatar_key` (text)
 **Szerep:**
-- a felhasználó avatarjának Storage útvonala
+- a felhasználó avatar presetjének kulcsazonosítója (pl. `neutral`, `golden_mask`, `arcade`)
 
 **Logika:**
 - **kötelező** (nem lehet `NULL`).
-- ha a felhasználó nem tölt fel / nem választ avatart, akkor **default avatart** kap regisztrációkor.
-- egységes útvonal-séma:
-  - bucket: `avatars`
-  - object path: `avatars/{userId}/avatar` (kiterjesztéssel vagy stabil névvel; a lényeg, hogy a userId alapján egyértelmű legyen)
+- a kliens az előre definiált preset listából választ, a kiválasztott `avatar_key` kerül a Supabase metadata mezőibe (`raw_user_meta_data`) és a trigger is ebből dolgozik.
+- ha a user nem választ egyedi avatart, a default `neutral` marad, így az alkalmazásbeli preview sem marad üres.
 
 **Default avatar kezelése regisztrációkor:**
-- a profil rekord létrehozásakor az `avatar_path` mindig értéket kap.
-- a default avatar egy **globális** Storage objektum, amit minden user használ, ha nem választ saját avatart:
-  - pl. `avatars/default/avatar.png`
-- ezt az objektumot a Storage-ban előre biztosítani kell.
+- a profil rekord létrehozásakor az `avatar_key` mindig értéket kap; a DB trigger a `raw_user_meta_data->>'avatar_key'` mezőt használva írja be a preset kulcsot.
+- a presetek asset formában a kliensben vannak, így a Supabase oldalra nem kerül Storage útvonal.
 
 #### 4) `created_at` (timestamptz, default `now()`)
 **Szerep:**
@@ -93,9 +89,9 @@ A közösségi használatra és keresésre a kliens nem közvetlenül a `profile
 
 - **View neve:** `public.public_profiles`
 - **A view kizárólag az alábbi mezőket adja vissza:**
-  - `id`
-  - `nickname`
-  - `avatar_path`
+-  - `id`
+-  - `nickname`
+-  - `avatar_key`
 
 **Publikusság:**
 - A `public_profiles` view olvasása **anon** és **authenticated** felhasználók számára is engedélyezett.
@@ -109,21 +105,22 @@ A közösségi használatra és keresésre a kliens nem közvetlenül a `profile
   - a kliens csak a saját rekordját olvassa közvetlenül (profil beállítások, saját profil részletek).
 
 **Mezőszintű elvárás:**
-- Más felhasználó felé kizárólag `id`, `nickname`, `avatar_path` jeleníthető meg.
+- Más felhasználó felé kizárólag `id`, `nickname`, `avatar_key` jeleníthető meg.
 
 ### INSERT (profil létrehozás)
 - csak `authenticated`.
+- a kliens számára tiltott; a `create_profile_on_signup()` trigger hozza létre a rekordot a Supabase `auth.users` metadatáiból.
 - csak akkor engedett, ha a beszúrt rekord `id` mezője megegyezik a bejelentkezett user `auth.uid()` értékével.
 - kötelezően megadandó mezők:
-  - `nickname`
-  - `avatar_path` (regisztrációkor: választott vagy default)
+-  - `nickname`
+-  - `avatar_key` (regisztrációkor: a kiválasztott preset kulcs)
 - `created_at` DB default, a kliens nem állítja.
 
 ### UPDATE (profil módosítás)
 - csak `authenticated`.
 - csak a saját rekord módosítható (`id = auth.uid()`).
 - módosítható mezők:
-  - `avatar_path`
+-  - `avatar_key`
 - nem módosítható mezők:
   - `id`
   - `nickname`
@@ -149,32 +146,27 @@ Kötelező szabályok:
 - A kliensnek a foglaltság-ellenőrzést és a végső DB hibát **ugyanarra** az UI üzenetre kell leképeznie ("foglalt").
 
 ## 🧩 Regisztrációs flow (profil létrehozás)
-A regisztráció sikeres Auth signup-ja után a kliens feladata, hogy létrehozza a profilt, és garantálja az `avatar_path` kitöltését.
+A Supabase `auth.users` INSERT után a `create_profile_on_signup` trigger automatikusan létrehozza a `profiles` rekordot a `raw_user_meta_data->>'nickname'` és `->>'avatar_key'` mezők alapján, tehát a kliens **nem** futtat INSERT-et közvetlenül.
 
 Kötelező sorrend:
-1) Auth signup/login sikeres → rendelkezésre áll a `userId`.
-2) Kliens kiválasztja a `nickname`-et (formátum ellenőrzés kliensben is).
-3) Kliens meghatározza az `avatar_path` értékét:
-   - ha a felhasználó nem választ / nem tölt fel avatart: **`avatars/default/avatar.png`** kerül a profilba.
-   - ha a felhasználó feltölt avatart: a feltöltés célútvonala `avatars/{userId}/avatar...`, és ez kerül a profilba.
-4) Kliens beszúrja a `profiles` rekordot (`id=userId`, `nickname`, `avatar_path`).
+1) Auth signup sikeres → elérhető a `userId`.
+2) A kliens kiválasztja a `nickname`-et (format validation a kliens oldalon is).
+3) A kliens beállítja az `avatar_key` értéket a preset listából (default `neutral`).
+4) A `signUp` metadata mezői (`nickname`, `avatar_key`) átkerülnek a `auth.users` rekordba, a trigger pedig ezeket használva beszúrja a `profiles` rekordot.
 
 Hibakezelés (kötelező):
-- Ha a `profiles` INSERT sikertelen (pl. foglalt nickname):
-  - a kliens nem tekinti késznek a regisztrációt az alkalmazáson belül,
-  - a felhasználót visszaviszi nickname választásra és újrapróbálkozik.
-- Ha avatar feltöltés sikertelen:
-  - a kliens **default avatarral** folytatja (`avatars/default/avatar.png`),
-  - és a felhasználó később a profil/beállításokban cserélhet.
+- Ha a trigger hiányzó metadata miatt exception-t dob, a kliens visszaugrik a profil lépésre és felajánlja a `nickname`/`avatar_key` beállítást.
+- Nickname ütközés (UNIQUE) esetén a trigger hiba és a kliens ugyanoda navigál, hogy új nick-et válasszon.
+- Ha a preset kiválasztás hiányzik, a trigger alapértelmezett `neutral` értéket használ, így mindig van valid `avatar_key`.
 
 ## 🖼️ Default avatar szabály
-- A default avatar **globális** Storage objektum: `avatars/default/avatar.png`.
-- Ha a felhasználó nem állít be saját avatart, a `profiles.avatar_path` **mindig** erre mutat.
-- A default objektum a Storage-ban előre létezik, és public read elérhető.
+- A default avatar preset kulcsa: `neutral`. A preset asset a kliensben található, a Supabase oldalra csak az `avatar_key` kerül.
+- Ha a felhasználó nem választ saját avatart, a `profiles.avatar_key` **mindig** `neutral`.
+- A presetek (including `neutral`) public preview képek lehetnek a kliensben, de az adatbázis nem tárol Storage útvonalat.
 
 ## 🔐 Publikus adatok szabálya
 Mivel a `public_profiles` view anon módon is olvasható:
-- a view **kizárólag** publikus mezőket tartalmazhat (`id`, `nickname`, `avatar_path`).
+- a view **kizárólag** publikus mezőket tartalmazhat (`id`, `nickname`, `avatar_key`).
 - tilos bármilyen későbbi, érzékeny mezőt ebbe a view-ba beemelni.
 
 ## 🧪 Tesztállapot
@@ -182,7 +174,7 @@ Kötelező ellenőrzések:
 - két külön user nem hozhat létre azonos `nickname`-ot.
 - user nem tud más user profilját módosítani.
 - user nem tudja módosítani az `id` és `created_at` mezőket.
-- a `public_profiles` view csak `id`, `nickname`, `avatar_path` mezőket ad vissza.
+- a `public_profiles` view csak `id`, `nickname`, `avatar_key` mezőket ad vissza.
 - keresésnél a minimum 3 karakteres szabály érvényesül a kliensben (UI/UX szinten).
 
 ## 🌍 Lokalizáció
@@ -202,4 +194,3 @@ Kötelező UI üzenetek (HU/EN):
   - regisztráció: nickname választás + avatar választás/feltöltés vagy default
   - profil/beállítások: avatar csere
   - közösség: keresés `public_profiles` view-n keresztül
-

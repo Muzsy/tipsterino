@@ -51,10 +51,10 @@ A jelszó mező alatt egy **kritérium lista**, ami a gépelés közben **eltűn
 
 Javasolt kritériumok (minimálisan fájdalommentes, de értelmes):
 
-* [ ] **Minimum 8 karakter**
-* [ ] **Legalább 1 betű**
-* [ ] **Legalább 1 szám**
-* [ ] **Nincs szóköz**
+  * [ ] **Minimum 8 karakter**
+  * [ ] **Legalább 1 kisbetű**
+  * [ ] **Legalább 1 nagybetű**
+  * [ ] **Legalább 1 speciális karakter**
 
 Megjelenítés:
 
@@ -126,7 +126,7 @@ Javasolt szabályok:
 
 #### Tárolt érték
 
-* `avatar_key` (vagy `avatar_id`) kerül eltárolásra és később a `signUp` metadata része.
+  * `avatar_key` (preset azonosító, pl. `neutral`, `golden_mask`) kerül eltárolásra és később a `signUp` metadata része; a kliens a preset listából választja ki, nem Storage útvonalat küld.
 
 ### CTA
 

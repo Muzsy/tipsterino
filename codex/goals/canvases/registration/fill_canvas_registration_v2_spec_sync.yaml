@@ -1,0 +1,32 @@
+steps:
+  - name: "Canvas dokumentálása"
+    description: >
+      Rögzítsd a talált dokumentációs eltéréseket és a feladat scope-át a canvasban (jelszó-szabályok, avatar_key preset, triggeres profil létrehozás, signUp csak a 3. lépésben). Ellenőrizd, hogy a releváns források (auth implementation plan, core_logic docs, data model docs) szerepelnek a canvasban.
+    outputs:
+      - "canvases/registration/registration_v2_spec_sync.md"
+
+  - name: "Regisztrációs flow szinkronizálása"
+    description: >
+      Frissítsd a `docs/core_logic/registration_flow.md` fájlt az új jelszó-kritériumokkal (min 8, 1 kisbetű, 1 nagybetű, 1 speciális), a confirm password elhagyásával, valamint azzal, hogy a Supabase `signUp` hívás kizárólag a 3. lépés Submit-jánál történik.
+    outputs:
+      - "docs/core_logic/registration_flow.md"
+
+  - name: "Data model dokumentumok frissítése"
+    description: >
+      Igazítsd a `docs/data_model/profiles_table_doc.md` és `docs/data_model/user_stats_table_doc.md` fájlokat a triggeres profil-létrehozás és avatar preset `avatar_key` elvéhez: tiltsd a kliens oldali INSERT-et, írd át az említett mezőket `avatar_key` logikájára, és említsd, hogy a profil/sta­t rekord automatikusan triggerrel jön létre.
+    outputs:
+      - "docs/data_model/profiles_table_doc.md"
+      - "docs/data_model/user_stats_table_doc.md"
+
+  - name: "Teszt és report"
+    description: >
+      Győződj meg róla, hogy a Flutter wrapper nem tolja be az `--dart-define` flagot olyan parancsok elé, amelyek nem fogadják, majd futtasd a standard ellenőrzést (`./scripts/check.sh`). Jegyezd fel a parancsokat és eredményt, és frissítsd a reportot a futás leírásával, a script korrekciójával és a módosított fájlok listájával.
+    outputs:
+      - "codex/reports/registration/registration_v2_spec_sync.md"
+      - "scripts/flutter.sh"
+
+  - name: "Checklist kitöltése"
+    description: >
+      Dokumentáld a DoD pontok és a tesztelési státusz teljesülését a checklistben, beleértve a releváns teszteket, az új logika ellenőrzését és a dokumentációk frissítését.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_spec_sync.md"

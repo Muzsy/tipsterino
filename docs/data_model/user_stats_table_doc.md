@@ -63,7 +63,7 @@ A tábla nem közösségi profiladat: **nem publikus**. Az anon felhasználók n
 A `user_stats` rekord létrehozása **nem kliens oldali művelet**.
 
 Kötelező szabály:
-- A `user_stats` rekord **automatikusan** jön létre a regisztráció lezárásakor, amikor a `profiles` rekord sikeresen beszúrásra kerül (nickname + avatar_path megvan).
+- A `user_stats` rekord **automatikusan** jön létre a regisztráció lezárásakor, amikor a triggerrel létrejött `profiles` rekord sikeresen beszúrásra kerül (nickname + avatar_key mezők megvannak).
 - A létrehozást szerveroldali folyamat végzi (DB trigger / security definer logika), így a kliens nem tudja manipulálni az induló állapotot.
 
 Létrehozáskori állapot:
@@ -135,7 +135,7 @@ Kötelező UI üzenetek (HU/EN) a szerveroldali műveletekhez:
 ## 📎 Kapcsolódások
 - Supabase Auth: `auth.users`
 - `profiles`: `profiles.id = user_stats.user_id`
-  - a regisztráció lezárása a `profiles` rekord sikeres beszúrása (nickname + avatar_path kötelező)
+  - a regisztráció lezárása a triggerrel létrejött `profiles` rekord sikeres beszúrása (nickname + avatar_key kötelező)
 - Jutalmak / bónuszok:
   - `reward_definitions` (összegek, csak repo+migrációval változhat)
   - `reward_grants` (egyszeri/ismétlődő jóváírások naplója)
@@ -146,4 +146,3 @@ Kötelező UI üzenetek (HU/EN) a szerveroldali műveletekhez:
 - UI:
   - Home: TippCoin egyenleg megjelenítés (csak bejelentkezett user)
   - Események oldal: TippCoin jóváírások/levonások listázása a `user_events` alapján
-

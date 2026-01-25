@@ -15,11 +15,25 @@ fi
 cd "$ROOT/app"
 
 EXTRA_ARGS=()
-if [[ -n "${SUPABASE_URL:-}" ]]; then
-  EXTRA_ARGS+=("--dart-define=SUPABASE_URL=${SUPABASE_URL}")
-fi
-if [[ -n "${SUPABASE_ANON_KEY:-}" ]]; then
-  EXTRA_ARGS+=("--dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}")
-fi
+CMD="${1:-}"
 
-exec flutter "${EXTRA_ARGS[@]}" "$@"
+# Only pass --dart-define to flutter subcommands that actually accept it.
+case "$CMD" in
+  run|build|test|drive)
+    if [[ -n "${SUPABASE_URL:-}" ]]; then
+      EXTRA_ARGS+=("--dart-define=SUPABASE_URL=${SUPABASE_URL}")
+    fi
+    if [[ -n "${SUPABASE_ANON_KEY:-}" ]]; then
+      EXTRA_ARGS+=("--dart-define=SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}")
+    fi
+    ;;
+  *)
+    # No dart-defines for commands like: pub, analyze, format, doctor, clean, create, etc.
+    ;;
+esac
+
+if [[ -z "${CMD}" ]]; then
+  exec flutter "${EXTRA_ARGS[@]}"
+else
+  exec flutter "$CMD" "${@:2}" "${EXTRA_ARGS[@]}"
+fi
