@@ -1,0 +1,374 @@
+# Tipsterino – Regisztrációs folyamat (v2) – Codex feladatbontás (lépésről lépésre)
+
+## 🎯 Funkció
+
+A `documents/authentication/auth_implementation_plan.md` alapján a Tipsterino autentikáció/regisztráció alapjának megépítése úgy, hogy:
+
+* **Regisztráció wizard (v2)**: 3 lépés *(Email+Jelszó → Nickname+Avatar → Jóváhagyás)*.
+* **AUTH_NO_PROFILE kizárva**: a `signUp` csak a legvégén fut, és **DB trigger** garantálja a kötelező profilt.
+* **VerifyEmailPending + deep link**: email verifikáció után beléptetés (Android).
+* **Guest mód**: guest eléri a 3 oldalt *(Home/Bets/Forum)* + GuestInfo.
+* **Supabase bootstrap**: üres DB → migrációk, RLS, trigger(ek), RPC.
+
+> Forrásdoksik: `docs/core_logic/authentication_flow.md`, `docs/core_logic/registration_flow.md`, és a kapcsolódó data model doksik a `docs/data_model/*` alatt.
+
+---
+
+## 🧠 Fejlesztési részletek
+
+### 0) Spec-szinkron (doksi ellentmondások feloldása) – *első lépés*
+
+**Miért:** jelenleg több helyen eltér a valós célállapot (pl. jelszó szabályok, avatar_path vs avatar_key, profil létrehozás módja).
+
+**Codex teendők**
+
+1. Frissítsd `docs/core_logic/registration_flow.md`-t az auth_implementation_plan szerint:
+
+   * jelszó szabályok: **min 8 + 1 kisbetű + 1 nagybetű + 1 speciális**
+   * **nincs** „confirm password” mező
+   * `signUp` a 3. lépésben történik (consents után)
+2. Frissítsd a profilhoz kapcsolódó dokumentációt, hogy ne ütközzön a tervvel:
+
+   * `docs/data_model/profiles_table_doc.md` (most `avatar_path`-ról beszél) → álljon át **`avatar_key` preset** logikára (Storage nélkül), és a **triggeres létrehozásra** (INSERT kliensnek tiltott).
+   * ha a repo-ban van más profil/registration leírás, ami `avatar_path`-ot vagy kliens oldali INSERT-et említ, azt is igazítsd.
+3. (Ha a regisztráció lezárásához hozzátartozik a TippCoin onboarding / signup bónusz a projektben) jelöld külön, hogy ez **külön sprint** vagy **Phase C kiterjesztés** – ne keverd az alap auth MVP-vel, csak ha most tényleg része a DoD-nek.
+
+**Elvárt kimenet**
+
+* Csak doksi módosítások (no app code).
+
+---
+
+### 1) Feature-first refaktor előkészítés (auth + router + core)
+
+**Kiinduló állapot a kódban**
+
+* Régi helyek:
+
+  * `app/lib/src/screens/auth/login_screen.dart`
+  * `app/lib/src/screens/auth/register_screen.dart`
+  * `app/lib/src/providers/auth_provider.dart`
+  * `app/lib/src/router/app_router.dart`
+* Kötelező célstruktúra: `docs/architect/project_structure.md` szerint.
+
+**Codex teendők**
+
+1. Hozd létre a célmappákat:
+
+   * `app/lib/src/features/auth/presentation/screens/`
+   * `app/lib/src/features/auth/presentation/state/`
+   * `app/lib/src/features/auth/presentation/widgets/`
+   * `app/lib/src/app/router/`
+   * `app/lib/src/core/` (Supabase/auth cross-cutting)
+2. Költöztesd át / alakítsd át úgy a kódot, hogy a régi „gyűjtő” mappákba **ne** kerüljön új fájl:
+
+   * login screen → `features/auth/presentation/screens/login_screen.dart`
+   * register screen → később teljesen lecserélődik wizardra (ideiglenesen mehet adapter vagy azonnali csere)
+   * auth provider → `core` vagy `features/auth/presentation/state/` (attól függően, mennyire cross-cutting)
+   * router → `app/router/app_router.dart`
+3. Importok rendbetétele, build zöld:
+
+   * `cd app && dart format .`
+   * `cd app && flutter analyze`
+
+**Elvárt kimenet**
+
+* A projekt ugyanúgy forduljon, mint előtte (még a régi login/register UI-val is ok).
+
+---
+
+### 2) Supabase CLI + migrációs rendszer bekötése a repóba
+
+**Kiinduló állapot**: a repo gyökerében **nincs** `supabase/` mappa.
+
+**Codex teendők**
+
+1. Hozd létre a Supabase CLI struktúrát a repo gyökerében: `supabase/`.
+2. Linkeld a repót a meglévő Supabase projekthez (a környezetben elvileg megvan a project ref/token).
+3. Állítsd be, hogy a migrációk repo-ból futtathatók legyenek (init, migrations folder, stb.).
+4. Futass egy „üres” ellenőrzést, hogy a CLI tényleg látja a projektet.
+
+**Elvárt kimenet**
+
+* Repo-ban megjelenik a `supabase/` struktúra.
+* Van reprodukálható parancs-sor, amivel a migrációk futnak.
+
+---
+
+### 3) DB séma + RLS + trigger (AUTH_NO_PROFILE kizárás)
+
+**Cél:** a `signUp` metadata-ból (nickname + avatar_key) a DB trigger automatikusan hozza létre a profilt.
+
+**Codex teendők – migrációk**
+
+1. `public.profiles` tábla (auth plan szerint):
+
+   * `id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE`
+   * `nickname text NOT NULL` + **case-insensitive uniqueness** (válassz: normalizált tárolás vagy lower() unique index)
+   * CHECK: 3–20, engedélyezett karakterek (auth plan: írd le és enforce-old; javaslat: `^[a-z0-9_.]{3,20}$` + kliens normalizál)
+   * `avatar_key text NOT NULL`
+   * `created_at timestamptz NOT NULL DEFAULT now()`
+2. `public.public_profiles` view:
+
+   * mezők: `id`, `nickname`, `avatar_key`
+   * anon + authenticated SELECT engedélyezett
+3. RLS policy-k:
+
+   * `profiles`:
+
+     * SELECT: csak saját rekord (authenticated)
+     * UPDATE: csak saját rekord (authenticated)
+     * INSERT: **tiltva kliensnek** (trigger hozza létre)
+   * `public_profiles` view: anon SELECT engedélyezett
+4. RPC: `check_nickname_available(nickname)` → bool (wizard 2. lépéshez, debounce check).
+5. Trigger:
+
+   * function: `create_profile_on_signup()`
+   * forrás: `raw_user_meta_data->>'nickname'`, `raw_user_meta_data->>'avatar_key'`
+   * hiányzó meta → `RAISE EXCEPTION`
+   * nickname ütközés → DB error (kliens majd lekezeli)
+   * `AFTER INSERT ON auth.users` trigger hívja
+6. SQL ellenőrző lekérdezések + negatív tesztek:
+
+   * tábla/view/trigger létezés
+   * RLS ténylegesen fog (anon nem ír, user nem lát más profilt)
+
+**Elvárt kimenet**
+
+* Üres DB-ből lefuttatható migrációk után a profiles + view + trigger + RPC kész.
+
+> Megjegyzés (kapcsolódó doksik): ha a `docs/data_model/*` (pl. `user_stats`, `reward_definitions`, stb.) része a regisztráció DoD-nek, akkor ezt a fázist bővíteni kell külön migrációkkal. Ha nem része, ezt a kiterjesztést külön taskként kezeld.
+
+---
+
+### 4) Auth layer módosítás (signUp metadata + hibatérkép)
+
+**Cél:** a `client.auth.signUp` mindig küldje a DB triggerhez szükséges meta mezőket.
+
+**Codex teendők**
+
+1. Auth service/repository réteg kialakítása (feature-first szerint):
+
+   * publikus metódusok: `signIn`, `signUp`, `signOut`, `resendConfirmation`, (később: `recoverSessionFromDeepLink`)
+2. `signUp(email, password, nickname, avatarKey)`:
+
+   * `data: {'nickname': nickname, 'avatar_key': avatarKey}`
+   * szükség esetén `emailRedirectTo` beállítás (ha a Supabase oldalon így van konfigurálva)
+3. Hiba mapping minimum:
+
+   * email foglalt → UI üzenet + login CTA
+   * nickname ütközés (trigger/unique) → wizard 2. lépés + field error
+   * network/timeout/rate limit → lokalizált hiba
+4. Auth state bővítése a flow-hoz:
+
+   * kezelni kell azt, hogy signup után lehet „verify pending” állapot (session null / user csak részben kész)
+
+**Elvárt kimenet**
+
+* Kód oldalon van egy egyértelmű auth API, amit a wizard hív.
+
+---
+
+### 5) Regisztráció wizard UI (3 lépés)
+
+**Cél:** a régi `register_screen.dart` helyett wizard, a `signUp` csak a 3. lépésben fut.
+
+**Codex teendők**
+
+1. Wizard state/controller (Riverpod StateNotifier):
+
+   * `stepIndex (0..2)`, `email`, `password`, `nickname`, `avatarKey` (default `neutral`)
+   * `termsAccepted`, `privacyAccepted`
+   * `isLoading`, `error`
+2. Step 1 – Email + Jelszó (plaintext) + dinamikus szabálylista:
+
+   * email validáció marad
+   * jelszó mező alapból **látható**
+   * szabálylista elemei eltűnnek, ahogy teljesülnek
+   * `Tovább` disabled, amíg minden szabály nem ok
+3. Step 2 – Nickname + Avatar:
+
+   * nickname szabályok kiírása (3–20, engedélyezett karakterek, case-insensitive unique)
+   * availability check: `check_nickname_available` RPC debounce-csal (állapotok: checking/available/taken)
+   * avatar preset:
+
+     * preview + választó grid (bottom sheet/dialog)
+     * 8–16 preset asset + stabil `avatarKey`
+     * pubspec assets bekötése
+   * `Tovább` disabled, amíg nickname valid + szabad
+4. Step 3 – Jóváhagyás + Submit:
+
+   * ÁSZF + Adatkezelés checkbox kötelező
+   * összefoglaló (avatar, nickname, email)
+   * Submit → `signUp(...)`
+   * siker → `VerifyEmailPendingScreen`
+
+**Elvárt kimenet**
+
+* A wizard UI végigvihető és helyesen tilt/enged.
+* `signUp` kizárólag a 3. lépés Submit-jén fut.
+
+---
+
+### 6) VerifyEmailPending + deep link beléptetés (Android)
+
+**Cél:** signup után teendő UI, majd email link → session recover → belép.
+
+**Codex teendők**
+
+1. `VerifyEmailPendingScreen`:
+
+   * maszkos email
+   * resend throttle
+   * help szöveg + hibakezelés
+2. Deep link kezelés:
+
+   * URI parse (callback URL)
+   * session recover a Supabase auth API-val (a supabase_flutter által támogatott módszerrel)
+   * success → router redirect `/home`
+   * error → UI hiba + resend
+3. Android beállítás:
+
+   * `AndroidManifest.xml` intent-filter(ek)
+   * ha kell, dependency felvétele deep linkhez (csak ha supabase_flutter önmagában nem elég)
+
+**Elvárt kimenet**
+
+* A verify pending képernyő működik.
+* Link megnyitása után a session helyreáll és az app beléptet.
+
+---
+
+### 7) Router + GUEST mód + minimál shell-ek
+
+**Cél:** ne legyen „always-login”; guestnek legyen 3 elérhető oldal.
+
+**Codex teendők**
+
+1. GoRouter szabályok (auth plan szerint):
+
+   * GUEST allowed: `/home`, `/bets`, `/forum`, `/guest-info`, `/auth/*`
+   * minden más → `/auth/login`
+   * AUTH_READY esetén `/guest-info` → `/home`
+2. Shell-ek:
+
+   * Guest shell: Home / Bets / Forum (bottom nav)
+   * Auth shell (ideiglenes): Home / Profile / Settings (stub ok)
+3. Képernyők (legalább stub szinten):
+
+   * `BetsScreen` (guest: browse-only)
+   * `ForumScreen` (guest & auth ugyanaz; tiltott linkek disabled)
+   * `GuestInfoScreen` (csak guest) – a tervben megadott HU szöveggel
+   * `HomeScreen`:
+
+     * guest: CTA tile a regisztrációra
+     * auth: placeholder userstat (később user_stats)
+   * `ProfileScreen` (stub)
+4. Kezdeti route:
+
+   * javasolt: app induljon `/home`-ra (guest), ne `/auth/login`-ra.
+
+**Elvárt kimenet**
+
+* Guestként elérhető a 3 tab + GuestInfo.
+* Auth után ugyanazok a route-ok, plusz auth shell.
+
+---
+
+### 8) Lokalizáció (HU/EN) – kötelezően hardcode nélkül
+
+**Codex teendők**
+
+1. ARB kulcsok bővítése:
+
+   * wizard: step címek, gombok, hibák
+   * jelszó szabályok
+   * nickname szabályok + availability állapotok
+   * avatar UI
+   * verify pending szövegek
+   * guest info szöveg + CTA
+2. `flutter gen-l10n` kompatibilitás: a generált `app_localizations*.dart` frissüljön.
+
+**Elvárt kimenet**
+
+* HU/EN teljesen lefedi a regisztrációs flow-t.
+
+---
+
+### 9) Tesztek és stabilitás (minden zöld)
+
+**Kiinduló tesztek**
+
+* `app/test/widget/app_smoke_test.dart`
+* `app/test/widget/l10n_test.dart`
+* `app/integration_test/app_test.dart`
+
+**Codex teendők**
+
+1. Frissítsd a widget + integration teszteket a guest-first indítás miatt:
+
+   * már ne a „login az első képernyő” legyen az alap elvárás.
+2. Adj minimál widget tesztet a wizard validációkra (pl. password rule gating), ahol lehet provider override-dal.
+3. Futass és javíts addig, míg zöld:
+
+   * `cd app && flutter analyze`
+   * `cd app && flutter test`
+   * `cd app && flutter test integration_test/app_test.dart -d <device>`
+
+**Elvárt kimenet**
+
+* Minden teszt zöld a repo-ban.
+
+---
+
+## 🧪 Tesztállapot
+
+Kezdő státusz: **0%** (a fenti roadmap szerint).
+
+Pipeline végi checklist:
+
+* [ ] Migrációk futottak + SQL ellenőrzések rendben
+* [ ] Guest shell navigáció működik
+* [ ] Wizard végigvihető (signUp csak a 3. lépésben)
+* [ ] DB trigger létrehozza a profilt (meta hiány → fail)
+* [ ] Verify pending + resend throttle működik
+* [ ] Deep link callback feldolgozható (Android)
+* [ ] `flutter analyze`, `flutter test`, integration test: **zöld**
+
+---
+
+## 🌍 Lokalizáció
+
+Minimum kulcs-csoportok (auth plan + a tényleges UI alapján finomítható):
+
+* `auth_signup_step_account`, `auth_signup_step_profile`, `auth_signup_step_consents`
+* `auth_password_rule_min_len`, `auth_password_rule_lower`, `auth_password_rule_upper`, `auth_password_rule_special`
+* `auth_nickname_rules_*`, `auth_nickname_checking`, `auth_nickname_available`, `auth_nickname_taken`
+* `auth_avatar_change`, `auth_avatar_select_title`
+* `auth_verify_pending_*`
+* `guest_info_*`, `guest_cta_*`
+
+---
+
+## 📎 Kapcsolódások
+
+**Kötelező források**
+
+* `documents/authentication/auth_implementation_plan.md`
+* `docs/core_logic/authentication_flow.md`
+* `docs/core_logic/registration_flow.md`
+
+**Érintett jelenlegi kódfájlok (kiinduló állapot)**
+
+* `app/lib/src/providers/auth_provider.dart`
+* `app/lib/src/router/app_router.dart`
+* `app/lib/src/screens/auth/login_screen.dart`
+* `app/lib/src/screens/auth/register_screen.dart`
+* `app/lib/main.dart` (csak kapcsolódó: `--dart-define` guard)
+
+**Kapcsolódó doksik a repo-ban**
+
+* `docs/architect/project_structure.md` (feature-first szabvány)
+* `documents/supabase_configuration.md`
+* `docs/data_model/profiles_table_doc.md` *(várhatóan módosítandó a tervhez)*
+* (opcionális onboardinghoz) `docs/data_model/user_stats_table_doc.md`, `reward_definitions_table_doc.md`, `reward_grants_table_doc.md`, `user_events_table_doc.md`
