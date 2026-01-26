@@ -23,5 +23,15 @@
   "ticketsTab": "Szelvények",
   "leaderboardTab": "Ranglista",
   "settingsTab": "Beállítások",
-  "logoutLabel": "Kijelentkezés"
+  "logoutLabel": "Kijelentkezés",
+  "common_next": "Tovább",
+  "common_back": "Vissza",
+  "common_coming_next": "Hamarosan elérhető",
+  "auth_signup_step_account": "1. lépés – Fiók",
+  "auth_signup_step_profile": "2. lépés – Profil",
+  "auth_signup_step_consent": "3. lépés – Jóváhagyás",
+  "auth_password_rule_min_length": "Legalább 8 karakter",
+  "auth_password_rule_uppercase": "Legalább 1 nagybetű",
+  "auth_password_rule_lowercase": "Legalább 1 kisbetű",
+  "auth_password_rule_number": "Legalább 1 szám"
 }

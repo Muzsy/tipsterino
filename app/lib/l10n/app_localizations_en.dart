@@ -57,15 +57,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offlineNotice => 'Supabase not configured';
 
   @override
-  String get offlineDescription =>
-      'Define SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define to enable authentication.';
+  String get offlineDescription => 'Define SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define to enable authentication.';
 
   @override
   String get authGenericError => 'Authentication failed';
 
   @override
-  String get registerSuccess =>
-      'Account created! Check your inbox for confirmation.';
+  String get registerSuccess => 'Account created! Check your inbox for confirmation.';
 
   @override
   String get homeTab => 'Home';
@@ -81,4 +79,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logoutLabel => 'Log out';
+
+  @override
+  String get common_next => 'Next';
+
+  @override
+  String get common_back => 'Back';
+
+  @override
+  String get common_coming_next => 'Coming next';
+
+  @override
+  String get auth_signup_step_account => 'Step 1 – Account';
+
+  @override
+  String get auth_signup_step_profile => 'Step 2 – Profile';
+
+  @override
+  String get auth_signup_step_consent => 'Step 3 – Consent';
+
+  @override
+  String get auth_password_rule_min_length => 'At least 8 characters';
+
+  @override
+  String get auth_password_rule_uppercase => 'Contains an uppercase letter';
+
+  @override
+  String get auth_password_rule_lowercase => 'Contains a lowercase letter';
+
+  @override
+  String get auth_password_rule_number => 'Contains a number';
 }

@@ -1,0 +1,32 @@
+steps:
+  - name: "Felderítés és canvas"
+    description: >
+      Térképezd fel a jelenlegi auth routingot és dokumentációt (routing_integrity + registration_flow V2), majd írj részletes canvas-t a SignUp wizard első lépéséhez, beleértve a releváns fájlokat és teszttervet.
+    outputs:
+      - "canvases/registration/registration_v2_signup_wizard_step1.md"
+
+  - name: "Lokalizáció frissítése"
+    description: >
+      Bővítsd mindkét ARB fájlt az új kulcsokkal (`common_next`, `common_back`, `auth_signup_step_*`, `auth_password_rule_*`, `common_coming_next`) és futtasd a `./scripts/flutter.sh gen-l10n` parancsot a generált `app_localizations*.dart` fájlok frissítéséhez.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Wizard implementáció"
+    description: >
+      Cseréld le a router `/auth/register` útvonalát a `SignUpWizardScreen`-re, építsd fel a wizard state providert, az Step 1 UI-t (email validáció, jelszó szabályok, offline notice, navigation gombok) és adj hozzá widget tesztet a step-validációhoz.
+    outputs:
+      - "app/lib/src/app/router/app_router.dart"
+      - "app/lib/src/features/auth/presentation/screens/sign_up_wizard_screen.dart"
+      - "app/lib/src/features/auth/presentation/state/signup_wizard_provider.dart"
+      - "app/test/widget/auth_signup_wizard_step1_test.dart"
+
+  - name: "Teszt és dokumentáció"
+    description: >
+      Futtasd a `./scripts/check.sh` parancsot, és rögzítsd az eredményt a checklistben/reportban, majd pipáld a DoD elemeket.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_signup_wizard_step1.md"
+      - "codex/reports/registration/registration_v2_signup_wizard_step1.md"

@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'app_shell.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/auth_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/login_screen.dart';
-import 'package:tipsterino/src/features/auth/presentation/screens/register_screen.dart';
+import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
 import '../../screens/home_screen.dart';
 import '../../screens/leaderboard_screen.dart';
 import '../../screens/settings_screen.dart';
@@ -50,7 +50,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/auth/register',
         name: 'register',
-        builder: (context, state) => const RegisterScreen(),
+        builder: (context, state) => const SignUpWizardScreen(),
       ),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),

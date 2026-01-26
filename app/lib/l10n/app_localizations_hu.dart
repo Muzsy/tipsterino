@@ -57,8 +57,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get offlineNotice => 'A Supabase nincs konfigurálva';
 
   @override
-  String get offlineDescription =>
-      'Állítsd be a SUPABASE_URL és SUPABASE_ANON_KEY define-okat `--dart-define` segítségével az autentikációhoz.';
+  String get offlineDescription => 'Állítsd be a SUPABASE_URL és SUPABASE_ANON_KEY define-okat `--dart-define` segítségével az autentikációhoz.';
 
   @override
   String get authGenericError => 'Hitelesítési hiba';
@@ -80,4 +79,34 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get logoutLabel => 'Kijelentkezés';
+
+  @override
+  String get common_next => 'Tovább';
+
+  @override
+  String get common_back => 'Vissza';
+
+  @override
+  String get common_coming_next => 'Hamarosan elérhető';
+
+  @override
+  String get auth_signup_step_account => '1. lépés – Fiók';
+
+  @override
+  String get auth_signup_step_profile => '2. lépés – Profil';
+
+  @override
+  String get auth_signup_step_consent => '3. lépés – Jóváhagyás';
+
+  @override
+  String get auth_password_rule_min_length => 'Legalább 8 karakter';
+
+  @override
+  String get auth_password_rule_uppercase => 'Legalább 1 nagybetű';
+
+  @override
+  String get auth_password_rule_lowercase => 'Legalább 1 kisbetű';
+
+  @override
+  String get auth_password_rule_number => 'Legalább 1 szám';
 }
