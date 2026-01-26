@@ -1,0 +1,67 @@
+steps:
+  - name: "Canvas létrehozása"
+    description: >
+      Hozd létre a Step 3 (consent + submit + verify pending) canvas dokumentumot a megadott fájlnéven,
+      a kötelező szekciókkal és a konkrét technikai elvárásokkal.
+    outputs:
+      - "canvases/registration/registration_v2_signup_wizard_step3.md"
+
+  - name: "Wizard state bővítése Step 3-hoz"
+    description: >
+      Bővítsd a `signup_wizard_provider.dart` state/notifier-t:
+      - termsAccepted + privacyAccepted + isSubmitting + submitError,
+      - step3Valid számítása,
+      - új `signupSubmitterProvider` (override-olható),
+      - `submitSignUp()` metódus: Supabase auth.signUp(email,password,data:{nickname,avatar_key}),
+        hibakezelés + isSubmitting állapot.
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/signup_wizard_provider.dart"
+
+  - name: "Step 3 UI + submit gomb"
+    description: >
+      A `sign_up_wizard_screen.dart` Step 3 tartalma legyen éles:
+      - consent checkboxok,
+      - összefoglaló (email/nickname/avatar),
+      - a jobb oldali CTA Step3-on submit legyen (ne common_next),
+      - submit közben progress + disable,
+      - siker esetén navigáció: /auth/verify-pending?email=...
+      - offline esetén továbbra is tiltás + notice.
+    outputs:
+      - "app/lib/src/features/auth/presentation/screens/sign_up_wizard_screen.dart"
+
+  - name: "VerifyEmailPending képernyő + router"
+    description: >
+      Hozd létre a `VerifyEmailPendingScreen`-t és kösd be a routerbe:
+      - új route: /auth/verify-pending (email query param),
+      - UI: cím/leírás/email + gomb: vissza /auth/login.
+    outputs:
+      - "app/lib/src/features/auth/presentation/screens/verify_email_pending_screen.dart"
+      - "app/lib/src/app/router/app_router.dart"
+
+  - name: "L10n + gen-l10n"
+    description: >
+      Vedd fel a Step 3-hoz és verify pending screenhez szükséges új ARB kulcsokat HU/EN nyelven,
+      majd futtasd a `./scripts/flutter.sh gen-l10n` parancsot és commitold a generált fájlokat.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Widget teszt + format + check"
+    description: >
+      Készíts új widget tesztet Step 3-hoz:
+      - override-old a nicknameAvailabilityCheckerProvider-t (true),
+      - override-old a signupSubmitterProvider-t (success),
+      - vidd végig Step1 -> Step2 -> Step3,
+      - ellenőrizd: submit disabled, míg nincs mindkét consent bepipálva,
+      - submit után navigáció verify pending screenre.
+      Futtasd:
+      - `cd app && dart format .`
+      - `./scripts/check.sh`
+      Rögzítsd a checklistet és reportot.
+    outputs:
+      - "app/test/widget/auth_signup_wizard_step3_test.dart"
+      - "codex/codex_checklist/registration/registration_v2_signup_wizard_step3.md"
+      - "codex/reports/registration/registration_v2_signup_wizard_step3.md"

@@ -45,5 +45,15 @@
   "auth_nickname_error": "Unable to verify nickname",
   "auth_avatar_label": "Avatar",
   "auth_avatar_change": "Change avatar",
-  "auth_avatar_sheet_title": "Choose an avatar"
+  "auth_avatar_sheet_title": "Choose an avatar",
+  "auth_consent_title": "Consent",
+  "auth_consent_terms_label": "I agree to the Terms of Service",
+  "auth_consent_privacy_label": "I agree to the Data Processing Policy",
+  "auth_signup_submit": "Create account",
+  "auth_signup_submit_loading": "Creating account...",
+  "auth_signup_submit_error": "Unable to create account",
+  "auth_verify_pending_title": "Verify your email",
+  "auth_verify_pending_body":
+      "We sent a verification link to {email}. Please confirm to continue.",
+  "auth_verify_pending_back_to_login": "Back to login"
 }

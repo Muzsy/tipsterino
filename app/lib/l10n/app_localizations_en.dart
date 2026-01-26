@@ -57,13 +57,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offlineNotice => 'Supabase not configured';
 
   @override
-  String get offlineDescription => 'Define SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define to enable authentication.';
+  String get offlineDescription =>
+      'Define SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define to enable authentication.';
 
   @override
   String get authGenericError => 'Authentication failed';
 
   @override
-  String get registerSuccess => 'Account created! Check your inbox for confirmation.';
+  String get registerSuccess =>
+      'Account created! Check your inbox for confirmation.';
 
   @override
   String get homeTab => 'Home';
@@ -117,7 +119,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_nickname_label => 'Nickname';
 
   @override
-  String get auth_nickname_help => '3-20 characters, lowercase letters, numbers, dot, or underscore.';
+  String get auth_nickname_help =>
+      '3-20 characters, lowercase letters, numbers, dot, or underscore.';
 
   @override
   String get auth_nickname_too_short => 'Enter at least 3 characters.';
@@ -142,4 +145,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_avatar_sheet_title => 'Choose an avatar';
+
+  @override
+  String get auth_consent_title => 'Consent';
+
+  @override
+  String get auth_consent_terms_label => 'I agree to the Terms of Service';
+
+  @override
+  String get auth_consent_privacy_label =>
+      'I agree to the Data Processing Policy';
+
+  @override
+  String get auth_signup_submit => 'Create account';
+
+  @override
+  String get auth_signup_submit_loading => 'Creating account...';
+
+  @override
+  String get auth_signup_submit_error => 'Unable to create account';
+
+  @override
+  String get auth_verify_pending_title => 'Verify your email';
+
+  @override
+  String auth_verify_pending_body(Object email) {
+    return 'We sent a verification link to $email. Please confirm to continue.';
+  }
+
+  @override
+  String get auth_verify_pending_back_to_login => 'Back to login';
 }

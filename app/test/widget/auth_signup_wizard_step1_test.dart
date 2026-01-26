@@ -7,8 +7,9 @@ import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
 
 void main() {
-  testWidgets('Step 1 Next button enables after email+password rules',
-      (tester) async {
+  testWidgets('Step 1 Next button enables after email+password rules', (
+    tester,
+  ) async {
     final loc = await AppLocalizations.delegate.load(const Locale('en'));
     await tester.pumpWidget(
       ProviderScope(
@@ -27,7 +28,10 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    final nextButtonFinder = find.widgetWithText(ElevatedButton, loc.common_next);
+    final nextButtonFinder = find.widgetWithText(
+      ElevatedButton,
+      loc.common_next,
+    );
     expect(nextButtonFinder, findsOneWidget);
     var nextButton = tester.widget<ElevatedButton>(nextButtonFinder);
     expect(nextButton.onPressed, isNull);

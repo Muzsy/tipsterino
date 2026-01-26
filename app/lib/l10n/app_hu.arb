@@ -44,5 +44,15 @@
   "auth_nickname_error": "Nem sikerült ellenőrizni a felhasználónevet",
   "auth_avatar_label": "Avatar",
   "auth_avatar_change": "Változtatás",
-  "auth_avatar_sheet_title": "Avatar választás"
+  "auth_avatar_sheet_title": "Avatar választás",
+  "auth_consent_title": "Hozzájárulás",
+  "auth_consent_terms_label": "Elfogadom az ÁSZF-et",
+  "auth_consent_privacy_label": "Elfogadom az Adatkezelési szabályzatot",
+  "auth_signup_submit": "Fiók létrehozása",
+  "auth_signup_submit_loading": "Fiók létrehozása...",
+  "auth_signup_submit_error": "Nem sikerült a fiók létrehozása",
+  "auth_verify_pending_title": "Ellenőrizd az emailed",
+  "auth_verify_pending_body":
+      "Küldtünk egy megerősítő linket erre az email címre: {email}. Kérjük, erősítsd meg a folytatáshoz.",
+  "auth_verify_pending_back_to_login": "Vissza a bejelentkezéshez"
 }

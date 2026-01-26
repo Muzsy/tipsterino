@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'app_shell.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/auth_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/login_screen.dart';
+import 'package:tipsterino/src/features/auth/presentation/screens/verify_email_pending_screen.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
 import '../../screens/home_screen.dart';
 import '../../screens/leaderboard_screen.dart';
@@ -46,6 +47,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/auth/login',
         name: 'login',
         builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: '/auth/verify-pending',
+        name: 'verifyPending',
+        builder: (context, state) => VerifyEmailPendingScreen(
+          email: state.uri.queryParameters['email'] ?? '',
+        ),
       ),
       GoRoute(
         path: '/auth/register',

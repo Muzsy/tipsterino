@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:tipsterino/l10n/app_localizations.dart';
 
@@ -10,8 +11,7 @@ class SignUpWizardScreen extends ConsumerStatefulWidget {
   const SignUpWizardScreen({super.key});
 
   @override
-  ConsumerState<SignUpWizardScreen> createState() =>
-      _SignUpWizardScreenState();
+  ConsumerState<SignUpWizardScreen> createState() => _SignUpWizardScreenState();
 }
 
 class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
@@ -80,33 +80,60 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 16),
-          Expanded(
-            child: _buildStepContent(state, loc, isOffline),
-          ),
+              Expanded(child: _buildStepContent(state, loc, isOffline)),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (state.stepIndex > 0)
                     TextButton(
-                      onPressed: () =>
-                          ref.read(signupWizardProvider.notifier).previousStep(),
+                      onPressed: () => ref
+                          .read(signupWizardProvider.notifier)
+                          .previousStep(),
                       child: Text(loc.common_back),
                     )
                   else
                     const SizedBox(width: 88),
-                  ElevatedButton(
-                    onPressed: _nextEnabled(state, isOffline)
-                        ? () {
-                            if (state.stepIndex < 2) {
-                              ref
-                                  .read(signupWizardProvider.notifier)
-                                  .nextStep();
+                  if (state.stepIndex == 2)
+                    ElevatedButton(
+                      onPressed: _submitEnabled(state, isOffline)
+                          ? () async {
+                              await _onSubmit();
                             }
-                          }
-                        : null,
-                    child: Text(loc.common_next),
-                  ),
+                          : null,
+                      child: state.isSubmitting
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(loc.auth_signup_submit_loading),
+                              ],
+                            )
+                          : Text(loc.auth_signup_submit),
+                    )
+                  else
+                    ElevatedButton(
+                      onPressed: _nextEnabled(state, isOffline)
+                          ? () {
+                              if (state.stepIndex < 2) {
+                                ref
+                                    .read(signupWizardProvider.notifier)
+                                    .nextStep();
+                              }
+                            }
+                          : null,
+                      child: Text(loc.common_next),
+                    ),
                 ],
               ),
             ],
@@ -128,14 +155,19 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
   }
 
   Widget _buildStepContent(
-      SignupWizardState state, AppLocalizations loc, bool isOffline) {
+    SignupWizardState state,
+    AppLocalizations loc,
+    bool isOffline,
+  ) {
     switch (state.stepIndex) {
       case 0:
         return _buildAccountStep(state, loc, isOffline);
       case 1:
         return _buildProfileStep(state, loc, isOffline);
+      case 2:
+        return _buildConsentStep(state, loc, isOffline);
       default:
-        return _buildPlaceholderStep(state, loc);
+        return const SizedBox.shrink();
     }
   }
 
@@ -296,38 +328,124 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
     );
   }
 
-  Widget _buildPlaceholderStep(SignupWizardState state, AppLocalizations loc) {
-    final description = loc.common_coming_next;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          state.stepIndex == 2
-              ? loc.auth_signup_step_consent
-              : loc.common_coming_next,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 12),
-        Text(
-          description,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        const Spacer(),
-        Center(
-          child: Icon(
-            Icons.construction,
-            size: 64,
-            color: Theme.of(context).colorScheme.primary,
+  Widget _buildConsentStep(
+    SignupWizardState state,
+    AppLocalizations loc,
+    bool isOffline,
+  ) {
+    final notifier = ref.read(signupWizardProvider.notifier);
+    final errorText = state.submitError;
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            loc.auth_consent_title,
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-        ),
-      ],
+          const SizedBox(height: 16),
+          _buildSummaryCard(state, loc),
+          const SizedBox(height: 16),
+          CheckboxListTile(
+            value: state.termsAccepted,
+            onChanged: (value) => notifier.toggleTermsAccepted(value ?? false),
+            title: Text(loc.auth_consent_terms_label),
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+          CheckboxListTile(
+            value: state.privacyAccepted,
+            onChanged: (value) =>
+                notifier.togglePrivacyAccepted(value ?? false),
+            title: Text(loc.auth_consent_privacy_label),
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+          if (errorText != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              loc.auth_signup_submit_error,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              errorText,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+          ],
+          if (isOffline) ...[
+            const SizedBox(height: 16),
+            Text(
+              loc.offlineNotice,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              loc.offlineDescription,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
+        ],
+      ),
     );
   }
 
-  Widget? _buildNicknameStatus(
-    SignupWizardState state,
-    AppLocalizations loc,
-  ) {
+  Widget _buildSummaryCard(SignupWizardState state, AppLocalizations loc) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSummaryRow(loc.emailLabel, state.email),
+            _buildSummaryRow(
+              loc.auth_nickname_label,
+              state.nickname.isNotEmpty
+                  ? state.nickname
+                  : loc.auth_nickname_help,
+            ),
+            _buildSummaryRow(
+              loc.auth_avatar_label,
+              _avatarLabel(state.avatarKey),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryRow(String label, String value) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: theme.textTheme.labelSmall),
+          const SizedBox(height: 2),
+          Text(value, style: theme.textTheme.bodyMedium),
+        ],
+      ),
+    );
+  }
+
+  bool _submitEnabled(SignupWizardState state, bool isOffline) {
+    if (isOffline) return false;
+    if (state.isSubmitting) return false;
+    return state.step1Valid && state.step2Valid && state.step3Valid;
+  }
+
+  Future<void> _onSubmit() async {
+    final success = await ref
+        .read(signupWizardProvider.notifier)
+        .submitSignUp();
+    if (!mounted || !success) return;
+    final email = ref.read(signupWizardProvider).email;
+    final encodedEmail = Uri.encodeComponent(email);
+    context.go('/auth/verify-pending?email=$encodedEmail');
+  }
+
+  Widget? _buildNicknameStatus(SignupWizardState state, AppLocalizations loc) {
     final status = state.nicknameStatus;
     final scheme = Theme.of(context).colorScheme;
     switch (status) {
@@ -378,7 +496,9 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
   }
 
   String? _nicknameFieldError(
-      NicknameAvailabilityStatus status, AppLocalizations loc) {
+    NicknameAvailabilityStatus status,
+    AppLocalizations loc,
+  ) {
     if (status == NicknameAvailabilityStatus.invalid) {
       return loc.auth_nickname_help;
     }
@@ -392,9 +512,11 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
     if (key.isEmpty) return '';
     return key
         .split('_')
-        .map((segment) => segment.isEmpty
-            ? ''
-            : segment[0].toUpperCase() + segment.substring(1))
+        .map(
+          (segment) => segment.isEmpty
+              ? ''
+              : segment[0].toUpperCase() + segment.substring(1),
+        )
         .join(' ');
   }
 

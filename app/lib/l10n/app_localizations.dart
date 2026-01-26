@@ -62,7 +62,8 @@ import 'app_localizations_hu.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,17 +84,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('hu')
+    Locale('hu'),
   ];
 
   /// No description provided for @appTitle.
@@ -364,9 +367,64 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose an avatar'**
   String get auth_avatar_sheet_title;
+
+  /// No description provided for @auth_consent_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Consent'**
+  String get auth_consent_title;
+
+  /// No description provided for @auth_consent_terms_label.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the Terms of Service'**
+  String get auth_consent_terms_label;
+
+  /// No description provided for @auth_consent_privacy_label.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the Data Processing Policy'**
+  String get auth_consent_privacy_label;
+
+  /// No description provided for @auth_signup_submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get auth_signup_submit;
+
+  /// No description provided for @auth_signup_submit_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating account...'**
+  String get auth_signup_submit_loading;
+
+  /// No description provided for @auth_signup_submit_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to create account'**
+  String get auth_signup_submit_error;
+
+  /// No description provided for @auth_verify_pending_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email'**
+  String get auth_verify_pending_title;
+
+  /// No description provided for @auth_verify_pending_body.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a verification link to {email}. Please confirm to continue.'**
+  String auth_verify_pending_body(Object email);
+
+  /// No description provided for @auth_verify_pending_back_to_login.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to login'**
+  String get auth_verify_pending_back_to_login;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -375,25 +433,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'hu'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'hu'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'hu': return AppLocalizationsHu();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'hu':
+      return AppLocalizationsHu();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

@@ -8,8 +8,9 @@ import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard
 import 'package:tipsterino/src/features/auth/presentation/state/signup_wizard_provider.dart';
 
 void main() {
-  testWidgets('Step 2 enables Next only when nickname is available',
-      (tester) async {
+  testWidgets('Step 2 enables Next only when nickname is available', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
