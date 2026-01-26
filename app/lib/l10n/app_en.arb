@@ -33,5 +33,5 @@
   "auth_password_rule_min_length": "At least 8 characters",
   "auth_password_rule_uppercase": "Contains an uppercase letter",
   "auth_password_rule_lowercase": "Contains a lowercase letter",
-  "auth_password_rule_number": "Contains a number"
+  "auth_password_rule_special": "Contains a special character"
 }

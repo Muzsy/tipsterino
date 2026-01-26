@@ -108,5 +108,5 @@ class AppLocalizationsHu extends AppLocalizations {
   String get auth_password_rule_lowercase => 'Legalább 1 kisbetű';
 
   @override
-  String get auth_password_rule_number => 'Legalább 1 szám';
+  String get auth_password_rule_special => 'Legalább 1 speciális karakter';
 }

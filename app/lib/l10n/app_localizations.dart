@@ -293,11 +293,11 @@ abstract class AppLocalizations {
   /// **'Contains a lowercase letter'**
   String get auth_password_rule_lowercase;
 
-  /// No description provided for @auth_password_rule_number.
+  /// No description provided for @auth_password_rule_special.
   ///
   /// In en, this message translates to:
-  /// **'Contains a number'**
-  String get auth_password_rule_number;
+  /// **'Contains a special character'**
+  String get auth_password_rule_special;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

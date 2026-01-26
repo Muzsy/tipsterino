@@ -66,9 +66,9 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 16),
-              Expanded(
-                child: _buildStepContent(state, loc, isOffline),
-              ),
+          Expanded(
+            child: _buildStepContent(state, loc, isOffline),
+          ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -155,7 +155,7 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
       _PasswordRule(loc.auth_password_rule_min_length, state.hasMinLength),
       _PasswordRule(loc.auth_password_rule_uppercase, state.hasUppercase),
       _PasswordRule(loc.auth_password_rule_lowercase, state.hasLowercase),
-      _PasswordRule(loc.auth_password_rule_number, state.hasNumber),
+      _PasswordRule(loc.auth_password_rule_special, state.hasSpecialChar),
     ];
     final unsatisfied = rules.where((rule) => !rule.isSatisfied).toList();
     return SingleChildScrollView(
@@ -182,7 +182,6 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
           TextField(
             controller: _passwordController,
             decoration: InputDecoration(labelText: loc.passwordLabel),
-            obscureText: true,
             autofillHints: const [AutofillHints.newPassword],
           ),
           const SizedBox(height: 16),

@@ -14,11 +14,16 @@ class SignupWizardState {
   bool get hasMinLength => password.length >= 8;
   bool get hasUppercase => password.contains(RegExp(r'[A-Z]'));
   bool get hasLowercase => password.contains(RegExp(r'[a-z]'));
-  bool get hasNumber => password.contains(RegExp(r'[0-9]'));
+  bool get hasSpecialChar =>
+      password.contains(RegExp(r'[^\w\s]')); // non-alphanumeric excluding whitespace
   bool get isEmailValid =>
       email.isNotEmpty && email.contains('@') && email.contains('.');
   bool get step1Valid =>
-      isEmailValid && hasMinLength && hasUppercase && hasLowercase && hasNumber;
+      isEmailValid &&
+      hasMinLength &&
+      hasUppercase &&
+      hasLowercase &&
+      hasSpecialChar;
 
   SignupWizardState copyWith({
     int? stepIndex,

@@ -1,0 +1,40 @@
+steps:
+  - name: "Canvas elkészítése"
+    description: >
+      Készítsd el a specifikációs javítás canvas-t a Step 1-hez (plaintext jelszó + special char szabály),
+      és hivatkozz a releváns doksikra/fájlokra.
+    outputs:
+      - "canvases/registration/registration_v2_signup_wizard_step1_spec_fix.md"
+
+  - name: "Jelszó szabályok és UI javítás"
+    description: >
+      Módosítsd a signup wizard Step 1-et:
+      - a jelszó TextField default ne legyen maszkos (plaintext),
+      - a 4. szabály legyen special char (whitespace ne számítson),
+      - a szabálylista továbbra is csak a nem teljesülőket mutassa,
+      - a Next gomb csak step1Valid esetén legyen aktív.
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/signup_wizard_provider.dart"
+      - "app/lib/src/features/auth/presentation/screens/sign_up_wizard_screen.dart"
+
+  - name: "Lokalizáció frissítése"
+    description: >
+      Cseréld a `auth_password_rule_number` kulcsot `auth_password_rule_special`-ra HU+EN ARB-ben,
+      vezesd át a kódbeli hivatkozásokat, majd futtasd a `./scripts/flutter.sh gen-l10n` parancsot.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Teszt + doksi szinkron"
+    description: >
+      Frissítsd a widget tesztet az új special char szabályra, szinkronizáld a
+      `documents/registration/registration_flow_V2-md` Step 1 leírását (plaintext + special char),
+      majd futtasd a `./scripts/check.sh`-t és rögzítsd a checklist/report kimeneteket.
+    outputs:
+      - "app/test/widget/auth_signup_wizard_step1_test.dart"
+      - "documents/registration/registration_flow_V2-md"
+      - "codex/codex_checklist/registration/registration_v2_signup_wizard_step1_spec_fix.md"
+      - "codex/reports/registration/registration_v2_signup_wizard_step1_spec_fix.md"

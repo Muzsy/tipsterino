@@ -108,5 +108,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_password_rule_lowercase => 'Contains a lowercase letter';
 
   @override
-  String get auth_password_rule_number => 'Contains a number';
+  String get auth_password_rule_special => 'Contains a special character';
 }

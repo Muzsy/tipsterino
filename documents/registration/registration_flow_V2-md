@@ -186,6 +186,7 @@ A `documents/authentication/auth_implementation_plan.md` alapján a Tipsterino a
    * jelszó mező alapból **látható**
    * szabálylista elemei eltűnnek, ahogy teljesülnek
    * `Tovább` disabled, amíg minden szabály nem ok
+   * a 4. szabály egy speciális karakter meglétét vizsgálja (whitespace nem számít)
 3. Step 2 – Nickname + Avatar:
 
    * nickname szabályok kiírása (3–20, engedélyezett karakterek, case-insensitive unique)

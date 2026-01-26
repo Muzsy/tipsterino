@@ -7,7 +7,7 @@ import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
 
 void main() {
-  testWidgets('Step 1 Next button enables after email+pall password rules',
+  testWidgets('Step 1 Next button enables after email+password rules',
       (tester) async {
     final loc = await AppLocalizations.delegate.load(const Locale('en'));
     await tester.pumpWidget(
@@ -35,13 +35,13 @@ void main() {
     await tester.enterText(find.byType(TextField).first, 'user@example.com');
     await tester.pump();
 
-    await tester.enterText(find.byType(TextField).at(1), 'Abcd1234');
+    await tester.enterText(find.byType(TextField).at(1), 'Abcd!efg');
     await tester.pumpAndSettle();
 
     expect(find.text(loc.auth_password_rule_min_length), findsNothing);
     expect(find.text(loc.auth_password_rule_uppercase), findsNothing);
     expect(find.text(loc.auth_password_rule_lowercase), findsNothing);
-    expect(find.text(loc.auth_password_rule_number), findsNothing);
+    expect(find.text(loc.auth_password_rule_special), findsNothing);
 
     nextButton = tester.widget<ElevatedButton>(nextButtonFinder);
     expect(nextButton.onPressed, isNotNull);
