@@ -1,0 +1,31 @@
+steps:
+  - name: "Preflight és canvas"
+    description: >
+      Ellenőrizd a Supabase CLI elérhetőségét (`./scripts/supabase.sh --version`), futtasd a `projects list`-et (env betöltve a `.env.local`-ból), és győződj meg róla, hogy a migrációs és checks fájlok léteznek; készítsd el ennek alapján a canvases/registration/registration_v2_db_profiles_rls_trigger_fix_reapply.md fájlt.
+    outputs:
+      - "canvases/registration/registration_v2_db_profiles_rls_trigger_fix_reapply.md"
+
+  - name: "Goal YAML és checklist"
+    description: >
+      Dokumentáld a feladat lépéseit egy goal YAML-ben és pipálható checklistben a következő artefaktokra: a canvassal összhangban készítsd el a codex/goals/canvases/.../fill_canvas_registration_v2_db_profiles_rls_trigger_fix_reapply.yaml és codex/codex_checklist/.../registration_v2_db_profiles_rls_trigger_fix_reapply.md fájlokat.
+    outputs:
+      - "codex/goals/canvases/registration/fill_canvas_registration_v2_db_profiles_rls_trigger_fix_reapply.yaml"
+      - "codex/codex_checklist/registration/registration_v2_db_profiles_rls_trigger_fix_reapply.md"
+
+  - name: "Migráció kompatibilizálása"
+    description: >
+      Módosítsd a `supabase/migrations/20260125000000_registration_v2_profiles_rls_trigger.sql` fájlt: `drop policy if exists` + `create policy` mintával, `set search_path` és `security definer` a függvényeknél, `perform 1 from ...` eltávolítása, `grant`-ok hozzáadása a profiles táblára és a `check_nickname_available` RPC-ra.
+    outputs:
+      - "supabase/migrations/20260125000000_registration_v2_profiles_rls_trigger.sql"
+
+  - name: "DB push és SQL ellenőrzések"
+    description: >
+      Futtasd a `set -a; source .env.local; set +a; ./scripts/supabase.sh db push` parancsot; ha sikeres vagy hibás, rögzítsd a `codex/reports/registration/registration_v2_db_profiles_rls_trigger_fix_reapply.md` fájlban; majd lefuttatod a `set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/registration_v2_profiles_rls_trigger_checks.sql` parancsot és dokumentáld az eredményt.
+    outputs:
+      - "codex/reports/registration/registration_v2_db_profiles_rls_trigger_fix_reapply.md"
+
+  - name: "Repo ellenőrzés"
+    description: >
+      Futtasd a `./scripts/check.sh` parancsot (emelt jogosultság szükség esetén), majd írd le az eredményt ugyanabban a reportban.
+    outputs:
+      - "codex/reports/registration/registration_v2_db_profiles_rls_trigger_fix_reapply.md"
