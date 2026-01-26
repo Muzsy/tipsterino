@@ -109,4 +109,37 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get auth_password_rule_special => 'Legalább 1 speciális karakter';
+
+  @override
+  String get common_done => 'Kész';
+
+  @override
+  String get auth_nickname_label => 'Felhasználónév';
+
+  @override
+  String get auth_nickname_help => '3-20 karakter, kisbetű, szám, pont vagy alulvonás.';
+
+  @override
+  String get auth_nickname_too_short => 'Adj meg legalább 3 karaktert.';
+
+  @override
+  String get auth_nickname_checking => 'Foglaltság ellenőrzése...';
+
+  @override
+  String get auth_nickname_available => 'A felhasználónév szabad';
+
+  @override
+  String get auth_nickname_unavailable => 'A felhasználónév foglalt';
+
+  @override
+  String get auth_nickname_error => 'Nem sikerült ellenőrizni a felhasználónevet';
+
+  @override
+  String get auth_avatar_label => 'Avatar';
+
+  @override
+  String get auth_avatar_change => 'Változtatás';
+
+  @override
+  String get auth_avatar_sheet_title => 'Avatar választás';
 }

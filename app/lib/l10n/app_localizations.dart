@@ -298,6 +298,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Contains a special character'**
   String get auth_password_rule_special;
+
+  /// No description provided for @common_done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get common_done;
+
+  /// No description provided for @auth_nickname_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname'**
+  String get auth_nickname_label;
+
+  /// No description provided for @auth_nickname_help.
+  ///
+  /// In en, this message translates to:
+  /// **'3-20 characters, lowercase letters, numbers, dot, or underscore.'**
+  String get auth_nickname_help;
+
+  /// No description provided for @auth_nickname_too_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least 3 characters.'**
+  String get auth_nickname_too_short;
+
+  /// No description provided for @auth_nickname_checking.
+  ///
+  /// In en, this message translates to:
+  /// **'Checking availability...'**
+  String get auth_nickname_checking;
+
+  /// No description provided for @auth_nickname_available.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname available'**
+  String get auth_nickname_available;
+
+  /// No description provided for @auth_nickname_unavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname already taken'**
+  String get auth_nickname_unavailable;
+
+  /// No description provided for @auth_nickname_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to verify nickname'**
+  String get auth_nickname_error;
+
+  /// No description provided for @auth_avatar_label.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar'**
+  String get auth_avatar_label;
+
+  /// No description provided for @auth_avatar_change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change avatar'**
+  String get auth_avatar_change;
+
+  /// No description provided for @auth_avatar_sheet_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an avatar'**
+  String get auth_avatar_sheet_title;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

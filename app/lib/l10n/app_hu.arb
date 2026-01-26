@@ -33,5 +33,16 @@
   "auth_password_rule_min_length": "Legalább 8 karakter",
   "auth_password_rule_uppercase": "Legalább 1 nagybetű",
   "auth_password_rule_lowercase": "Legalább 1 kisbetű",
-  "auth_password_rule_special": "Legalább 1 speciális karakter"
+  "auth_password_rule_special": "Legalább 1 speciális karakter",
+  "common_done": "Kész",
+  "auth_nickname_label": "Felhasználónév",
+  "auth_nickname_help": "3-20 karakter, kisbetű, szám, pont vagy alulvonás.",
+  "auth_nickname_too_short": "Adj meg legalább 3 karaktert.",
+  "auth_nickname_checking": "Foglaltság ellenőrzése...",
+  "auth_nickname_available": "A felhasználónév szabad",
+  "auth_nickname_unavailable": "A felhasználónév foglalt",
+  "auth_nickname_error": "Nem sikerült ellenőrizni a felhasználónevet",
+  "auth_avatar_label": "Avatar",
+  "auth_avatar_change": "Változtatás",
+  "auth_avatar_sheet_title": "Avatar választás"
 }

@@ -109,4 +109,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_password_rule_special => 'Contains a special character';
+
+  @override
+  String get common_done => 'Done';
+
+  @override
+  String get auth_nickname_label => 'Nickname';
+
+  @override
+  String get auth_nickname_help => '3-20 characters, lowercase letters, numbers, dot, or underscore.';
+
+  @override
+  String get auth_nickname_too_short => 'Enter at least 3 characters.';
+
+  @override
+  String get auth_nickname_checking => 'Checking availability...';
+
+  @override
+  String get auth_nickname_available => 'Nickname available';
+
+  @override
+  String get auth_nickname_unavailable => 'Nickname already taken';
+
+  @override
+  String get auth_nickname_error => 'Unable to verify nickname';
+
+  @override
+  String get auth_avatar_label => 'Avatar';
+
+  @override
+  String get auth_avatar_change => 'Change avatar';
+
+  @override
+  String get auth_avatar_sheet_title => 'Choose an avatar';
 }

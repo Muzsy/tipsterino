@@ -33,5 +33,17 @@
   "auth_password_rule_min_length": "At least 8 characters",
   "auth_password_rule_uppercase": "Contains an uppercase letter",
   "auth_password_rule_lowercase": "Contains a lowercase letter",
-  "auth_password_rule_special": "Contains a special character"
+  "auth_password_rule_special": "Contains a special character",
+  "common_done": "Done",
+  "auth_nickname_label": "Nickname",
+  "auth_nickname_help":
+      "3-20 characters, lowercase letters, numbers, dot, or underscore.",
+  "auth_nickname_too_short": "Enter at least 3 characters.",
+  "auth_nickname_checking": "Checking availability...",
+  "auth_nickname_available": "Nickname available",
+  "auth_nickname_unavailable": "Nickname already taken",
+  "auth_nickname_error": "Unable to verify nickname",
+  "auth_avatar_label": "Avatar",
+  "auth_avatar_change": "Change avatar",
+  "auth_avatar_sheet_title": "Choose an avatar"
 }

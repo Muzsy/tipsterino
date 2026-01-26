@@ -1,0 +1,56 @@
+steps:
+  - name: "Canvas létrehozása"
+    description: >
+      Hozd létre a Step 2 (nickname + avatar + debounce RPC) canvas dokumentumot a megadott fájlnéven,
+      a kötelező szekciókkal és a konkrét technikai elvárásokkal.
+    outputs:
+      - "canvases/registration/registration_v2_signup_wizard_step2.md"
+
+  - name: "Wizard state kibővítése Step 2-höz"
+    description: >
+      A `signup_wizard_provider.dart` state/notifier bővítése:
+      - nickname + avatarKey mezők (default avatarKey: neutral),
+      - nickname format validáció (^[a-z0-9_.]{3,20}$),
+      - normalizálás (trim + lowercase),
+      - availability status állapotgép,
+      - step2Valid kiszámítása,
+      - debounce + requestId védelem.
+      Vezess be egy felülírható `nicknameAvailabilityCheckerProvider` providert,
+      ami defaultban Supabase RPC-t hív (p_nickname parammal).
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/signup_wizard_provider.dart"
+
+  - name: "Step 2 UI implementálása"
+    description: >
+      A `sign_up_wizard_screen.dart` Step 2 tartalma legyen éles:
+      - nickname TextField (helper/hiba/állapot szöveg),
+      - checking esetén vizuális visszajelzés (pl. progress),
+      - avatar preview + Módosítás gomb,
+      - bottom sheet avatar picker grid (neutral/golden_mask/arcade),
+      - Next gomb csak step2Valid esetén aktív (és offline esetén tiltott).
+      Step 3 maradhat placeholder.
+    outputs:
+      - "app/lib/src/features/auth/presentation/screens/sign_up_wizard_screen.dart"
+
+  - name: "L10n kulcsok + gen-l10n"
+    description: >
+      Vedd fel a Step 2-höz szükséges új ARB kulcsokat HU/EN nyelven,
+      majd futtasd a `./scripts/flutter.sh gen-l10n` parancsot és commitold a generált fájlokat.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Widget tesztek + format + check"
+    description: >
+      Készíts új widget tesztet Step 2-höz úgy, hogy a nickname availability check provider felülírható legyen.
+      Futtasd:
+      - `./scripts/flutter.sh format .`
+      - `./scripts/check.sh`
+      Rögzítsd a checklistet és reportot a szokásos helyre.
+    outputs:
+      - "app/test/widget/auth_signup_wizard_step2_test.dart"
+      - "codex/codex_checklist/registration/registration_v2_signup_wizard_step2.md"
+      - "codex/reports/registration/registration_v2_signup_wizard_step2.md"
