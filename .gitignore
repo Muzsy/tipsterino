@@ -34,6 +34,8 @@
 # -----------------------
 legacy/
 app/.env
+.env.local
+app/.env.local
 
 # Supabase CLI helyi állapot (migrációk commitolhatóak, de a CLI cache és állapot nem)
 supabase/.temp/

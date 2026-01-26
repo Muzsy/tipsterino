@@ -1,0 +1,32 @@
+steps:
+  - name: "Felderítés"
+    description: >
+      Ellenőrizd a supabase scaffoldot, a meglévő migrációs struktúrát és dokumentációs referenciákat (profiles_table_doc, auth plan) a későbbi SQL megírásához.
+    outputs:
+      - "canvases/registration/registration_v2_db_profiles_rls_trigger_offline.md"
+
+  - name: "Migrációs SQL elkészítése"
+    description: >
+      Írd meg a `supabase/migrations/20260125000000_registration_v2_profiles_rls_trigger.sql` fájlt a táblákkal, view-val, RLS-sel, RPC-val és triggerrel a spec alapján.
+    outputs:
+      - "supabase/migrations/20260125000000_registration_v2_profiles_rls_trigger.sql"
+
+  - name: "Checks SQL fájl"
+    description: >
+      Hozd létre a `supabase/sql_checks/registration_v2_profiles_rls_trigger_checks.sql` fájlt, amely később a trigger/rls/rpc ellenőrzésére szolgál.
+    outputs:
+      - "supabase/sql_checks/registration_v2_profiles_rls_trigger_checks.sql"
+
+  - name: "Checklist + report"
+    description: >
+      Futtasd a standard `./scripts/check.sh`-t, és dokumentáld az eredményt a checklistben és a reportban, megjegyezve, hogy a migráció alkalmazása külön task.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_db_profiles_rls_trigger_offline.md"
+      - "codex/reports/registration/registration_v2_db_profiles_rls_trigger_offline.md"
+
+  - name: "Repo ellenőrzés"
+    description: >
+      Futtasd a repo szintű ellenőrzést `./scripts/check.sh`, hogy a Flutter tesztek és analiz szintjén nincs regresszió.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_db_profiles_rls_trigger_offline.md"
+      - "codex/reports/registration/registration_v2_db_profiles_rls_trigger_offline.md"

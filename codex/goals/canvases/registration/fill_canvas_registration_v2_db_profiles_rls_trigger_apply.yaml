@@ -1,0 +1,36 @@
+steps:
+  - name: "Preflight ellenőrzés"
+    description: >
+      Ellenőrizd a Supabase CLI elérhetőségét (`./scripts/supabase.sh --version`), futtasd a `projects list` parancsot (env betöltve a `.env.local`-ból), és győződj meg róla, hogy a kötelező fájlok (`supabase/migrations/20260125000000_registration_v2_profiles_rls_trigger.sql`, `supabase/sql_checks/registration_v2_profiles_rls_trigger_checks.sql`, `.env.local` kulcskészlet, `app/.env` kulcskészlet) mind megvannak.
+    outputs:
+      - "canvases/registration/registration_v2_db_profiles_rls_trigger_apply.md"
+
+  - name: "Supabase init ellenőrzése"
+    description: >
+      A repó már tartalmaz `supabase/config.toml` fájlt, így az init nem szükséges; jegyezd fel a konfiguráció projektazonosítóját és portjait, hogy később a CLI parancsok ugyanazzal a környezettel fussanak.
+    outputs:
+      - "codex/goals/canvases/registration/fill_canvas_registration_v2_db_profiles_rls_trigger_apply.yaml"
+
+  - name: "Projekt linkelése"
+    description: >
+      Futtasd: `set -a; source .env.local; set +a; ./scripts/supabase.sh link --project-ref "$SUPABASE_PROJECT_REF"` a Supabase projekt referenciájának beállításához.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_db_profiles_rls_trigger_apply.md"
+
+  - name: "Migráció alkalmazása"
+    description: >
+      Futtasd: `set -a; source .env.local; set +a; ./scripts/supabase.sh db push` az új migrációk távoli végrehajtásához; jegyezd meg, hogy a `CREATE POLICY IF NOT EXISTS` az aktuális PostgreSQL verzióban syntax hibát okoz (`syntax error at or near "not"`).
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_db_profiles_rls_trigger_apply.md"
+
+  - name: "SQL ellenőrzések"
+    description: >
+      A `db query` alparancs hiánya miatt a fallbackként: `set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/registration_v2_profiles_rls_trigger_checks.sql`; rögzítsd, hogy az első két lekérdezés `false`, a harmadik pedig a `check_nickname_available` függvény hiánya miatt hibára fut.
+    outputs:
+      - "codex/reports/registration/registration_v2_db_profiles_rls_trigger_apply.md"
+
+  - name: "Repo ellenőrzése"
+    description: >
+      Futtasd a standard `./scripts/check.sh` parancsot (engedd a Flutter cache frissítését emelt jogosultsággal, ha szükséges), és jegyezd le az analyze+widget teszt futás eredményét.
+    outputs:
+      - "codex/reports/registration/registration_v2_db_profiles_rls_trigger_apply.md"
