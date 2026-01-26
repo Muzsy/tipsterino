@@ -1,0 +1,27 @@
+steps:
+  - name: "Felderítés és canvas"
+    description: >
+      Ellenőrizd a `docs/data_model/profiles_table_doc.md`, `docs/core_logic/registration_flow.md` és a `supabase/migrations/20260125000000_registration_v2_profiles_rls_trigger.sql` fájlokat, majd készítsd el ennek a feladatnak a canvases/registration/registration_v2_docs_sync_and_dod_cleanup.md fájlt a kötelező szekciókkal.
+    outputs:
+      - "canvases/registration/registration_v2_docs_sync_and_dod_cleanup.md"
+
+  - name: "Docszinkron és fix/reapply tisztázása"
+    description: >
+      Frissítsd a `docs/data_model/profiles_table_doc.md`-ot a tényleges `^[a-z0-9_.]{3,20}$` regex-sel, a `profiles_nickname_lower_ux` case-insensitiv egyediségével és a `check_nickname_available` RPC security definer/grant részleteivel; pontosítsd a `canvases/registration/registration_v2_db_profiles_rls_trigger_fix_reapply.md` és `codex/codex_checklist/registration/registration_v2_db_profiles_rls_trigger_fix_reapply.md` artefaktokat, hogy a DoD a reportban szereplő sikereket tükrözze.
+    outputs:
+      - "docs/data_model/profiles_table_doc.md"
+      - "canvases/registration/registration_v2_db_profiles_rls_trigger_fix_reapply.md"
+      - "codex/codex_checklist/registration/registration_v2_db_profiles_rls_trigger_fix_reapply.md"
+
+  - name: "Checklist és report"
+    description: >
+      Készítsd el a `codex/codex_checklist/registration/registration_v2_docs_sync_and_dod_cleanup.md` és `codex/reports/registration/registration_v2_docs_sync_and_dod_cleanup.md` fájlokat, amelyek a dokumentációszinkron és DoD lezárás részleteit tartalmazzák, beleértve a `./scripts/check.sh` futását.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_docs_sync_and_dod_cleanup.md"
+      - "codex/reports/registration/registration_v2_docs_sync_and_dod_cleanup.md"
+
+  - name: "Repo ellenőrzése"
+    description: >
+      Futtasd a standard `./scripts/check.sh` parancsot, dokumentáld az eredményt a reportban, és győződj meg róla, hogy a repo lint/test gate teljesült.
+    outputs:
+      - "codex/reports/registration/registration_v2_docs_sync_and_dod_cleanup.md"

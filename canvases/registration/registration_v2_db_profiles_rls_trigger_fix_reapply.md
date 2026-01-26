@@ -1,6 +1,6 @@
 # 🎯 Funkció
 
-A meglévő `profiles`/RLS/trigger migrációt kompatibilissé kell tenni a távoli Supabase PostgreSQL verzióval (eltávolítani az `IF NOT EXISTS`-t, fix search_path-ot és bazis jogokat beállítani), majd a `db push` és a checks SQL újrafuttatásával igazolni, hogy minden constraint, trigger és helper függvény működik.
+A meglévő `profiles`/RLS/trigger migrációt kompatibilissé kell tenni a távoli Supabase PostgreSQL verzióval: a tiltott `CREATE POLICY IF NOT EXISTS` mintát drop+create-ra kell cserélni (a tábla és index `IF NOT EXISTS`-ei maradhatnak), fix search_path-ot és bazis jogokat kell beállítani, majd a `db push` és a checks SQL újrafuttatásával igazolni, hogy minden constraint, trigger és helper függvény működik.
 
 ### Nem cél
 - UI vagy auth réteg módosítása.
@@ -19,10 +19,10 @@ A meglévő `profiles`/RLS/trigger migrációt kompatibilissé kell tenni a táv
 
 ### Pipálható teendők
 - [x] Preflight: CLI verzió és `projects list`, `.env.local` kulcsai, és a `supabase_migrations.schema_migrations` tábla lekérdezése megerősítve.
-- [ ] Migráció javítása: `IF NOT EXISTS` helyett drop+create, `check_nickname_available`/`create_profile_on_signup` security fixes és grant-ok.
-- [ ] `./scripts/supabase.sh db push` futtatása; ha a push újra hibát ad, dokumentáld.
-- [ ] `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/...` futtatása; rögzítsd a sorok kimenetét.
-- [ ] `./scripts/check.sh` futtatása (perm hiba esetén emelt jogosultság is ok).
+- [x] Migráció javítása: `IF NOT EXISTS` helyett drop+create, `check_nickname_available`/`create_profile_on_signup` security fixes és grant-ok.
+- [x] `./scripts/supabase.sh db push` futtatása; ha a push újra hibát ad, dokumentáld.
+- [x] `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/...` futtatása; rögzítsd a sorok kimenetét.
+- [x] `./scripts/check.sh` futtatása (perm hiba esetén emelt jogosultság is ok).
 
 ### Kockázatok + rollback
 - **Kockázat:** a policy-k törlése/újraépítése rosszul van időzítve, ami leállíthatja a `db push`-t. **Rollback:** a migrációs fájl visszaállítása az előző verzióra, utána újra átdolgozva (ha a push továbbra sem megy, a következő taskban új SQL-t kell generálni).

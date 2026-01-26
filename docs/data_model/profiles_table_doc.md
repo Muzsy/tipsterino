@@ -41,12 +41,9 @@ Következmény:
 - keresés, barátjelölés, kihívások, üzenetküldés alapja
 
 **Követelmények:**
-- **DB-szintű egyediség:** két user nem kaphat azonos nickname-et.
-- **Kanonikus formátum:**
-  - csak kisbetűs latin betűk, számok és aláhúzás: `a-z`, `0-9`, `_`
-  - hossz: **3–20** karakter
-  - ékezet, szóköz, kötőjel, pont és egyéb karakter nem engedett
-- **Normalizálás:** a kliens a mentés előtt kisbetűsíti.
+- **DB-szintű egyediség:** a `profiles_nickname_lower_ux` unique index a `lower(nickname)`-et ellenőrzi, így a név case-insensitiv módon marad egyedi.
+- **Kanonikus formátum:** `^[a-z0-9_.]{3,20}$` – csak kisbetűs latin betűk, számok, pont és aláhúzás megengedett, 3–20 karakter között.
+- **Normalizálás:** a kliens a mentés előtt kisbetűsíti, így a tárolt érték a regex logikának megfelelően néz ki.
 
 **Miért kell DB-szintű egyediség?**
 - UI oldali előellenőrzés nem védi a race condition-t (két egyidejű foglalás), ezért a végső döntést a DB hozza.
@@ -140,10 +137,15 @@ Kötelező szabályok:
 - egyezés: prefix + részleges egyezés támogatott
 
 ### Nickname foglaltság és ütközéskezelés
-- A kliens végezhet foglaltsági előellenőrzést (pl. regisztráció közben), de ez **nem** garantálja a foglalást.
+- A kliens végezhet foglaltsági előellenőrzést (pl. regisztráció közben) a `public.check_nickname_available(nickname)` RPC segítségével, de ez **nem** garantálja a foglalást.
 - A végső döntés a DB-szintű egyediség:
   - ha a profil beszúrása `nickname` ütközés miatt hibára fut, a kliens kötelezően új nick választását kéri.
 - A kliensnek a foglaltság-ellenőrzést és a végső DB hibát **ugyanarra** az UI üzenetre kell leképeznie ("foglalt").
+
+### `check_nickname_available` RPC
+- A `public.check_nickname_available(text)` függvény `SECURITY DEFINER`-ként fut, a `search_path` pedig a `public, auth` schema, így a RLS aktív táblán is teljes tartalmat lát.
+- Anon és authenticated felhasználók számára `grant execute` van beállítva, így a wizard mindkét állapota képes lekérdezni a nick foglaltságát.
+- A függvény csak boolean ellenőrzést ad, a végső versenyhelyzetet a trigger + unique index dobja.
 
 ## 🧩 Regisztrációs flow (profil létrehozás)
 A Supabase `auth.users` INSERT után a `create_profile_on_signup` trigger automatikusan létrehozza a `profiles` rekordot a `raw_user_meta_data->>'nickname'` és `->>'avatar_key'` mezők alapján, tehát a kliens **nem** futtat INSERT-et közvetlenül.
