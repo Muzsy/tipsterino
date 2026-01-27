@@ -1,0 +1,138 @@
+steps:
+  - name: "Canvas létrehozása"
+    description: >
+      Hozd létre a canvas fájlt a megadott útvonalon a kötelező szekciókkal
+      (🎯 Funkció, 🧠 Fejlesztési részletek, 🧪 Tesztállapot, 🌍 Lokalizáció, 📎 Kapcsolódások).
+      A canvas rögzítse a detectSessionInUri=false, a crash-shield, a callback provider,
+      a router átadás (state.uri), az AuthCallbackScreen állapot UI, a tesztek és l10n elvárásait.
+    outputs:
+      - "canvases/registration/registration_v2_auth_callback_session_recovery.md"
+
+  - name: "Repo felderítése: Supabase initialize + entrypoint"
+    description: >
+      Keresd meg a repóban (ne találj ki fájlnevet), hol van:
+      - Supabase.initialize(...)
+      - a main/entrypoint, ahol runApp történik
+      - a GoRouter/app_router.dart
+      Jegyezd fel és csak ezekben a tényleges fájlokban dolgozz.
+    outputs: []
+
+  - name: "Supabase deeplink auto-detect kikapcsolása"
+    description: >
+      A Supabase.initialize(...) hívásnál add hozzá vagy egészítsd ki az authOptions-t:
+      FlutterAuthClientOptions(detectSessionInUri: false).
+      A többi initialize opció maradjon érintetlen.
+    outputs:
+      - "app/lib/**"  # pontosan azt a fájlt módosítsd, ahol a Supabase.initialize van (a repóban talált útvonal)
+
+  - name: "Globális crash-shield az expired/invalid deeplink AuthException ellen"
+    description: >
+      Az app entrypointban (ahol runApp történik) vezess be globális hibakezelést:
+      - runZonedGuarded(...) és/vagy PlatformDispatcher.instance.onError
+      Csak a deeplink expired/invalid AuthException mintát kezeld le úgy, hogy az app ne crasheljen.
+      Ne legyen minden-hiba swallow; a többi hiba maradjon normál.
+    outputs:
+      - "app/lib/**"  # pontosan azt a fájlt módosítsd, ahol az entrypoint van (a repóban talált útvonal)
+
+  - name: "Auth callback provider létrehozása"
+    description: >
+      Hozd létre az auth callback feldolgozó Riverpod state-et:
+      - app/lib/src/features/auth/presentation/state/auth_callback_provider.dart
+      Legyen:
+      - processing/success/expired/error állapot
+      - bemenet: Uri
+      - felülírható handler provider a widget tesztekhez (Supabase nélkül)
+      - konfigurálatlan Supabase esetén értelmes error state
+      - konfigurált Supabase esetén session-kivonás callback URI-ból a repo verziójával kompatibilis metódussal
+      - expired/invalid minta -> expired state
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/auth_callback_provider.dart"
+
+  - name: "Router módosítása: /auth/callback adja át a teljes URI-t"
+    description: >
+      Az app/lib/src/app/router/app_router.dart fájlban a /auth/callback route builderben
+      add át a state.uri-t az AuthCallbackScreennek (ne csak query stringet).
+      A route maradjon kompatibilis a meglévő navigációval.
+    outputs:
+      - "app/lib/src/app/router/app_router.dart"
+
+  - name: "AuthCallbackScreen frissítése: valós feldolgozás + UX"
+    description: >
+      Frissítsd az AuthCallbackScreen-t:
+      - ConsumerStatefulWidget
+      - initState-ben indíts feldolgozást (idempotens)
+      UI állapotok:
+      - processing: spinner + auth_callback_processing
+      - success: auth_callback_success + Continue CTA -> /home (vagy a repó szerinti landing)
+      - expired: auth_callback_expired + Back to login CTA -> /auth/login
+      - error: auth_callback_error_generic + Back to login CTA -> /auth/login
+      Opcionális: ha email ismert, Resend CTA -> /auth/verify-pending?email=...
+    outputs:
+      - "app/lib/src/features/auth/presentation/screens/auth_callback_screen.dart"
+
+  - name: "Lokalizáció bővítése + gen-l10n"
+    description: >
+      Add hozzá az auth_callback_* kulcsokat mindkét ARB fájlba (EN+HU), majd futtasd:
+      ./scripts/flutter.sh gen-l10n
+      A generált AppLocalizations fájlok kerüljenek committolásra.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Dokumentáció frissítése"
+    description: >
+      Frissítsd a documents/registration/registration_flow_V2-md fájlt:
+      - callback feldolgozás success/expired/error,
+      - detectSessionInUri false + crash-shield indoklás,
+      - kapcsolódás verify pending + resend folyamhoz.
+    outputs:
+      - "documents/registration/registration_flow_V2-md"
+
+  - name: "Widget teszt hozzáadása"
+    description: >
+      Hozz létre új widget tesztet:
+      - app/test/widget/auth_callback_screen_test.dart
+      Provider override-dal szimuláld:
+      - success állapot -> Continue CTA látszik
+      - expired állapot -> expired szöveg + Back to login CTA látszik
+      Ne legyen valódi Supabase hálózatfüggés.
+    outputs:
+      - "app/test/widget/auth_callback_screen_test.dart"
+
+  - name: "Parancsok futtatása"
+    description: >
+      Futtasd és javíts mindent zöldre:
+      - ./scripts/flutter.sh gen-l10n
+      - cd app && dart format .
+      - ./scripts/check.sh
+      A reportban rögzítsd a parancsok kimenetét/eredményét röviden (pass/fail és lényeg).
+    outputs: []
+
+  - name: "Codex checklist automatikus létrehozása"
+    description: >
+      Készíts pipálható checklistet a feladat DoD pontjairól.
+      Tartalmazza legalább:
+      - detectSessionInUri false beállítás
+      - crash-shield csak expired/invalid AuthException mintára
+      - auth_callback_provider létrejött + tesztelhető override
+      - /auth/callback state.uri átadás
+      - AuthCallbackScreen state UI (processing/success/expired/error + CTA-k)
+      - l10n kulcsok + gen-l10n
+      - dokumentáció frissítve
+      - widget tesztek zöldek
+      - dart format + check.sh zöld
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_auth_callback_session_recovery.md"
+
+  - name: "Codex report automatikus létrehozása"
+    description: >
+      Készíts reportot:
+      - futtatott parancsok listája (gen-l10n, dart format, check.sh)
+      - eredmény összefoglaló (mi készült el)
+      - módosított/létrehozott fájlok listája
+      - ismert korlátok vagy megjegyzések (ha van)
+    outputs:
+      - "codex/reports/registration/registration_v2_auth_callback_session_recovery.md"

@@ -227,7 +227,7 @@ A `documents/authentication/auth_implementation_plan.md` alapján a Tipsterino a
    * URI parse (callback URL)
    * session recover a Supabase auth API-val (a supabase_flutter által támogatott módszerrel)
    * success → router redirect `/home`
-   * error → UI hiba + resend
+ * error → UI hiba + resend
 3. Android beállítás:
 
    * `AndroidManifest.xml` intent-filter(ek)
@@ -237,6 +237,8 @@ A `documents/authentication/auth_implementation_plan.md` alapján a Tipsterino a
 
 * A verify pending képernyő működik.
 * Link megnyitása után a session helyreáll és az app beléptet.
+
+**Megjegyzés:** a Supabase beállítás során a `FlutterAuthClientOptions(detectSessionInUri: false)` opciót használjuk, így a `main.dart`-ból kontrolláltan hívjuk meg a `getSessionFromUrl`-t. A `runZonedGuarded` + `PlatformDispatcher.instance.onError` kombináció egyedi `AuthException`-eket (például „invalid or has expired” üzenettel vagy 403/access_denied kóddal) nem enged a crash-hez, hanem továbbpasszoljuk a felhasználói UI-nak. Az `auth_callback_provider` feldolgozza a callback URI-t, a `AuthCallbackScreen` pedig state-specifikus üzenetekkel szólítja fel a felhasználót: siker esetén „Continue”, hiba/lejárat esetén „Back to login” + opcionális „Resend verification” gomb, ami a `VerifyEmailPendingScreen`-re navigál az email paraméterrel.
 
 ---
 

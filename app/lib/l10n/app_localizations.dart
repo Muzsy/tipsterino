@@ -452,6 +452,36 @@ abstract class AppLocalizations {
   /// **'Processing authentication callback...'**
   String get auth_callback_processing;
 
+  /// No description provided for @auth_callback_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication succeeded!'**
+  String get auth_callback_success;
+
+  /// No description provided for @auth_callback_continue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get auth_callback_continue;
+
+  /// No description provided for @auth_callback_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'The link is invalid or has expired.'**
+  String get auth_callback_expired;
+
+  /// No description provided for @auth_callback_error_generic.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to complete authentication. Please try logging in again.'**
+  String get auth_callback_error_generic;
+
+  /// No description provided for @auth_callback_resend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend verification'**
+  String get auth_callback_resend;
+
   /// No description provided for @auth_callback_error.
   ///
   /// In en, this message translates to:

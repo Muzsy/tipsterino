@@ -59,8 +59,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/auth/callback',
         name: 'authCallback',
-        builder: (context, state) =>
-            AuthCallbackScreen(error: state.uri.queryParameters['error']),
+        builder: (context, state) => AuthCallbackScreen(uri: state.uri),
       ),
       GoRoute(
         path: '/auth/register',

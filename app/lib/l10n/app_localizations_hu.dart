@@ -195,6 +195,22 @@ class AppLocalizationsHu extends AppLocalizations {
       'Hitelesítési visszahívás feldolgozása...';
 
   @override
+  String get auth_callback_success => 'Hitelesítés sikeres';
+
+  @override
+  String get auth_callback_continue => 'Folytatás';
+
+  @override
+  String get auth_callback_expired => 'A link lejárt vagy érvénytelen.';
+
+  @override
+  String get auth_callback_error_generic =>
+      'Nem sikerült befejezni a hitelesítést. Próbáld újra.';
+
+  @override
+  String get auth_callback_resend => 'Újraküldés';
+
+  @override
   String auth_callback_error(Object error) {
     return 'Hiba a visszahívás során: $error';
   }

@@ -8,6 +8,7 @@ import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/auth_callback_screen.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/verify_email_pending_screen.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/verify_email_pending_provider.dart';
+import 'package:tipsterino/src/features/auth/presentation/state/auth_callback_provider.dart';
 
 void main() {
   testWidgets('Verify pending resend throttles and shows feedback', (
@@ -78,12 +79,11 @@ void main() {
 
   testWidgets('Auth callback route handles errors gracefully', (tester) async {
     final router = GoRouter(
-      initialLocation: '/auth/callback?error=expired',
+      initialLocation: '/auth/callback?error=expired&email=test%40example.com',
       routes: [
         GoRoute(
           path: '/auth/callback',
-          builder: (context, state) =>
-              AuthCallbackScreen(error: state.uri.queryParameters['error']),
+          builder: (context, state) => AuthCallbackScreen(uri: state.uri),
         ),
         GoRoute(
           path: '/auth/login',
@@ -94,6 +94,12 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          authCallbackHandlerProvider.overrideWithValue(
+            (_) async =>
+                const AuthCallbackHandlerResult(AuthCallbackOutcome.expired),
+          ),
+        ],
         child: MaterialApp.router(
           routerConfig: router,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -107,10 +113,11 @@ void main() {
       tester.element(find.byType(AuthCallbackScreen)),
     )!;
 
-    expect(find.text(loc.auth_callback_error('expired')), findsOneWidget);
+    expect(find.text(loc.auth_callback_expired), findsOneWidget);
     expect(
       find.widgetWithText(ElevatedButton, loc.auth_callback_back_to_login),
       findsOneWidget,
     );
+    expect(find.text(loc.auth_callback_resend), findsOneWidget);
   });
 }

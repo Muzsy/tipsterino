@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,7 +13,19 @@ const _supabaseAnonKeyDefine = String.fromEnvironment('SUPABASE_ANON_KEY');
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  _setupGlobalErrorHandling();
 
+  runZonedGuarded<void>(
+    () {
+      _bootstrapApp();
+    },
+    (error, stack) {
+      _handleGlobalError(error, stack);
+    },
+  );
+}
+
+Future<void> _bootstrapApp() async {
   final supabaseUrl = _supabaseUrlDefine.isNotEmpty ? _supabaseUrlDefine : null;
   final supabaseAnonKey = _supabaseAnonKeyDefine.isNotEmpty
       ? _supabaseAnonKeyDefine
@@ -29,6 +44,7 @@ Future<void> main() async {
         url: supabaseUrl!,
         anonKey: supabaseAnonKey!,
         debug: false,
+        authOptions: const FlutterAuthClientOptions(detectSessionInUri: false),
       );
       client = Supabase.instance.client;
       isSupabaseReady = true;
@@ -47,4 +63,37 @@ Future<void> main() async {
       child: const TipsterinoApp(),
     ),
   );
+}
+
+void _setupGlobalErrorHandling() {
+  PlatformDispatcher.instance.onError = (error, stack) {
+    if (_isDeepLinkAuthException(error)) {
+      debugPrint('Handled deep link AuthException: $error');
+      return true;
+    }
+    return false;
+  };
+}
+
+void _handleGlobalError(Object error, StackTrace stack) {
+  if (_isDeepLinkAuthException(error)) {
+    debugPrint('Handled deep link AuthException in zone: $error');
+    return;
+  }
+  Zone.root.handleUncaughtError(error, stack);
+}
+
+bool _isDeepLinkAuthException(Object error) {
+  if (error is AuthException) {
+    final message = error.message.toLowerCase();
+    final code = error.code?.toLowerCase();
+    final statusCode = error.statusCode;
+
+    return message.contains('expired') ||
+        message.contains('invalid') ||
+        message.contains('access_denied') ||
+        code == 'access_denied' ||
+        statusCode == '403';
+  }
+  return false;
 }

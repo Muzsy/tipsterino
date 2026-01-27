@@ -195,6 +195,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Processing authentication callback...';
 
   @override
+  String get auth_callback_success => 'Authentication succeeded!';
+
+  @override
+  String get auth_callback_continue => 'Continue';
+
+  @override
+  String get auth_callback_expired => 'The link is invalid or has expired.';
+
+  @override
+  String get auth_callback_error_generic =>
+      'Unable to complete authentication. Please try logging in again.';
+
+  @override
+  String get auth_callback_resend => 'Resend verification';
+
+  @override
   String auth_callback_error(Object error) {
     return 'Callback failed: $error';
   }

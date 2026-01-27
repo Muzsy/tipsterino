@@ -62,6 +62,12 @@
       "Resend available in {seconds}s",
   "auth_callback_title": "Authentication callback",
   "auth_callback_processing": "Processing authentication callback...",
+  "auth_callback_success": "Authentication succeeded!",
+  "auth_callback_continue": "Continue",
+  "auth_callback_expired": "The link is invalid or has expired.",
+  "auth_callback_error_generic":
+      "Unable to complete authentication. Please try logging in again.",
+  "auth_callback_resend": "Resend verification",
   "auth_callback_error": "Callback failed: {error}",
   "auth_callback_back_to_login": "Back to login"
 }

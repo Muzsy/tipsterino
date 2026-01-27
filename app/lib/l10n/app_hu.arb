@@ -61,6 +61,12 @@
       "Újraküldés {seconds}s múlva",
   "auth_callback_title": "Hitelesítés visszahívás",
   "auth_callback_processing": "Hitelesítési visszahívás feldolgozása...",
+  "auth_callback_success": "Hitelesítés sikeres",
+  "auth_callback_continue": "Folytatás",
+  "auth_callback_expired": "A link lejárt vagy érvénytelen.",
+  "auth_callback_error_generic":
+      "Nem sikerült befejezni a hitelesítést. Próbáld újra.",
+  "auth_callback_resend": "Újraküldés",
   "auth_callback_error": "Hiba a visszahívás során: {error}",
   "auth_callback_back_to_login": "Vissza a bejelentkezéshez"
 }
