@@ -175,4 +175,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_verify_pending_back_to_login => 'Back to login';
+
+  @override
+  String get auth_verify_pending_resend => 'Resend verification';
+
+  @override
+  String get auth_verify_pending_resend_sent => 'Verification email resent';
+
+  @override
+  String auth_verify_pending_resend_cooldown(Object seconds) {
+    return 'Resend available in ${seconds}s';
+  }
+
+  @override
+  String get auth_callback_title => 'Authentication callback';
+
+  @override
+  String get auth_callback_processing =>
+      'Processing authentication callback...';
+
+  @override
+  String auth_callback_error(Object error) {
+    return 'Callback failed: $error';
+  }
+
+  @override
+  String get auth_callback_back_to_login => 'Back to login';
 }

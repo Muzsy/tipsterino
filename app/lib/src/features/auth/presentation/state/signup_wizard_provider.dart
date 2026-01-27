@@ -1,8 +1,11 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
+
+const _authCallbackRedirectUri = 'io.tipsterino://auth-callback/auth/callback';
 
 enum NicknameAvailabilityStatus {
   idle,
@@ -226,18 +229,14 @@ final nicknameAvailabilityCheckerProvider =
       final config = ref.watch(supabaseConfigProvider);
       if (config.isConfigured && config.client != null) {
         return (nickname) async {
-          final response = await config.client!.rpc(
+          final available = await config.client!.rpc<bool>(
             'check_nickname_available',
             params: {'p_nickname': nickname},
           );
-          final error = response.error;
-          if (error != null) {
-            throw error;
-          }
-          final available = response.data as bool?;
-          return available ?? false;
+          return available;
         };
       }
+
       return (_) async => false;
     });
 
@@ -260,10 +259,12 @@ final signupSubmitterProvider = Provider<SignupSubmitter>((ref) {
     required String nickname,
     required String avatarKey,
   }) async {
+    final redirectUrl = kIsWeb ? null : _authCallbackRedirectUri;
     await client.auth.signUp(
       email: email,
       password: password,
       data: {'nickname': nickname, 'avatar_key': avatarKey},
+      emailRedirectTo: redirectUrl,
     );
   };
 });

@@ -54,5 +54,13 @@
   "auth_verify_pending_title": "Ellenőrizd az emailed",
   "auth_verify_pending_body":
       "Küldtünk egy megerősítő linket erre az email címre: {email}. Kérjük, erősítsd meg a folytatáshoz.",
-  "auth_verify_pending_back_to_login": "Vissza a bejelentkezéshez"
+  "auth_verify_pending_back_to_login": "Vissza a bejelentkezéshez",
+  "auth_verify_pending_resend": "Újraküldés",
+  "auth_verify_pending_resend_sent": "Megerősítő email elküldve",
+  "auth_verify_pending_resend_cooldown":
+      "Újraküldés {seconds}s múlva",
+  "auth_callback_title": "Hitelesítés visszahívás",
+  "auth_callback_processing": "Hitelesítési visszahívás feldolgozása...",
+  "auth_callback_error": "Hiba a visszahívás során: {error}",
+  "auth_callback_back_to_login": "Vissza a bejelentkezéshez"
 }

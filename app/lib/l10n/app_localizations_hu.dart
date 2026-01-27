@@ -175,4 +175,30 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get auth_verify_pending_back_to_login => 'Vissza a bejelentkezéshez';
+
+  @override
+  String get auth_verify_pending_resend => 'Újraküldés';
+
+  @override
+  String get auth_verify_pending_resend_sent => 'Megerősítő email elküldve';
+
+  @override
+  String auth_verify_pending_resend_cooldown(Object seconds) {
+    return 'Újraküldés ${seconds}s múlva';
+  }
+
+  @override
+  String get auth_callback_title => 'Hitelesítés visszahívás';
+
+  @override
+  String get auth_callback_processing =>
+      'Hitelesítési visszahívás feldolgozása...';
+
+  @override
+  String auth_callback_error(Object error) {
+    return 'Hiba a visszahívás során: $error';
+  }
+
+  @override
+  String get auth_callback_back_to_login => 'Vissza a bejelentkezéshez';
 }

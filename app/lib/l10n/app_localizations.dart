@@ -421,6 +421,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to login'**
   String get auth_verify_pending_back_to_login;
+
+  /// No description provided for @auth_verify_pending_resend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend verification'**
+  String get auth_verify_pending_resend;
+
+  /// No description provided for @auth_verify_pending_resend_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification email resent'**
+  String get auth_verify_pending_resend_sent;
+
+  /// No description provided for @auth_verify_pending_resend_cooldown.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend available in {seconds}s'**
+  String auth_verify_pending_resend_cooldown(Object seconds);
+
+  /// No description provided for @auth_callback_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication callback'**
+  String get auth_callback_title;
+
+  /// No description provided for @auth_callback_processing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing authentication callback...'**
+  String get auth_callback_processing;
+
+  /// No description provided for @auth_callback_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Callback failed: {error}'**
+  String auth_callback_error(Object error);
+
+  /// No description provided for @auth_callback_back_to_login.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to login'**
+  String get auth_callback_back_to_login;
 }
 
 class _AppLocalizationsDelegate

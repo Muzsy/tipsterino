@@ -1,0 +1,49 @@
+steps:
+  - name: "Canvas létrehozása"
+    description: >
+      Dokumentáld a verify pending resend + deep link callback munkát a megadott canvasban,
+      a kötelező szekciókkal és a Supabase redirect allowlist megjegyzéssel.
+    outputs:
+      - "canvases/registration/registration_v2_verify_pending_resend_deeplink.md"
+
+  - name: "RPC és state frissítése"
+    description: >
+      A `signup_wizard_provider.dart` és az új `verify_email_pending_provider.dart` módosítása:
+      - a nickname RPC-hoz bool típus = `client.rpc<bool>`
+      - a signup submitter emailRedirectTo-val, amely az `io.tipsterino://auth-callback/auth/callback` deep linket használja
+      - új Riverpod provider a cooldown/timeout/hibakezeléshez, illetve a Supabase `auth.resend` metódusához
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/signup_wizard_provider.dart"
+      - "app/lib/src/features/auth/presentation/state/verify_email_pending_provider.dart"
+
+  - name: "UI + callback route"
+    description: >
+      A verify pending screen és a router kiterjesztése:
+      - a `VerifyEmailPendingScreen` megjelenítési + SnackBar logikája, a resend cooldown szövegekkel
+      - az új `AuthCallbackScreen` a /auth/callback route-on, hibaüzenettel és visszatéréssel
+      - további route (router) regisztráció
+    outputs:
+      - "app/lib/src/features/auth/presentation/screens/verify_email_pending_screen.dart"
+      - "app/lib/src/features/auth/presentation/screens/auth_callback_screen.dart"
+      - "app/lib/src/app/router/app_router.dart"
+
+  - name: "L10n kulcsok + gen-l10n"
+    description: >
+      Add hozzá a `auth_verify_pending_*` és `auth_callback_*` kulcsokat HU/EN ARB-okhoz
+      és futtasd a `./scripts/flutter.sh gen-l10n` parancsot.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Widget teszt + format + check"
+    description: >
+      Hozz létre widget tesztet a resend/callback logikához és futtasd a formázást + teszteket:
+      - `cd app && dart format .`
+      - `./scripts/check.sh`
+    outputs:
+      - "app/test/widget/auth_verify_pending_resend_test.dart"
+      - "codex/codex_checklist/registration/registration_v2_verify_pending_resend_deeplink.md"
+      - "codex/reports/registration/registration_v2_verify_pending_resend_deeplink.md"
