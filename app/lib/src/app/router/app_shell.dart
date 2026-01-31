@@ -1,34 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:tipsterino/l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tipsterino/l10n/app_localizations.dart';
 
-class AppShell extends StatelessWidget {
+import 'package:tipsterino/src/features/auth/presentation/state/auth_provider.dart';
+
+class AppShell extends ConsumerWidget {
   final Widget child;
   const AppShell({super.key, required this.child});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final router = GoRouter.of(context);
     final loc = AppLocalizations.of(context)!;
+    final authState = ref.watch(authNotifierProvider);
+    final isAuthenticated = authState.status == AuthStatus.authenticated;
+    final tabs = isAuthenticated ? _authTabs(loc) : _guestTabs(loc);
     final location = router.state.uri.path;
-    final tabs = <_ShellTab>[
-      _ShellTab(path: '/home', icon: Icons.home, label: loc.homeTab),
-      _ShellTab(
-        path: '/tickets',
-        icon: Icons.confirmation_number,
-        label: loc.ticketsTab,
-      ),
-      _ShellTab(
-        path: '/leaderboard',
-        icon: Icons.emoji_events,
-        label: loc.leaderboardTab,
-      ),
-      _ShellTab(
-        path: '/settings',
-        icon: Icons.settings,
-        label: loc.settingsTab,
-      ),
-    ];
 
     final selectedIndex = tabs.indexWhere(
       (entry) => location.startsWith(entry.path),
@@ -57,6 +45,18 @@ class AppShell extends StatelessWidget {
       ),
     );
   }
+
+  static List<_ShellTab> _guestTabs(AppLocalizations loc) => [
+    _ShellTab(path: '/home', icon: Icons.home, label: loc.homeTab),
+    _ShellTab(path: '/bets', icon: Icons.sports_handball, label: loc.betsTab),
+    _ShellTab(path: '/forum', icon: Icons.forum, label: loc.forumTab),
+  ];
+
+  static List<_ShellTab> _authTabs(AppLocalizations loc) => [
+    _ShellTab(path: '/home', icon: Icons.home, label: loc.homeTab),
+    _ShellTab(path: '/profile', icon: Icons.person, label: loc.profileTab),
+    _ShellTab(path: '/settings', icon: Icons.settings, label: loc.settingsTab),
+  ];
 }
 
 class _ShellTab {

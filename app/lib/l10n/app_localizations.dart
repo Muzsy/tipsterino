@@ -493,6 +493,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to login'**
   String get auth_callback_back_to_login;
+
+  /// No description provided for @betsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Bets'**
+  String get betsTab;
+
+  /// No description provided for @forumTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Forum'**
+  String get forumTab;
+
+  /// No description provided for @profileTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTab;
+
+  /// No description provided for @guestInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest access info'**
+  String get guestInfoTitle;
+
+  /// No description provided for @guestInfoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy a peek at Tipsterino while you decide to log in or register.'**
+  String get guestInfoBody;
+
+  /// No description provided for @guestInfoLoginCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get guestInfoLoginCta;
+
+  /// No description provided for @guestInfoRegisterCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get guestInfoRegisterCta;
+
+  /// No description provided for @homeGuestLoginCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Log in'**
+  String get homeGuestLoginCta;
+
+  /// No description provided for @homeGuestRegisterCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get homeGuestRegisterCta;
+
+  /// No description provided for @homeAuthPlaceholder.
+  ///
+  /// In en, this message translates to:
+  /// **'User stats coming soon.'**
+  String get homeAuthPlaceholder;
 }
 
 class _AppLocalizationsDelegate

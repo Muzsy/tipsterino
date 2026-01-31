@@ -21,10 +21,12 @@ class AuthFailure implements Exception {
 }
 
 class AuthNotifier extends StateNotifier<AuthViewState> {
-  AuthNotifier(this._ref)
-    : super(const AuthViewState(status: AuthStatus.unknown)) {
+  AuthNotifier(this._ref, {AuthViewState? initialState, bool autoListen = true})
+    : super(initialState ?? const AuthViewState(status: AuthStatus.unknown)) {
     _stateController.add(state);
-    _listenAuthChanges();
+    if (autoListen) {
+      _listenAuthChanges();
+    }
   }
 
   final Ref _ref;

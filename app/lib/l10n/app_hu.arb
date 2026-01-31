@@ -68,5 +68,15 @@
       "Nem sikerült befejezni a hitelesítést. Próbáld újra.",
   "auth_callback_resend": "Újraküldés",
   "auth_callback_error": "Hiba a visszahívás során: {error}",
-  "auth_callback_back_to_login": "Vissza a bejelentkezéshez"
+  "auth_callback_back_to_login": "Vissza a bejelentkezéshez",
+  "betsTab": "Szelvények",
+  "forumTab": "Fórum",
+  "profileTab": "Profil",
+  "guestInfoTitle": "Vendég információ",
+  "guestInfoBody": "Kóstolj bele a Tipsterinóba, mielőtt bejelentkezel vagy regisztrálsz.",
+  "guestInfoLoginCta": "Bejelentkezés",
+  "guestInfoRegisterCta": "Regisztráció",
+  "homeGuestLoginCta": "Bejelentkezés",
+  "homeGuestRegisterCta": "Regisztráció",
+  "homeAuthPlaceholder": "Felhasználói statisztikák hamarosan."
 }

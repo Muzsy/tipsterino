@@ -7,7 +7,7 @@ import 'package:tipsterino/src/app/app.dart';
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 
 void main() {
-  testWidgets('App boots to login screen without Supabase', (tester) async {
+  testWidgets('Guest-first boot lands on Home with CTA', (tester) async {
     final loc = await AppLocalizations.delegate.load(const Locale('en'));
     await tester.pumpWidget(
       ProviderScope(
@@ -22,10 +22,17 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.text(loc.logInButton), findsWidgets);
-    expect(find.text(loc.dontHaveAccountPrompt), findsOneWidget);
+    expect(find.text(loc.homeTab), findsWidgets);
+    expect(
+      find.widgetWithText(ElevatedButton, loc.homeGuestLoginCta),
+      findsOneWidget,
+    );
+    expect(
+      find.widgetWithText(OutlinedButton, loc.homeGuestRegisterCta),
+      findsOneWidget,
+    );
 
-    await tester.tap(find.text(loc.dontHaveAccountPrompt));
+    await tester.tap(find.text(loc.homeGuestRegisterCta));
     await tester.pumpAndSettle();
 
     expect(find.text(loc.registerTitle), findsWidgets);

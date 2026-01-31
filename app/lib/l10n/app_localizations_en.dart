@@ -217,4 +217,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get auth_callback_back_to_login => 'Back to login';
+
+  @override
+  String get betsTab => 'Bets';
+
+  @override
+  String get forumTab => 'Forum';
+
+  @override
+  String get profileTab => 'Profile';
+
+  @override
+  String get guestInfoTitle => 'Guest access info';
+
+  @override
+  String get guestInfoBody =>
+      'Enjoy a peek at Tipsterino while you decide to log in or register.';
+
+  @override
+  String get guestInfoLoginCta => 'Log in';
+
+  @override
+  String get guestInfoRegisterCta => 'Register';
+
+  @override
+  String get homeGuestLoginCta => 'Log in';
+
+  @override
+  String get homeGuestRegisterCta => 'Register';
+
+  @override
+  String get homeAuthPlaceholder => 'User stats coming soon.';
 }

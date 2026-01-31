@@ -69,5 +69,15 @@
       "Unable to complete authentication. Please try logging in again.",
   "auth_callback_resend": "Resend verification",
   "auth_callback_error": "Callback failed: {error}",
-  "auth_callback_back_to_login": "Back to login"
+  "auth_callback_back_to_login": "Back to login",
+  "betsTab": "Bets",
+  "forumTab": "Forum",
+  "profileTab": "Profile",
+  "guestInfoTitle": "Guest access info",
+  "guestInfoBody": "Enjoy a peek at Tipsterino while you decide to log in or register.",
+  "guestInfoLoginCta": "Log in",
+  "guestInfoRegisterCta": "Register",
+  "homeGuestLoginCta": "Log in",
+  "homeGuestRegisterCta": "Register",
+  "homeAuthPlaceholder": "User stats coming soon."
 }

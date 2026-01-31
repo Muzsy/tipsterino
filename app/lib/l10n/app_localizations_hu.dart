@@ -217,4 +217,35 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get auth_callback_back_to_login => 'Vissza a bejelentkezéshez';
+
+  @override
+  String get betsTab => 'Szelvények';
+
+  @override
+  String get forumTab => 'Fórum';
+
+  @override
+  String get profileTab => 'Profil';
+
+  @override
+  String get guestInfoTitle => 'Vendég információ';
+
+  @override
+  String get guestInfoBody =>
+      'Kóstolj bele a Tipsterinóba, mielőtt bejelentkezel vagy regisztrálsz.';
+
+  @override
+  String get guestInfoLoginCta => 'Bejelentkezés';
+
+  @override
+  String get guestInfoRegisterCta => 'Regisztráció';
+
+  @override
+  String get homeGuestLoginCta => 'Bejelentkezés';
+
+  @override
+  String get homeGuestRegisterCta => 'Regisztráció';
+
+  @override
+  String get homeAuthPlaceholder => 'Felhasználói statisztikák hamarosan.';
 }
