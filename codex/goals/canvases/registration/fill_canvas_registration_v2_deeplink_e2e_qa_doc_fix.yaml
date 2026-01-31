@@ -1,0 +1,49 @@
+# codex/goals/canvases/registration/fill_canvas_registration_v2_deeplink_e2e_qa_doc_fix.yaml
+
+steps:
+  - name: "Canvas létrehozása"
+    description: >
+      Hozd létre a javító feladathoz tartozó canvas-t, amely rögzíti a QA doc hibáit
+      (rossz adb package/activity + smoke vs valódi E2E összemosás) és a DoD-t.
+    outputs:
+      - "canvases/registration/registration_v2_deeplink_e2e_qa_doc_fix.md"
+
+  - name: "QA deep link E2E doc javítása"
+    description: >
+      Frissítsd a docs/qa/registration_v2_deeplink_e2e.md tartalmát az alábbiak szerint:
+
+      1) Android adb parancsok:
+         - Preferált: component nélküli indítás (OS intent-resolve ellenőrzése)
+         - Opcionális debug: korrekt komponens:
+           -n com.yourorg.tipsterino/.MainActivity
+         (Tilos: io.tipsterino package / FlutterActivity komponens, mert nem valós.)
+
+      2) Válaszd szét a teszteket:
+         - Smoke/Wiring: token nélküli deeplink -> AuthCallbackScreen megjelenik,
+           tipikusan error/expired állapot várható.
+         - Valódi verify-email E2E: verifikációs email link megnyitása -> success
+           + Continue -> /home.
+
+      3) Resend CTA tisztázás:
+         - Írd le: resend gomb csak akkor jelenik meg, ha a callback URL tartalmaz
+           ?email=... query paramot; a sima smoke linknél ez nincs, ezért nem várható.
+
+      A doc maradjon rövid, parancsokkal, reprodukálhatóan.
+    outputs:
+      - "docs/qa/registration_v2_deeplink_e2e.md"
+
+  - name: "Minőségkapu + checklist + report"
+    description: >
+      Futtasd a repo standard ellenőrzését és dokumentáld:
+
+      Kötelező:
+      - ./scripts/check.sh
+
+      (Opcionális, ha a gate-ben szokás):
+      - ./scripts/flutter.sh gen-l10n
+
+      Pipáld ki a checklist pontjait és írd meg a reportot (mit javítottunk, miért,
+      milyen parancs futott, eredmény).
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_deeplink_e2e_qa_doc_fix.md"
+      - "codex/reports/registration/registration_v2_deeplink_e2e_qa_doc_fix.md"

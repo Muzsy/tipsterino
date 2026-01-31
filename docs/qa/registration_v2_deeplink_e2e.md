@@ -4,35 +4,37 @@
 - The Supabase Auth → Redirect URLs list must include `io.tipsterino://auth-callback/auth/callback`. Without it the deep link is rejected before it reaches the device.
 - The `signUp` flow currently calls `emailRedirectTo: 'io.tipsterino://auth-callback/auth/callback'`, so the redirect URL has to match exactly (scheme, host, path).
 
-## 2) Android manual test (adb)
+## 2) Android smoke / wiring test (token-less intent)
 1. Build or install the debug APK on a device/emulator.
-2. Ensure the app is either completely closed **or** already running (test both states).
-3. Run:
+2. Ensure the app is either completely closed **or** already running (test both).
+3. Run the intent without an explicit component so the OS resolves the target activity:
+   ```bash
+   adb shell am start -a android.intent.action.VIEW \
+     -d "io.tipsterino://auth-callback/auth/callback"
+   ```
+4. Optional debug variant with the real package/component:
    ```bash
    adb shell am start -a android.intent.action.VIEW \
      -d "io.tipsterino://auth-callback/auth/callback" \
-     -n io.tipsterino/io.flutter.embedding.android.FlutterActivity
+     -n com.yourorg.tipsterino/.MainActivity
    ```
+5. Expected:
+   - Tipsterino launches (new or resumed activity) and GoRouter hits `/auth/callback`.
+   - `AuthCallbackScreen` appears.
+   - Without a valid Supabase token the screen typically shows the `error/expired` state (not `success`), and **no resend CTA** is expected since the smoke link lacks `?email=`.
+   - Repeat from both closed and foreground states to verify intent handling.
+
+## 3) Android / iOS real verify-email E2E
+1. Complete a fresh registration (SignUp Step 3) so Supabase sends a verification email with the `io.tipsterino://auth-callback/auth/callback?email=...` link.
+2. Open the verification email on the same device/emulator or a device that can launch the app.
+3. Tap the magic link; the browser should redirect to `io.tipsterino://auth-callback/auth/callback?email=...`.
 4. Expected:
-   - The system launches Tipsterino (new or resumed activity).
-   - GoRouter hits `/auth/callback` and the `AuthCallbackScreen` is shown.
-   - If the Supabase session is valid, the screen resolves to AUTH_READY; if the token is expired, the UI surfaces the localized error + resend control.
-5. Repeat the command with the app already running to confirm the existing activity handles the link the same way.
+   - Tipsterino opens, GoRouter handles `/auth/callback`, and `AuthCallbackScreen` shows the `success` state.
+   - The `Continue` button becomes enabled and takes the user to `/home`.
+   - Afterward, verify the profile is authenticated (not the guest shell).
+5. Mirror the same steps on iOS simulators using `xcrun simctl openurl booted ...` for both smoke and real link flows (with and without `?email=`) so the platform configuration is also verified.
 
-## 3) iOS manual test (simctl)
-1. Boot an iOS simulator (`xcrun simctl boot <device>`).
-2. Install the app/simulate the build (if needed).
-3. Run:
-   ```bash
-   xcrun simctl openurl booted "io.tipsterino://auth-callback/auth/callback"
-   ```
-4. Expected behavior mirrors Android: the simulator opens the app, GoRouter handles `/auth/callback`, and the `AuthCallbackScreen` appears with success or error UI.
-5. Test both from a closed app (simulate by terminating) and when the app is already in the foreground.
-
-## 4) Error cases
-- Use an expired/malformed redirect URI (e.g. wrong scheme or path) to confirm the app shows the localized error message from `AuthCallbackScreen` and offers a resend option.
-- Confirm the log/analytics track the failure reason so the user sees guidance for re-sending the verification email.
-
-## 5) Notes
-- This doc is specifically for the custom scheme flow (no Universal Links / App Links).
-- Share the adb/simctl commands with QA so they can reproduce in device labs.
+## 4) Resend CTA behavior
+- The `AuthCallbackScreen` resend button appears **only when** the callback URI contains an `?email=...` query parameter.
+- The smoke/wiring intent intentionally lacks `email`, so no resend UI should appear in that flow.
+- If users need to resend, they should return to `VerifyEmailPendingScreen`, which always surfaces the resend control independent of the callback parameters.
