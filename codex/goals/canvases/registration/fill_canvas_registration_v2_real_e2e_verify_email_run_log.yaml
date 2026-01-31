@@ -1,0 +1,60 @@
+# codex/goals/canvases/registration/fill_canvas_registration_v2_real_e2e_verify_email_run_log.yaml
+
+steps:
+  - name: "Canvas létrehozása"
+    description: >
+      Hozd létre a feladat canvas-át a valódi verify-email E2E futás + auditálható log
+      és a QA doc pontosítás céljával. Rögzítsd a DoD-t, a nem-célokat, és a
+      token/secret tilalmat (reportban sem szerepelhet).
+    outputs:
+      - "canvases/registration/registration_v2_real_e2e_verify_email_run_log.md"
+
+  - name: "QA doc pontosítása a valós verify-email E2E-hez"
+    description: >
+      Frissítsd a docs/qa/registration_v2_deeplink_e2e.md fájlt úgy, hogy:
+
+      1) A Real verify-email E2E rész ne állítsa, hogy ?email=... query param lesz a
+         Supabase verify flow-ban. Írd át úgy, hogy a siker kritériuma:
+         - AuthCallbackScreen success állapot
+         - Continue -> /home
+         - a felhasználó auth-olt shellben van
+
+      2) Resend CTA magyarázat:
+         - tartsd meg: az AuthCallbackScreen csak ?email= esetén mutat resend gombot
+         - emeld ki: a valós verify link nem garantál email query paramot, ezért a
+           resend tipikusan a VerifyPendingScreenről történik
+
+      3) Logolási/privát adat szabály:
+         - jelezd: a QA logban nem mentünk tokeneket, csak azt, hogy volt-e fragment/
+           query és milyen kulcsnevek szerepeltek (értékek nélkül).
+    outputs:
+      - "docs/qa/registration_v2_deeplink_e2e.md"
+
+  - name: "Minimális debug log hozzáadása az auth callback feldolgozáshoz"
+    description: >
+      Adj hozzá minimális debugPrint alapú logolást az auth callback feldolgozás
+      köré úgy, hogy:
+
+      - logolja: hogy process() elindult, és mi az URI "alakja"
+      - az URI-t SZANITÁLD: ne logolj access_token/refresh_token/code/token értékeket
+        (csak a path + a query/fragment kulcsnevek listája)
+      - logolja: outcome (success/expired/error), és AuthException esetén code/statusCode
+      - ne változzon a flow logika, csak diagnosztika legyen
+
+      Tilos bármilyen secretet/reportba commitolni.
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/auth_callback_provider.dart"
+
+  - name: "Checklist és report létrehozása a valódi E2E futás logolásához"
+    description: >
+      Hozd létre a Codex checklistet és reportot a feladathoz.
+
+      A report tartalmazzon:
+      - Smoke parancsok (adb intent) + elvárt eredmény (error/expired)
+      - Valódi E2E futás lépései (signup -> verify email -> callback -> success)
+      - Ha az aktuális környezetben nincs device/emulator/adb, akkor:
+        - dokumentáld ezt tényként
+        - add meg a parancsokat és a "mit kell rögzíteni" mezőket (kitölthető template)
+      - Kiemelten: token/secret soha ne kerüljön a reportba.
+
+      A checklistben legyen külön po

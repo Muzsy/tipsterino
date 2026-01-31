@@ -25,16 +25,16 @@
    - Repeat from both closed and foreground states to verify intent handling.
 
 ## 3) Android / iOS real verify-email E2E
-1. Complete a fresh registration (SignUp Step 3) so Supabase sends a verification email with the `io.tipsterino://auth-callback/auth/callback?email=...` link.
-2. Open the verification email on the same device/emulator or a device that can launch the app.
-3. Tap the magic link; the browser should redirect to `io.tipsterino://auth-callback/auth/callback?email=...`.
+1. Complete a fresh registration (SignUp Step 3) so Supabase sends a verification email that ultimately redirects to `io.tipsterino://auth-callback/auth/callback`. The provider does not guarantee an `?email=` query parameter, so treat it as optional.
+2. Open the verification email on the same device/emulator (or a device that can route to the app) and tap the magic link.
+3. The browser should redirect to `io.tipsterino://auth-callback/auth/callback` (it may include query/fragment keys such as `?email=...` or `#access_token=...` depending on Supabase).
 4. Expected:
    - Tipsterino opens, GoRouter handles `/auth/callback`, and `AuthCallbackScreen` shows the `success` state.
    - The `Continue` button becomes enabled and takes the user to `/home`.
    - Afterward, verify the profile is authenticated (not the guest shell).
-5. Mirror the same steps on iOS simulators using `xcrun simctl openurl booted ...` for both smoke and real link flows (with and without `?email=`) so the platform configuration is also verified.
+5. Document the callback URI shape in the QA log: record the path and which query/fragment keys were present (without values or tokens) and note the observed screen state. Mirror the same steps on iOS simulators via `xcrun simctl openurl booted ...` to verify both platforms.
 
 ## 4) Resend CTA behavior
 - The `AuthCallbackScreen` resend button appears **only when** the callback URI contains an `?email=...` query parameter.
-- The smoke/wiring intent intentionally lacks `email`, so no resend UI should appear in that flow.
-- If users need to resend, they should return to `VerifyEmailPendingScreen`, which always surfaces the resend control independent of the callback parameters.
+- Real verify emails do not always surface `email=` (it depends on Supabase configuration), so do not expect the resend CTA every time; use `VerifyEmailPendingScreen` for re-sending.
+- The smoke/wiring intent intentionally lacks `email`, so its `AuthCallbackScreen` should not show the resend UI.

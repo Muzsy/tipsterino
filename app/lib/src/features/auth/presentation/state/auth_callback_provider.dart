@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
 
@@ -39,11 +40,12 @@ class AuthCallbackHandlerResult {
 }
 
 typedef AuthCallbackHandler =
-    Future<AuthCallbackHandlerResult> Function(Uri uri);
+  Future<AuthCallbackHandlerResult> Function(Uri uri);
 
 final authCallbackHandlerProvider = Provider<AuthCallbackHandler>((ref) {
   final config = ref.watch(supabaseConfigProvider);
   return (Uri uri) async {
+    debugPrint('AuthCallbackHandler process uri: ${_describeUri(uri)}');
     if (!config.isConfigured || config.client == null) {
       return const AuthCallbackHandlerResult(
         AuthCallbackOutcome.error,
@@ -55,6 +57,9 @@ final authCallbackHandlerProvider = Provider<AuthCallbackHandler>((ref) {
       await config.client!.auth.getSessionFromUrl(uri);
       return const AuthCallbackHandlerResult(AuthCallbackOutcome.success);
     } on AuthException catch (error) {
+      debugPrint(
+        'AuthCallbackHandler AuthException code=${error.code} status=${error.statusCode}',
+      );
       if (_isExpiredDeepLink(error)) {
         return AuthCallbackHandlerResult(
           AuthCallbackOutcome.expired,
@@ -66,6 +71,7 @@ final authCallbackHandlerProvider = Provider<AuthCallbackHandler>((ref) {
         message: error.message,
       );
     } catch (error) {
+      debugPrint('AuthCallbackHandler exception: $error');
       return AuthCallbackHandlerResult(
         AuthCallbackOutcome.error,
         message: error.toString(),
@@ -108,6 +114,9 @@ class AuthCallbackNotifier extends StateNotifier<AuthCallbackState> {
 
     final handler = _ref.read(authCallbackHandlerProvider);
     final result = await handler(uri);
+    debugPrint(
+      'AuthCallbackHandler outcome: ${result.outcome}${result.message != null ? ', message=${result.message}' : ''}',
+    );
     final nextStatus = _mapOutcomeToStatus(result.outcome);
 
     state = state.copyWith(
@@ -129,6 +138,24 @@ class AuthCallbackNotifier extends StateNotifier<AuthCallbackState> {
   }
 }
 
+String _describeUri(Uri uri) {
+  final queryKeys = uri.queryParameters.keys.toList();
+  final fragmentKeys = _extractFragmentKeyNames(uri.fragment);
+  final queryPart =
+      queryKeys.isEmpty ? 'none' : queryKeys.join(', ');
+  final fragmentPart =
+      fragmentKeys.isEmpty ? 'none' : fragmentKeys.join(', ');
+  return 'path=${uri.path}, queryKeys=[$queryPart], fragmentKeys=[$fragmentPart]';
+}
+
+List<String> _extractFragmentKeyNames(String fragment) {
+  if (fragment.isEmpty) return [];
+  return fragment
+      .split('&')
+      .map((segment) => segment.split('=').first)
+      .where((key) => key.isNotEmpty)
+      .toList();
+}
 final authCallbackProvider =
     StateNotifierProvider<AuthCallbackNotifier, AuthCallbackState>(
       (ref) => AuthCallbackNotifier(ref),
