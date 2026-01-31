@@ -20,8 +20,6 @@
   "authGenericError": "Authentication failed",
   "registerSuccess": "Account created! Check your inbox for confirmation.",
   "homeTab": "Home",
-  "ticketsTab": "Tickets",
-  "leaderboardTab": "Leaderboard",
   "settingsTab": "Settings",
   "logoutLabel": "Log out",
   "common_next": "Next",

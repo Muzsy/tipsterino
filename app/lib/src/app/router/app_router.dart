@@ -11,15 +11,20 @@ import '../../screens/bets_screen.dart';
 import '../../screens/forum_screen.dart';
 import '../../screens/guest_info_screen.dart';
 import '../../screens/home_screen.dart';
-import '../../screens/leaderboard_screen.dart';
 import '../../screens/profile_screen.dart';
 import '../../screens/settings_screen.dart';
-import '../../screens/tickets_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final refreshNotifier = ref.watch(authRefreshNotifierProvider);
 
-  const guestAllowlist = ['/home', '/bets', '/forum', '/guest-info'];
+  const guestAllowlist = [
+    '/home',
+    '/bets',
+    '/forum',
+    '/guest-info',
+    '/tickets',
+    '/leaderboard',
+  ];
 
   bool isGuestRoute(String path) {
     if (guestAllowlist.contains(path)) return true;
@@ -79,6 +84,16 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: 'register',
         builder: (context, state) => const SignUpWizardScreen(),
       ),
+      GoRoute(
+        path: '/tickets',
+        name: 'ticketsRedirect',
+        redirect: (context, state) => '/bets',
+      ),
+      GoRoute(
+        path: '/leaderboard',
+        name: 'leaderboardRedirect',
+        redirect: (context, state) => '/home',
+      ),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
@@ -101,16 +116,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: '/guest-info',
             name: 'guestInfo',
             builder: (context, state) => const GuestInfoScreen(),
-          ),
-          GoRoute(
-            path: '/tickets',
-            name: 'tickets',
-            builder: (context, state) => const TicketsScreen(),
-          ),
-          GoRoute(
-            path: '/leaderboard',
-            name: 'leaderboard',
-            builder: (context, state) => const LeaderboardScreen(),
           ),
           GoRoute(
             path: '/profile',

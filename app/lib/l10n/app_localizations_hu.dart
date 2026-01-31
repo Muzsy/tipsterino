@@ -70,12 +70,6 @@ class AppLocalizationsHu extends AppLocalizations {
   String get homeTab => 'Kezdőlap';
 
   @override
-  String get ticketsTab => 'Szelvények';
-
-  @override
-  String get leaderboardTab => 'Ranglista';
-
-  @override
   String get settingsTab => 'Beállítások';
 
   @override

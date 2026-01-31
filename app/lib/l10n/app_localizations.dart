@@ -218,18 +218,6 @@ abstract class AppLocalizations {
   /// **'Home'**
   String get homeTab;
 
-  /// No description provided for @ticketsTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Tickets'**
-  String get ticketsTab;
-
-  /// No description provided for @leaderboardTab.
-  ///
-  /// In en, this message translates to:
-  /// **'Leaderboard'**
-  String get leaderboardTab;
-
   /// No description provided for @settingsTab.
   ///
   /// In en, this message translates to:

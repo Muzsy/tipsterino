@@ -20,8 +20,6 @@
   "authGenericError": "Hitelesítési hiba",
   "registerSuccess": "Fiókod elkészült! Ellenőrizd az emailed.",
   "homeTab": "Kezdőlap",
-  "ticketsTab": "Szelvények",
-  "leaderboardTab": "Ranglista",
   "settingsTab": "Beállítások",
   "logoutLabel": "Kijelentkezés",
   "common_next": "Tovább",

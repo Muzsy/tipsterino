@@ -71,12 +71,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeTab => 'Home';
 
   @override
-  String get ticketsTab => 'Tickets';
-
-  @override
-  String get leaderboardTab => 'Leaderboard';
-
-  @override
   String get settingsTab => 'Settings';
 
   @override

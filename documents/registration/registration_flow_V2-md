@@ -16,6 +16,12 @@ A `documents/authentication/auth_implementation_plan.md` alapján a Tipsterino a
 
 ## 🧠 Fejlesztési részletek
 
+### Legacy route redirectek
+
+- `/tickets` → `/bets` (legacy guest alias)
+- `/leaderboard` → `/home` (legacy guest alias)
+- A redirectok javítják a guest-first shellre váltást úgy, hogy a régi linkek ne dobjanak loginra és ne 404-zzanak.
+
 ### 0) Spec-szinkron (doksi ellentmondások feloldása) – *első lépés*
 
 **Miért:** jelenleg több helyen eltér a valós célállapot (pl. jelszó szabályok, avatar_path vs avatar_key, profil létrehozás módja).

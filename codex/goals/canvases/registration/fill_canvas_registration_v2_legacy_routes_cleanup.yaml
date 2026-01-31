@@ -1,0 +1,124 @@
+steps:
+  - name: Repo struktúra ellenőrzése és kiindulási pontok felvétele
+    description: |
+      Ellenőrizd a tipsterino repo aktuális fájlstruktúráját. Különösen:
+      - app/lib/src/app/router/app_router.dart
+      - app/lib/src/screens/tickets_screen.dart
+      - app/lib/src/screens/leaderboard_screen.dart
+      - app/lib/l10n/app_en.arb + app_hu.arb
+      - documents/registration/registration_flow_V2-md
+      - app/test/widget/guest_routing_shells_test.dart
+      Cél: biztosan valós fájlokra dolgozzunk, és ne maradjon rejtett hivatkozás a törlésre jelölt elemekre.
+    outputs:
+      - app/lib/src/app/router/app_router.dart
+
+  - name: Legacy route-ok vendégbarát redirectje a routerben
+    description: |
+      Módosítsd az app/lib/src/app/router/app_router.dart fájlt:
+
+      1) Bővítsd a guest allowlistet a legacy útvonalakkal:
+         - /tickets
+         - /leaderboard
+
+      2) Hozz létre 2 top-level GoRoute-ot redirecttel (ne ShellRoute-on belül):
+         - path: /tickets -> redirect: /bets
+         - path: /leaderboard -> redirect: /home
+
+      3) Vedd ki a ShellRoute alól a /tickets és /leaderboard route-okat (builder + name).
+      4) Takarítsd ki az importokat (tickets_screen.dart, leaderboard_screen.dart), ha már nem kellenek.
+
+      Elvárt viselkedés:
+      - guest: /tickets és /leaderboard nem dob loginra, hanem redirectel.
+      - auth: ugyanúgy redirectel (legacy alias).
+    outputs:
+      - app/lib/src/app/router/app_router.dart
+
+  - name: Stub screenek törlése (ha már nem hivatkozik rájuk semmi)
+    description: |
+      Töröld a következő fájlokat, ha a routerből és a kódbázisból már nincs rájuk hivatkozás:
+      - app/lib/src/screens/tickets_screen.dart
+      - app/lib/src/screens/leaderboard_screen.dart
+
+      Kötelező: ellenőrizd, hogy nincs remaining import / usage.
+    outputs:
+      - app/lib/src/screens/tickets_screen.dart
+      - app/lib/src/screens/leaderboard_screen.dart
+
+  - name: Lokalizáció tisztítás + gen-l10n
+    description: |
+      Takarítsd ki a nem használt lokalizációs kulcsokat mindkét ARB-ből:
+      - app/lib/l10n/app_en.arb: ticketsTab, leaderboardTab
+      - app/lib/l10n/app_hu.arb: ticketsTab, leaderboardTab
+
+      Ezután futtasd:
+      - ./scripts/flutter.sh gen-l10n
+
+      Ellenőrizd, hogy a generált fájlok frissültek és nincs hiányzó kulcs hiba:
+      - app/lib/l10n/app_localizations.dart
+      - app/lib/l10n/app_localizations_en.dart
+      - app/lib/l10n/app_localizations_hu.dart
+    outputs:
+      - app/lib/l10n/app_en.arb
+      - app/lib/l10n/app_hu.arb
+      - app/lib/l10n/app_localizations.dart
+      - app/lib/l10n/app_localizations_en.dart
+      - app/lib/l10n/app_localizations_hu.dart
+
+  - name: Dokumentáció frissítése a legacy redirectekről
+    description: |
+      Frissítsd a documents/registration/registration_flow_V2-md fájlt:
+      - Adj hozzá egy rövid részt a legacy route redirectekről:
+        * /tickets -> /bets (legacy)
+        * /leaderboard -> /home (legacy)
+      - Indok: guest-first shell struktúra + régi linkek stabil kezelése.
+    outputs:
+      - documents/registration/registration_flow_V2-md
+
+  - name: Widget tesztek bővítése a legacy route redirectekre
+    description: |
+      Bővítsd az app/test/widget/guest_routing_shells_test.dart tesztet (vagy hozz létre új widget tesztet ugyanebben a mappában),
+      hogy lefedje a legacy route redirecteket:
+
+      1) Guest állapotban:
+         - router.go('/tickets') után /bets tartalom legyen (pl. loc.betsTab látszik)
+         - router.go('/leaderboard') után /home tartalom legyen (pl. loc.homeTab látszik)
+
+      2) Auth állapotban:
+         - ugyanez a két elvárás (redirect működik).
+
+      Kövesd a meglévő tesztek felépítését (ProviderScope override-ok, GoRouter.of(...), pumpAndSettle()).
+    outputs:
+      - app/test/widget/guest_routing_shells_test.dart
+
+  - name: Formázás és ellenőrző futtatások
+    description: |
+      Futtasd le:
+      - cd app && dart format .
+      - ./scripts/check.sh
+
+      Kötelező: ha bármi piros, javítsd a hibát és futtasd újra a check.sh-t zöldig.
+    outputs:
+      - app/lib/src/app/router/app_router.dart
+      - app/test/widget/guest_routing_shells_test.dart
+
+  - name: Codex checklist + report automatikus elkészítése
+    description: |
+      Készítsd el a feladat végrehajtása alapján a pipálható checklistet és a reportot.
+
+      Checklist tartalma:
+      - Guest allowlist tartalmazza a legacy útvonalakat (/tickets, /leaderboard).
+      - /tickets redirect /bets-re, /leaderboard redirect /home-ra.
+      - ShellRoute-ból kikerültek a régi route-ok, importok tiszták.
+      - Stub screenek törölve (ha nincs usage).
+      - ARB kulcsok takarítva + gen-l10n lefutott.
+      - Dokumentáció frissítve.
+      - Widget tesztek lefedik a guest+auth redirectet.
+      - dart format + check.sh zöld.
+
+      Report tartalma:
+      - Futtatott parancsok (gen-l10n, dart format, check.sh) és eredmények
+      - Módosított/törölt fájlok listája
+      - Rövid összegzés a redirect viselkedésről és miért kellett
+    outputs:
+      - codex/codex_checklist/registration/registration_v2_legacy_routes_cleanup.md
+      - codex/reports/registration/registration_v2_legacy_routes_cleanup.md

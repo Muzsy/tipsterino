@@ -63,4 +63,40 @@ void main() {
     expect(find.text(loc.profileTab), findsOneWidget);
     expect(find.text(loc.settingsTab), findsOneWidget);
   });
+
+  testWidgets('Guest legacy routes redirect to shell tabs', (tester) async {
+    final loc = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.pumpWidget(
+      _buildApp(state: const AuthViewState(status: AuthStatus.unauthenticated)),
+    );
+
+    await tester.pumpAndSettle();
+    final router = GoRouter.of(tester.element(find.byType(Scaffold).first));
+
+    router.go('/tickets');
+    await tester.pumpAndSettle();
+    expect(find.text(loc.betsTab), findsWidgets);
+
+    router.go('/leaderboard');
+    await tester.pumpAndSettle();
+    expect(find.text(loc.homeTab), findsWidgets);
+  });
+
+  testWidgets('Auth legacy routes redirect to shell tabs', (tester) async {
+    final loc = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.pumpWidget(
+      _buildApp(state: const AuthViewState(status: AuthStatus.authenticated)),
+    );
+
+    await tester.pumpAndSettle();
+    final router = GoRouter.of(tester.element(find.byType(Scaffold).first));
+
+    router.go('/tickets');
+    await tester.pumpAndSettle();
+    expect(find.text(loc.betsTab), findsWidgets);
+
+    router.go('/leaderboard');
+    await tester.pumpAndSettle();
+    expect(find.text(loc.homeTab), findsWidgets);
+  });
 }
