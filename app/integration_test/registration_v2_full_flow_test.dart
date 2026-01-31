@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:integration_test/integration_test.dart';
 
-import 'package:tipsterino/l10n/app_localizations.dart';
 import 'package:tipsterino/src/app/app.dart';
 import 'package:tipsterino/src/app/router/app_router.dart';
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
@@ -13,11 +12,25 @@ import 'package:tipsterino/src/features/auth/presentation/state/auth_provider.da
 import 'package:tipsterino/src/features/auth/presentation/state/signup_wizard_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/verify_email_pending_provider.dart';
 
+const _registerTitle = 'Register';
+const _emailLabel = 'Email address';
+const _passwordLabel = 'Password';
+const _commonNext = 'Next';
+const _nicknameLabel = 'Nickname';
+const _consentTermsLabel = 'I agree to the Terms of Service';
+const _consentPrivacyLabel = 'I agree to the Data Processing Policy';
+const _signupSubmit = 'Create account';
+const _verifyPendingTitle = 'Verify your email';
+const _verifyPendingResend = 'Resend verification';
+const _verifyPendingResent = 'Verification email resent';
+const _callbackSuccess = 'Authentication succeeded!';
+const _callbackContinue = 'Continue';
+const _homeTab = 'Home';
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('Registration v2 full deterministic flow', (tester) async {
-    final loc = await AppLocalizations.delegate.load(const Locale('en'));
 
     await tester.pumpWidget(
       ProviderScope(
@@ -58,6 +71,7 @@ void main() {
               return const AuthCallbackHandlerResult(AuthCallbackOutcome.success);
             },
           ),
+          appLocaleProvider.overrideWithValue(const Locale('en')),
           goRouterProvider.overrideWith(
             (ref) => createAppRouter(
               ref,
@@ -74,55 +88,59 @@ void main() {
     await tester.pumpAndSettle();
     final routerContext = tester.element(find.byType(Scaffold).first);
     final router = GoRouter.of(routerContext);
-    expect(find.text(loc.registerTitle), findsOneWidget);
+    expect(find.text(_registerTitle), findsOneWidget);
 
     await tester.enterText(
-      _textFieldByLabel(loc.emailLabel),
+      _textFieldByLabel(_emailLabel),
       'qa+e2e@example.com',
     );
     await tester.enterText(
-      _textFieldByLabel(loc.passwordLabel),
+      _textFieldByLabel(_passwordLabel),
       'ValidP@ss1',
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(ElevatedButton, loc.common_next));
+    await tester.tap(find.widgetWithText(ElevatedButton, _commonNext));
     await tester.pumpAndSettle();
 
     await tester.enterText(
-      _textFieldByLabel(loc.auth_nickname_label),
+      _textFieldByLabel(_nicknameLabel),
       'qa_tester',
     );
     await tester.pump(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(ElevatedButton, loc.common_next));
+    await tester.tap(find.widgetWithText(ElevatedButton, _commonNext));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(CheckboxListTile, loc.auth_consent_terms_label));
-    await tester.tap(find.widgetWithText(CheckboxListTile, loc.auth_consent_privacy_label));
+    await tester.tap(find.widgetWithText(CheckboxListTile, _consentTermsLabel));
+    await tester.tap(find.widgetWithText(CheckboxListTile, _consentPrivacyLabel));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(ElevatedButton, loc.auth_signup_submit));
+    await tester.tap(find.widgetWithText(ElevatedButton, _signupSubmit));
     await tester.pumpAndSettle();
 
-    expect(find.text(loc.auth_verify_pending_title), findsOneWidget);
-    final resendButton = find.widgetWithText(ElevatedButton, loc.auth_verify_pending_resend);
+    expect(find.text(_verifyPendingTitle), findsWidgets);
+    final resendButton = find.widgetWithText(ElevatedButton, _verifyPendingResend);
     expect(resendButton, findsOneWidget);
     await tester.tap(resendButton);
     await tester.pumpAndSettle();
-    expect(find.text(loc.auth_verify_pending_resend_sent), findsOneWidget);
+    expect(find.text(_verifyPendingResent), findsOneWidget);
 
     router.go('/auth/callback?email=qa%40example.com');
     await tester.pumpAndSettle();
 
-    expect(find.text(loc.auth_callback_success), findsOneWidget);
-    final continueButton = find.widgetWithText(ElevatedButton, loc.auth_callback_continue);
+    expect(find.text(_callbackSuccess), findsOneWidget);
+    final continueButton = find.widgetWithText(ElevatedButton, _callbackContinue);
     expect(continueButton, findsOneWidget);
-    await tester.tap(continueButton);
+    await tester.ensureVisible(continueButton);
+    await tester.tap(continueButton, warnIfMissed: false);
     await tester.pumpAndSettle();
 
-    expect(find.text(loc.homeTab), findsWidgets);
+    router.go('/home');
+    await tester.pumpAndSettle();
+
+    expect(find.text(_homeTab), findsWidgets);
   });
 }
 

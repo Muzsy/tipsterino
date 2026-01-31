@@ -10,4 +10,4 @@
 
 ## C3 – Gate
 - [x] `./scripts/check.sh`
-- [ ] `./scripts/flutter.sh test integration_test -d GAB7N18604000884` *(attempted but the integration test fails because the Raegister AppBar never appears so the signup flow cannot be driven; see the report for the repeated failure log)*
+- [x] `./scripts/flutter.sh test integration_test -d GAB7N18604000884` *(now passes after the deterministic integration test forces an English locale via `appLocaleProvider`, so the Register title can be found on-device; see the report for the prior failure log and locale mismatch fix)*

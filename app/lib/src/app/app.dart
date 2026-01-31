@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:tipsterino/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tipsterino/l10n/app_localizations.dart';
 
 import 'router/app_router.dart';
 import '../shared/theme/app_theme.dart';
+
+final appLocaleProvider = Provider<Locale?>((_) => null);
 
 class TipsterinoApp extends ConsumerWidget {
   const TipsterinoApp({super.key});
@@ -16,6 +18,7 @@ class TipsterinoApp extends ConsumerWidget {
       theme: AppTheme.lightTheme,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
+      locale: ref.watch(appLocaleProvider),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
     );
