@@ -1,0 +1,75 @@
+# codex/goals/canvases/registration/fill_canvas_registration_v2_full_e2e_device_run.yaml
+
+steps:
+  - name: "Canvas létrehozása"
+    description: >
+      Hozd létre a feladat canvas-át a teljes regisztráció V2 E2E (device) teszt,
+      logolás és determininsztikus integration_test céljával. Rögzítsd a DoD-t,
+      nem-célokat, kockázatokat és a token/secret tilalmat.
+    outputs:
+      - "canvases/registration/registration_v2_full_e2e_device_run.md"
+
+  - name: "QA runbook hozzáadása a teljes E2E folyamathoz"
+    description: >
+      Hozd létre a docs/qa/registration_v2_full_e2e.md fájlt.
+
+      Kötelező tartalom:
+      - Előfeltételek: Supabase Redirect URLs allowlist (io.tipsterino://auth-callback/auth/callback)
+      - Fizikai device futtatás parancs: ./scripts/flutter.sh run -d <DEVICE_ID>
+      - Android loggyűjtés: adb logcat -c + logcat szűrés (AuthCallbackHandler/AuthCallback)
+      - Teljes manuális flow lépésenként (Home guest -> Register -> Step1/2/3 -> verify pending -> email verify -> callback)
+      - Negatív smoke: token nélküli deeplink -> expired/error várakozás
+      - Mit kell rögzíteni: callback path + query/fragment kulcsnevek (értékek nélkül), képernyő státusz, navigáció eredménye
+      - Kiemelten: token/secret soha nem kerülhet doksiba/reportba/logba.
+    outputs:
+      - "docs/qa/registration_v2_full_e2e.md"
+
+  - name: "Meglévő deeplink QA doksi összekötése a full runbookkal"
+    description: >
+      Frissítsd a docs/qa/registration_v2_deeplink_e2e.md fájlt:
+      - Tegyél bele egy rövid 'Full E2E runbook' hivatkozó szekciót a
+        docs/qa/registration_v2_full_e2e.md-re.
+      - Egészítsd ki 1-2 konkrét loggyűjtő paranccsal (adb logcat -c és szűrt logcat),
+        és emeld ki, hogy csak kulcsneveket logolunk, értéket nem.
+      A doksi maradjon rövid és reprodukálható.
+    outputs:
+      - "docs/qa/registration_v2_deeplink_e2e.md"
+
+  - name: "Determininsztikus integration_test a regisztráció V2 flow-ra (fakes)"
+    description: >
+      Hozz létre egy új integration testet, ami nem függ élő Supabase-tól és emailektől.
+
+      Követelmények:
+      - ProviderScope override-okkal állítsd:
+        - authNotifierProvider: unauthenticated (autoListen: false), hogy ne legyen offline
+        - supabaseConfigProvider: isConfigured=true (client=null), hogy a wizard 'configured'-nek lássa
+        - nicknameAvailabilityCheckerProvider: mindig true (available)
+        - signupSubmitterProvider: no-op (siker)
+        - verifyEmailPendingResenderProvider: no-op (siker)
+        - verifyEmailPendingCooldownProvider: 0 (ne várjunk 60s-et)
+        - authCallbackHandlerProvider: fake success/expired válasz (külön szekcióban)
+
+      Teszt flow (minimum):
+      1) Home guest → Register CTA
+      2) Step1: email+password kitölt, Next
+      3) Step2: nickname kitölt, várakozás (debounce pump), Next
+      4) Step3: checkboxok bepipál, Done
+      5) Verify pending képernyő megjelenik, resend gomb megnyomható (cooldown=0), snackbart ellenőriz
+      6) Routerrel navigálj /auth/callback-ra extra: Uri-val és ellenőrizd a success állapotot (Continue gomb megjelenik)
+      A teszt legyen stabil (pumpAndSettle + szükség esetén rövid pump(Duration) a debounce-ra).
+    outputs:
+      - "app/integration_test/registration_v2_full_flow_test.dart"
+
+  - name: "Minőségkapu + checklist + report"
+    description: >
+      1) Futtasd: ./scripts/check.sh
+      2) (Ha van device) futtasd: ./scripts/flutter.sh test integration_test -d <DEVICE_ID>
+
+      Készítsd el és pipáld ki a checklistet, és írd meg a reportot:
+      - futtatott parancsok
+      - rövid eredmény
+      - manuális E2E részhez kitölthető log-sablon (callback keys + státusz + navigáció)
+      - tilos token/secret.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_full_e2e_device_run.md"
+      - "codex/reports/registration/registration_v2_full_e2e_device_run.md"

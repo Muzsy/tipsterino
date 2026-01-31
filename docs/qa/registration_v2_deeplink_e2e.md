@@ -4,6 +4,10 @@
 - The Supabase Auth → Redirect URLs list must include `io.tipsterino://auth-callback/auth/callback`. Without it the deep link is rejected before it reaches the device.
 - The `signUp` flow currently calls `emailRedirectTo: 'io.tipsterino://auth-callback/auth/callback'`, so the redirect URL has to match exactly (scheme, host, path).
 
+## 1.5) Full E2E runbook reference
+- For a full manual QA run, follow `docs/qa/registration_v2_full_e2e.md`, which describes the device run command, the Supabase preconditions and the manual flow from Register → Verify Pending → Auth Callback → Home.
+- The full runbook also lists the log commands (`adb logcat -c` and `adb logcat | grep -E "AuthCallbackHandler|AuthCallback"`) and stresses that only the callback URI shape (path + query/fragment key names) is recorded—not the values, tokens or secrets.
+
 ## 2) Android smoke / wiring test (token-less intent)
 1. Build or install the debug APK on a device/emulator.
 2. Ensure the app is either completely closed **or** already running (test both).

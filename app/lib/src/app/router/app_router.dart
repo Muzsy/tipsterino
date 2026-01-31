@@ -14,7 +14,7 @@ import '../../screens/home_screen.dart';
 import '../../screens/profile_screen.dart';
 import '../../screens/settings_screen.dart';
 
-final goRouterProvider = Provider<GoRouter>((ref) {
+GoRouter createAppRouter(Ref ref, {String initialLocation = '/home'}) {
   final refreshNotifier = ref.watch(authRefreshNotifierProvider);
 
   const guestAllowlist = [
@@ -32,7 +32,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   }
 
   return GoRouter(
-    initialLocation: '/home',
+    initialLocation: initialLocation,
     refreshListenable: refreshNotifier,
     debugLogDiagnostics: false,
     redirect: (context, state) {
@@ -131,4 +131,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
-});
+}
+
+final goRouterProvider = Provider<GoRouter>(
+  (ref) => createAppRouter(ref),
+);
