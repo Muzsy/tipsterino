@@ -1,0 +1,153 @@
+steps:
+  - name: "Canvas létrehozása"
+    description: >
+      Hozd létre a canvas fájlt a megadott útvonalon a kötelező szekciókkal
+      (🎯 Funkció, 🧠 Fejlesztési részletek, 🧪 Tesztállapot, 🌍 Lokalizáció, 📎 Kapcsolódások),
+      és rögzítsd benne a guest-first routing + shell-ek + stub screenek + tesztek + l10n elvárásait.
+    outputs:
+      - "canvases/registration/registration_v2_guest_routing_shells.md"
+
+  - name: "GoRouter: guest-first initialLocation + allowlist redirect"
+    description: >
+      Módosítsd az app/lib/src/app/router/app_router.dart fájlt:
+      - initialLocation legyen /home
+      - redirect logika:
+        - AuthStatus.unknown: null
+        - guest (unauthenticated + offline): engedélyezett: /home, /bets, /forum, /guest-info, /auth/*;
+          minden más -> /auth/login
+        - authenticated: /guest-info -> /home; /auth/login és /auth/register -> /home;
+          a /auth/callback és /auth/verify-pending NE legyen automatikusan kiredirectelve (maradhat).
+      Megkötés: a meglévő auth route-ok (login/register/verify-pending/callback) maradjanak működőképesek.
+    outputs:
+      - "app/lib/src/app/router/app_router.dart"
+
+  - name: "Új route-ok + ShellRoute alá felvétel"
+    description: >
+      Az app_router.dart ShellRoute routes listájába vedd fel:
+      - /bets -> BetsScreen
+      - /forum -> ForumScreen
+      - /guest-info -> GuestInfoScreen
+      - /profile -> ProfileScreen
+      A meglévő /home és /settings maradjon.
+      Ha a repóban maradnak régi /tickets vagy /leaderboard route-ok, dönts egyértelműen:
+      - vagy átirányítod őket az új utakra,
+      - vagy hagyod, de guestként úgyis /auth/login-ra esnek (allowlist miatt).
+    outputs:
+      - "app/lib/src/app/router/app_router.dart"
+
+  - name: "AppShell: dinamikus bottom nav guest vs auth"
+    description: >
+      Módosítsd az app/lib/src/app/router/app_shell.dart fájlt:
+      - Alakítsd ConsumerWidget-ké (Riverpod), és olvasd az authNotifierProvider státuszt.
+      - Guest tabok: /home (homeTab), /bets (betsTab), /forum (forumTab)
+      - Auth tabok: /home (homeTab), /profile (profileTab), /settings (settingsTab)
+      - A selectedIndex számítás ne dobjon hibát nem-tab route-oknál (pl. /guest-info),
+        ilyenkor maradjon 0.
+      - A navigáció router.go(...) maradjon.
+    outputs:
+      - "app/lib/src/app/router/app_shell.dart"
+
+  - name: "Stub screenek létrehozása"
+    description: >
+      Hozd létre az alábbi új képernyőket a meglévő screen mappastruktúrához igazodva (app/lib/src/screens):
+      - bets_screen.dart: egyszerű Scaffold/AppBar + placeholder tartalom
+      - forum_screen.dart: egyszerű Scaffold/AppBar + placeholder tartalom
+      - guest_info_screen.dart: guest információ + 2 gomb:
+        - Login -> /auth/login
+        - Register -> /auth/register
+      - profile_screen.dart: egyszerű Scaffold/AppBar + placeholder; ha authenticated és van email, megjelenítheti.
+      Minden UI string l10n kulcsból jöjjön.
+    outputs:
+      - "app/lib/src/screens/bets_screen.dart"
+      - "app/lib/src/screens/forum_screen.dart"
+      - "app/lib/src/screens/guest_info_screen.dart"
+      - "app/lib/src/screens/profile_screen.dart"
+
+  - name: "HomeScreen: guest CTA (login + register)"
+    description: >
+      Frissítsd az app/lib/src/screens/home_screen.dart fájlt:
+      - Alakítsd ConsumerWidget-ké, olvasd az authNotifierProvider-t.
+      - Guest esetén (nem authenticated): jelenjen meg két CTA gomb:
+        - /auth/login
+        - /auth/register
+      - Authenticated esetén: maradhat placeholder (pl. user stats coming soon).
+      Minden felirat l10n kulcsból jöjjön.
+    outputs:
+      - "app/lib/src/screens/home_screen.dart"
+
+  - name: "Lokalizáció bővítése + gen-l10n"
+    description: >
+      Bővítsd az ARB fájlokat (EN+HU) a guest shell + új screenek szövegeivel, minimum:
+      - betsTab, forumTab, profileTab
+      - guestInfoTitle, guestInfoBody, guestInfoLoginCta, guestInfoRegisterCta
+      - opcionális: homeGuestLoginCta, homeGuestRegisterCta, homeAuthPlaceholder
+      Majd futtasd: ./scripts/flutter.sh gen-l10n
+      A generált app_localizations*.dart fájlokat is frissítsd/commitold.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Teszt: app_smoke_test frissítése guest-first boot-ra"
+    description: >
+      Frissítsd az app/test/widget/app_smoke_test.dart tesztet:
+      - Supabase nélkül (isConfigured: false) az app guest módban bootoljon /home-ra.
+      - Ellenőrizd, hogy a Home képernyő látszik, és a guest CTA-k (Login/Register) elérhetők.
+      - Tap teszttel menj el /auth/register-re (vagy /auth/login-ra) és ellenőrizd, hogy a megfelelő képernyő megjelenik.
+    outputs:
+      - "app/test/widget/app_smoke_test.dart"
+
+  - name: "Új teszt: guest redirect + shell tabok"
+    description: >
+      Hozz létre új widget tesztet: app/test/widget/guest_routing_shells_test.dart
+      Minimum ellenőrzések:
+      1) Guest (offline vagy unauthenticated) állapotban: router.go('/settings') -> /auth/login-on köt ki.
+      2) Guest állapotban a bottom nav 3 tab feliratot mutat: Home + Bets + Forum.
+      3) Auth override állapotban a bottom nav 3 tab feliratot mutat: Home + Profile + Settings.
+      Megkötés: Riverpod override-okat használj, ne legyen hálózat.
+    outputs:
+      - "app/test/widget/guest_routing_shells_test.dart"
+
+  - name: "Dokumentáció szinkron (ha szükséges)"
+    description: >
+      Ha a documents/registration/registration_flow_V2-md “7) Router + GUEST mód + minimál shell-ek”
+      része eltér a tényleges implementációtól (pl. route lista, shell tabok), frissítsd szinkronba.
+      Ne írj át más részeket feleslegesen.
+    outputs:
+      - "documents/registration/registration_flow_V2-md"
+
+  - name: "Parancsok futtatása"
+    description: >
+      Futtasd és javíts mindent zöldre:
+      - ./scripts/flutter.sh gen-l10n
+      - cd app && dart format .
+      - ./scripts/check.sh
+      A reportban rögzítsd röviden: mi futott, pass/fail, és a lényeg.
+    outputs: []
+
+  - name: "Codex checklist automatikus létrehozása"
+    description: >
+      Készíts pipálható checklistet a feladat DoD pontjairól, minimum:
+      - guest-first initialLocation /home
+      - allowlist redirect működik (guest: /home,/bets,/forum,/guest-info,/auth/*; más -> /auth/login)
+      - authenticated: /guest-info -> /home; /auth/login + /auth/register -> /home; /auth/callback és /auth/verify-pending nincs auto-kidobva
+      - AppShell dinamikus tabok (guest 3 tab; auth 3 tab)
+      - Bets/Forum/GuestInfo/Profile screenek létrehozva
+      - HomeScreen guest CTA működik
+      - l10n kulcsok megvannak EN+HU, gen-l10n lefutott
+      - tesztek frissítve + új teszt zöld
+      - dart format + check.sh zöld
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_guest_routing_shells.md"
+
+  - name: "Codex report automatikus létrehozása"
+    description: >
+      Készíts reportot:
+      - futtatott parancsok listája (gen-l10n, dart format, check.sh)
+      - eredmény összefoglaló (mi készült el)
+      - módosított/létrehozott fájlok listája
+      - ismert megjegyzések (ha van)
+    outputs:
+      - "codex/reports/registration/registration_v2_guest_routing_shells.md"
