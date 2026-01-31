@@ -174,11 +174,17 @@ SignUp után:
   * siker → belépés (AUTH_READY)
   * hiba → lokalizált hibaüzenet + újraküldés opció
 
-### 6.6 Kötelező platform beállítások (rövid)
+#### 6.5.1 Redirect URI + Supabase allowlist
 
-* Android: intent-filter a custom scheme-re + applink domainre
-* iOS: Associated Domains (applinks)
-* Web: `/auth/verify` route + well-known fájlok (assetlinks / apple-app-site-association)
+* A signup folyamatban a kliens oldalon használt `emailRedirectTo` érték: `io.tipsterino://auth-callback/auth/callback`.
+* Ezt az URI-t fel kell venni a Supabase Auth → Redirect URLs listájába, különben a Supabase nem küldi vissza a verifikációt vagy hibát dob.
+* A GoRouter `/auth/callback` route-ja fogadja a deep linket, így a `AuthCallbackScreen` (és annak redirect logikája) minden esetben végigfut, akár az app már fut, akár a rendszer újraindítja azt.
+
+#### 6.5.2 Platform deep link configuration
+
+* `app/android/app/src/main/AndroidManifest.xml`: a `MainActivity` mellé (a meglévő `MAIN`/`LAUNCHER` intent-filter mellett) adjunk egy `VIEW` intent-filtert, ami a `io.tipsterino` scheme-et, az `auth-callback` host-ot és `/auth/callback` path prefixet kezeli, illetve `DEFAULT` és `BROWSABLE` kategóriákat használ.
+* `app/ios/Runner/Info.plist`: a `CFBundleURLTypes` tömbben regisztráljuk a `io.tipsterino` URL scheme-et, hogy a `UIApplication` `openURL` hívásai a Flutter appba vezessenek.
+* Androidon és iOS-en ezeket a konfigurációkat mindenképp a build részeként tartjuk, mert csak így garantált, hogy a Supabase `io.tipsterino://auth-callback/auth/callback` URI-ja ténylegesen visszatalál a mobil appba, és a `AuthLinkHandler` a verify-email → auth callback láncot lezárja.
 
 ## 7) Belépés (email + jelszó)
 

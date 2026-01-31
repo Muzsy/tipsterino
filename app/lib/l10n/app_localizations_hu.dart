@@ -57,8 +57,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get offlineNotice => 'A Supabase nincs konfigurálva';
 
   @override
-  String get offlineDescription =>
-      'Állítsd be a SUPABASE_URL és SUPABASE_ANON_KEY define-okat `--dart-define` segítségével az autentikációhoz.';
+  String get offlineDescription => 'Állítsd be a SUPABASE_URL és SUPABASE_ANON_KEY define-okat `--dart-define` segítségével az autentikációhoz.';
 
   @override
   String get authGenericError => 'Hitelesítési hiba';
@@ -112,8 +111,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get auth_nickname_label => 'Felhasználónév';
 
   @override
-  String get auth_nickname_help =>
-      '3-20 karakter, kisbetű, szám, pont vagy alulvonás.';
+  String get auth_nickname_help => '3-20 karakter, kisbetű, szám, pont vagy alulvonás.';
 
   @override
   String get auth_nickname_too_short => 'Adj meg legalább 3 karaktert.';
@@ -128,8 +126,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get auth_nickname_unavailable => 'A felhasználónév foglalt';
 
   @override
-  String get auth_nickname_error =>
-      'Nem sikerült ellenőrizni a felhasználónevet';
+  String get auth_nickname_error => 'Nem sikerült ellenőrizni a felhasználónevet';
 
   @override
   String get auth_avatar_label => 'Avatar';
@@ -147,8 +144,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get auth_consent_terms_label => 'Elfogadom az ÁSZF-et';
 
   @override
-  String get auth_consent_privacy_label =>
-      'Elfogadom az Adatkezelési szabályzatot';
+  String get auth_consent_privacy_label => 'Elfogadom az Adatkezelési szabályzatot';
 
   @override
   String get auth_signup_submit => 'Fiók létrehozása';
@@ -185,8 +181,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get auth_callback_title => 'Hitelesítés visszahívás';
 
   @override
-  String get auth_callback_processing =>
-      'Hitelesítési visszahívás feldolgozása...';
+  String get auth_callback_processing => 'Hitelesítési visszahívás feldolgozása...';
 
   @override
   String get auth_callback_success => 'Hitelesítés sikeres';
@@ -198,8 +193,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get auth_callback_expired => 'A link lejárt vagy érvénytelen.';
 
   @override
-  String get auth_callback_error_generic =>
-      'Nem sikerült befejezni a hitelesítést. Próbáld újra.';
+  String get auth_callback_error_generic => 'Nem sikerült befejezni a hitelesítést. Próbáld újra.';
 
   @override
   String get auth_callback_resend => 'Újraküldés';
@@ -225,8 +219,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get guestInfoTitle => 'Vendég információ';
 
   @override
-  String get guestInfoBody =>
-      'Kóstolj bele a Tipsterinóba, mielőtt bejelentkezel vagy regisztrálsz.';
+  String get guestInfoBody => 'Kóstolj bele a Tipsterinóba, mielőtt bejelentkezel vagy regisztrálsz.';
 
   @override
   String get guestInfoLoginCta => 'Bejelentkezés';

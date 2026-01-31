@@ -57,15 +57,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offlineNotice => 'Supabase not configured';
 
   @override
-  String get offlineDescription =>
-      'Define SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define to enable authentication.';
+  String get offlineDescription => 'Define SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define to enable authentication.';
 
   @override
   String get authGenericError => 'Authentication failed';
 
   @override
-  String get registerSuccess =>
-      'Account created! Check your inbox for confirmation.';
+  String get registerSuccess => 'Account created! Check your inbox for confirmation.';
 
   @override
   String get homeTab => 'Home';
@@ -113,8 +111,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_nickname_label => 'Nickname';
 
   @override
-  String get auth_nickname_help =>
-      '3-20 characters, lowercase letters, numbers, dot, or underscore.';
+  String get auth_nickname_help => '3-20 characters, lowercase letters, numbers, dot, or underscore.';
 
   @override
   String get auth_nickname_too_short => 'Enter at least 3 characters.';
@@ -147,8 +144,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_consent_terms_label => 'I agree to the Terms of Service';
 
   @override
-  String get auth_consent_privacy_label =>
-      'I agree to the Data Processing Policy';
+  String get auth_consent_privacy_label => 'I agree to the Data Processing Policy';
 
   @override
   String get auth_signup_submit => 'Create account';
@@ -185,8 +181,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_callback_title => 'Authentication callback';
 
   @override
-  String get auth_callback_processing =>
-      'Processing authentication callback...';
+  String get auth_callback_processing => 'Processing authentication callback...';
 
   @override
   String get auth_callback_success => 'Authentication succeeded!';
@@ -198,8 +193,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_callback_expired => 'The link is invalid or has expired.';
 
   @override
-  String get auth_callback_error_generic =>
-      'Unable to complete authentication. Please try logging in again.';
+  String get auth_callback_error_generic => 'Unable to complete authentication. Please try logging in again.';
 
   @override
   String get auth_callback_resend => 'Resend verification';
@@ -225,8 +219,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get guestInfoTitle => 'Guest access info';
 
   @override
-  String get guestInfoBody =>
-      'Enjoy a peek at Tipsterino while you decide to log in or register.';
+  String get guestInfoBody => 'Enjoy a peek at Tipsterino while you decide to log in or register.';
 
   @override
   String get guestInfoLoginCta => 'Log in';

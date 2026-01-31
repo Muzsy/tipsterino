@@ -193,6 +193,13 @@ SignUp siker → `VerifyEmailPendingScreen`
 * deep link / magic link kezelő
 * link hiba esetén: lokalizált üzenet + újraküldés
 
+### 4.1 Deep link platform konfiguráció
+
+* A Supabase `signUp` hívásban használt `emailRedirectTo` érték: `io.tipsterino://auth-callback/auth/callback`. Ez a deep link érkezik a kliensbe, és közvetlenül a GoRouter `/auth/callback` útvonalát hivatott megnyitni.
+* A Supabase Auth Redirect URLs listájába ezért fel kell venni ezt az URI-t, különben a verifikációs link hibát dob vagy nem fut le az appban.
+* Android: a `app/android/app/src/main/AndroidManifest.xml`-ben a `MainActivity` mellé meg kell adni egy `VIEW` intent-filtert, amely a `io.tipsterino` scheme-re, `auth-callback` hostra és `/auth/callback` pathPrefix-re van beállítva (DEFAULT + BROWSABLE kategóriákkal), így a CLI-s linkek és a Supabase visszahívás ugyanazzal a route-tal találkozik.
+* iOS: a `app/ios/Runner/Info.plist`-ben a `CFBundleURLTypes` tömbben regisztrálni kell a `io.tipsterino` URL scheme-et, hogy az `xcrun simctl openurl` vagy a Supabase link is a felhasználó által nyitott appba kerülhessen.
+* A dokumentációban ez a platform konfiguráció fix referenciát ad az E2E felvételeknek, tehát a biztonsági check listák/QA leírások is erre a URI-ra hivatkoznak.
 ---
 
 ## 5) Megjegyzés a „nincs AUTH_NO_PROFILE” szabályhoz

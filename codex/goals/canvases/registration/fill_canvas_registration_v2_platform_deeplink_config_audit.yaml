@@ -1,0 +1,79 @@
+# codex/goals/canvases/registration/fill_canvas_registration_v2_platform_deeplink_config_audit.yaml
+
+steps:
+  - name: "Canvas létrehozása"
+    description: >
+      Hozd létre / frissítsd a canvas-t a platform deep link konfiguráció audit + implement
+      feladatra. A cél a valós E2E verify-email -> deep link -> /auth/callback flow
+      device-on/emulátoron való tesztelhetősége.
+    outputs:
+      - "canvases/registration/registration_v2_platform_deeplink_config_audit.md"
+
+  - name: "Android deep link intent-filter bevezetése"
+    description: >
+      Az app AndroidManifest.xml fájljában a MainActivity-hez adj hozzá egy új intent-filtert
+      (a meglévő MAIN/LAUNCHER mellé), ami fogadja a custom scheme deep linket:
+      - scheme: io.tipsterino
+      - host: auth-callback
+      - pathPrefix: /auth/callback
+
+      Követelmények:
+      - Ne módosítsd a meglévő MAIN/LAUNCHER intent-filtert.
+      - Ne változtasd az activity meglévő attribútumait, csak bővíts.
+    outputs:
+      - "app/android/app/src/main/AndroidManifest.xml"
+
+  - name: "iOS URL scheme (CFBundleURLTypes) bevezetése"
+    description: >
+      Az iOS Runner Info.plist fájlban add hozzá a CFBundleURLTypes blokkot úgy, hogy
+      a io.tipsterino URL scheme regisztrálva legyen.
+
+      Követelmények:
+      - Ha CFBundleURLTypes nem létezik, hozd létre.
+      - Ha létezik, bővítsd.
+      - Minimalista megoldás: csak a szükséges scheme.
+    outputs:
+      - "app/ios/Runner/Info.plist"
+
+  - name: "Doksik szinkronja a konkrét redirect URI-hoz"
+    description: >
+      Frissítsd a regisztráció/auth doksikat úgy, hogy a platform deep link beállítások
+      és a használt redirect URI konkrétan rögzítve legyen:
+      - redirect URI: io.tipsterino://auth-callback/auth/callback
+      - Supabase Redirect URLs allowlist követelmény
+      - AndroidManifest + Info.plist kötelező részek
+
+      Ne írj általánosságokat (applinks/universal links), csak a jelen MVP-ben használt
+      custom scheme flow-t dokumentáld.
+    outputs:
+      - "docs/core_logic/authentication_flow.md"
+      - "docs/core_logic/registration_flow.md"
+      - "documents/registration/registration_flow_V2-md"
+
+  - name: "QA kézi E2E deep link tesztleírás hozzáadása"
+    description: >
+      Hozz létre egy új QA dokumentumot, ami lépésről lépésre leírja a valós E2E tesztet:
+      - Supabase allowlist ellenőrzés (Redirect URLs)
+      - Android: adb parancsok deep link indításra (app zárt/nyitott), elvárt képernyő (/auth/callback)
+      - iOS: simctl openurl példa (ha releváns)
+      - Eredmény/hibák: expired/invalid link UX elvárások
+
+      A doc legyen rövid, reprodukálható, parancsokkal.
+    outputs:
+      - "docs/qa/registration_v2_deeplink_e2e.md"
+
+  - name: "Minőségkapu + checklist + report"
+    description: >
+      Futtasd a kötelező ellenőrzéseket és dokumentáld az eredményt:
+
+      Kötelező:
+      - ./scripts/flutter.sh gen-l10n
+      - ./scripts/check.sh
+
+      Opcionális (csak ha van Android toolchain):
+      - cd app && flutter build apk --debug
+
+      A futások kimenetét röviden foglald össze a reportban, és pipáld ki a DoD checklistet.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_platform_deeplink_config_audit.md"
+      - "codex/reports/registration/registration_v2_platform_deeplink_config_audit.md"

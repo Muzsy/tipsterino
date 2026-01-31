@@ -22,6 +22,18 @@ A `documents/authentication/auth_implementation_plan.md` alapján a Tipsterino a
 - `/leaderboard` → `/home` (legacy guest alias)
 - A redirectok javítják a guest-first shellre váltást úgy, hogy a régi linkek ne dobjanak loginra és ne 404-zzanak.
 
+### Deep link platform audit
+
+- Supabase redirect URI: `io.tipsterino://auth-callback/auth/callback`. Ez az URI kell, hogy szerepeljen az Auth → Redirect URLs allowlistjában, mert csak így érkezik vissza a verifikációs link az appba.
+- Androidon (`app/android/app/src/main/AndroidManifest.xml`) a `MainActivity` kap egy új `VIEW` intent-filtert, amely a `io.tipsterino` scheme-et, `auth-callback` host-ot és `/auth/callback` path-prefixet kezeli (DEFAULT + BROWSABLE kategóriákkal), így a `adb shell am start` parancs és a Supabase callback ugyanúgy fog működni.
+- iOS-en (`app/ios/Runner/Info.plist`) a `CFBundleURLTypes` tömbben regisztráljuk a `io.tipsterino` scheme-et, hogy az `xcrun simctl openurl` vagy az App Store link is fel tudja nyitni a `AuthCallbackScreen`-t.
+- A dokumentációban legyen hivatkozás a `docs/qa/registration_v2_deeplink_e2e.md` fájlra, ahol részletesen leírtuk az E2E lépéseket (adb/simctl parancsok, app zárt/nyitott állapot, elvárt UX oldal, hibakezelés).
+
+### QA + regresszióellenőrzés
+
+- A `docs/qa/registration_v2_deeplink_e2e.md` az E2E parancsok és hibakezelési várakozások rövid listáját tartalmazza, így a QA csapat abban a 1-2 parancsban tudja újravalidálni a flow-t.
+- Ellenőrizzük, hogy a Supabase redirect allowlist megegyezik a `SignUp`-ban használt `emailRedirectTo` értékkel (`io.tipsterino://auth-callback/auth/callback`), és ha változik, frissítsük a QA docot is.
+
 ### 0) Spec-szinkron (doksi ellentmondások feloldása) – *első lépés*
 
 **Miért:** jelenleg több helyen eltér a valós célállapot (pl. jelszó szabályok, avatar_path vs avatar_key, profil létrehozás módja).
