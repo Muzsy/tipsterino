@@ -103,6 +103,23 @@ Szolgáltatásfüggőségi elvek: `docs/architect/service_dependencies.md`
 
 ---
 
+
+
+## Supabase MCP (Codex) – használati szabályok
+
+Ha a feladat **Supabase adatbázist / sémát / RLS-t / migrációt / RPC-ket / táblákat / oszlopokat / indexeket** érint, akkor **használd a Supabase MCP-t** a valós állapot ellenőrzésére, és **ne feltételezz** semmilyen mezőnevet, policy-t vagy SQL részletet.
+
+* **Nem kötelező mindig használni.** UI-only vagy tisztán Flutter refaktor feladatnál általában nincs rá szükség.
+* **Kötelező használni, ha a DB részletei befolyásolják a megoldást**, például:
+  * új oszlop/constraint/index hozzáadása
+  * RLS policy vagy `SECURITY DEFINER` RPC módosítás
+  * query-k, filterek, joinok, view-k, trigger-ek, edge function DB-hívások
+  * “mi a tábla pontos szerkezete?” típusú kérdések
+* **Mindig a megfelelő projektre scopolva dolgozz** (pl. `.codex/config.toml` `project_ref=...`), és ellenőrizd a kapcsolatot (`codex mcp list`) mielőtt DB-re hivatkozol.
+* **Approval / safety:** tool-hívás előtt kérj jóváhagyást az aktuális `approval_policy` szerint, és írd le röviden, mit fogsz lekérdezni / módosítani.
+* **Ne dolgozz production projekten kísérletezéssel.** Ha nincs külön utasítás, feltételezd, hogy csak olvasás / felmérés megengedett.
+* **Ne logolj szenzitív adatot.** Ne másolj ki rekordokat, kulcsokat, tokeneket; a cél a **séma és policy-k** ellenőrzése, nem a tartalmak dumpolása.
+
 ## Futtatás / tesztelés (kötelező belépési pontok)
 
 A Flutter parancsokat **nem közvetlenül** kell futtatni, hanem a wrapper scripteken keresztül:
