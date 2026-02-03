@@ -1,6 +1,6 @@
 # Supabase – `reward_definitions` tábla dokumentáció
 
-**Fájl helye a repóban:** `docs/data_model/reward_definitions.md`
+**Fájl helye a repóban:** `docs/data_model/reward_definitions_table_doc.md`
 
 Ez a dokumentum a `reward_definitions` tábla felépítését és a hozzá tartozó hozzáférési logikát rögzíti (kód és migráció nélkül).
 
@@ -98,7 +98,7 @@ Kötelező elvek:
 - ha a rekord nem létezik vagy `enabled=false`, a jóváírás nem történhet meg.
 
 MVP kötelező folyamat:
-- a regisztráció lezárásakor (a `profiles` rekord beszúrása után) a folyamat `signup_bonus` kóddal olvas összeget és jóváírja.
+- a szerveroldali post-auth init logika akkor olvas `signup_bonus`-t a `reward_definitions`-ből és hajtja végre a jóváírást, amikor az adott user `email_verified` állapota igaz, és a felhasználó első authenticated sessionje befejezte a szerveroldali inicializációt. Ez biztosítja, hogy a signup bónusz kizárólag email-verifikáció utáni triggerből indul, és a folyamat idempotens marad.
 
 ## 🧪 Tesztállapot
 Kötelező ellenőrzések:
@@ -116,6 +116,4 @@ A kliens oldali megjelenítéshez a `code` alapján kell lokalizálni (pl. `sign
 - `reward_grants`: a jóváírások naplója `code` alapján hivatkozik a jutalom definícióra
 - `user_stats`: a TippCoin egyenleg módosítása a definícióban rögzített `amount` alapján történik
 - `user_events`: minden jóváírás eseményt generál (type + code + amount)
-- Regisztráció:
-  - a `profiles` rekord sikeres létrejötte után automatikus signup bónusz jóváírás a `signup_bonus` definíció alapján
-
+- `docs/core_logic/bonus_system.md`: a single source of truth a bónuszrendszer összegsablonjairól és az email-verifikáció utáni triggerpontokról; innen származnak a részletes telemetriák és a `signup_bonus` jóváírási feltételei

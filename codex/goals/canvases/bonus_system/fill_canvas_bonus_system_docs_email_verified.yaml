@@ -1,0 +1,46 @@
+steps:
+  - name: "Felderítés és canvas"
+    description: >
+      Ellenőrizd a `docs/core_logic/bonus_system.md` (már létezik) és az érintett data_model
+      doksik tartalmát, majd készítsd el ennek a feladatnak a
+      `canvases/bonus_system/bonus_system_docs_email_verified.md` canvasát a repó konvenciói szerint
+      (funkció, nem cél, releváns fájlok, pipálható teendők, kockázatok+rollback).
+      Fontos: a `docs/core_logic/bonus_system.md` fájlt ebben a taskban NE módosítsd.
+    outputs:
+      - "canvases/bonus_system/bonus_system_docs_email_verified.md"
+
+  - name: "Data_model doksik szinkronizálása email verifikáció után"
+    description: >
+      Frissítsd az alábbi fájlokat úgy, hogy a signup bónusz triggerpontja mindenhol konzisztensen
+      EMAIL VERIFIKÁCIÓ UTÁNI legyen (verified + első authenticated session), és ne maradjon
+      olyan állítás, hogy „profiles insert után” vagy „regisztráció lezárásakor” jár.
+      Minden fájl végén legyen kereszthivatkozás a `docs/core_logic/bonus_system.md` dokumentumra
+      (single source of truth).
+      A data_model doksik elején szereplő „Fájl helye a repóban” sort igazítsd valós útvonalra,
+      vagy távolítsd el, ha félrevezető.
+    outputs:
+      - "docs/data_model/reward_definitions_table_doc.md"
+      - "docs/data_model/reward_grants_table_doc.md"
+      - "docs/data_model/user_stats_table_doc.md"
+      - "docs/data_model/user_events_table_doc.md"
+
+  - name: "Checklist és report"
+    description: >
+      Készítsd el a `codex/codex_checklist/bonus_system/bonus_system_docs_email_verified.md` és
+      `codex/reports/bonus_system/bonus_system_docs_email_verified.md` fájlokat.
+      A report tartalmazza:
+      - futtatott parancsok (pontos)
+      - eredmény röviden
+      - módosított/létrehozott fájlok listája
+      - ha bármi nem futtatható: konkrét ok + javasolt javítás
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_docs_email_verified.md"
+      - "codex/reports/bonus_system/bonus_system_docs_email_verified.md"
+
+  - name: "Repo ellenőrzése"
+    description: >
+      Futtasd a standard `./scripts/check.sh` parancsot, dokumentáld az eredményt a reportban,
+      és győződj meg róla, hogy a repo lint/test gate teljesült.
+      Ha a wrapper nem futtatható, írd le a konkrét okot és a fallback parancsokat is.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_docs_email_verified.md"

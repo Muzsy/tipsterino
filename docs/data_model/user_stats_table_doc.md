@@ -1,6 +1,6 @@
 # Supabase – `user_stats` tábla dokumentáció
 
-**Fájl helye a repóban:** `docs/data_model/user_stats.md`
+**Fájl helye a repóban:** `docs/data_model/user_stats_table_doc.md`
 
 Ez a dokumentum a `user_stats` tábla felépítését és a hozzá tartozó hozzáférési logikát rögzíti (kód és migráció nélkül).
 
@@ -63,15 +63,15 @@ A tábla nem közösségi profiladat: **nem publikus**. Az anon felhasználók n
 A `user_stats` rekord létrehozása **nem kliens oldali művelet**.
 
 Kötelező szabály:
-- A `user_stats` rekord **automatikusan** jön létre a regisztráció lezárásakor, amikor a triggerrel létrejött `profiles` rekord sikeresen beszúrásra kerül (nickname + avatar_key mezők megvannak).
-- A létrehozást szerveroldali folyamat végzi (DB trigger / security definer logika), így a kliens nem tudja manipulálni az induló állapotot.
+- A `user_stats` rekordot a szerveroldali post-auth init logika hozza létre, amint a user `email_verified` státusza igaz, a kapcsolódó `profiles` adatok (nickname + avatar_key) rendelkezésre állnak, és az első authenticated session szinkronizációja befejeződött.
+- A rekord létrehozását atomikusan végrehajtott DB művelet végzi (trigger / security definer logika), így a kliens nem tudja manipulálni az induló állapotot.
 
 Létrehozáskori állapot:
 - `user_id = auth.uid()`
 - `tippcoins = 0`
 
 Kapcsolat a signup bónusszal:
-- A signup bónusz jóváírása a regisztráció **utolsó lépése**, és ugyanebben a szerveroldali folyamatban történik:
+- A signup bónusz jóváírása ugyanaz a post-auth init logika hajtja végre, amely létrehozza a `user_stats` rekordot; a bónusz akkor aktiválódik, amikor a `email_verified` státusz igaz, és az első authenticated session szerveroldali inicializációja lezárult.
   - `user_stats` rekord biztosítása (create, ha nem létezik)
   - TippCoin jóváírás (atomikus növelés)
   - esemény rögzítése a felhasználói eseményfolyamba
@@ -111,7 +111,7 @@ Kötelező elvek:
 - minden jóváírás/levonás **kötelezően** létrehoz egy felhasználói eseményt (`user_events`) a későbbi "Események" képernyő számára
 
 Kötelező művelet (MVP):
-- **signup bónusz jóváírás** a regisztráció lezárásakor (a `profiles` rekord sikeres létrejötte után)
+- **signup bónusz jóváírás** a post-auth init logika részeként történik, az email-verifikáció és az első authenticated session szerveroldali inicializációjának befejeződése után
 
 További műveletek (későbbi bővítés):
 - napi bónusz jóváírás
@@ -134,15 +134,19 @@ Kötelező UI üzenetek (HU/EN) a szerveroldali műveletekhez:
 
 ## 📎 Kapcsolódások
 - Supabase Auth: `auth.users`
+  - a `user_id` az Auth rekordhoz kötött, az `email_verified` státusz pedig a post-auth init logika egyik feltétele
 - `profiles`: `profiles.id = user_stats.user_id`
-  - a regisztráció lezárása a triggerrel létrejött `profiles` rekord sikeres beszúrása (nickname + avatar_key kötelező)
+  - a post-auth init folyamat akkor kezdi meg a `user_stats` létrehozását, amikor a kapcsolódó `profiles` rekord (nickname + avatar_key) elkészült
 - Jutalmak / bónuszok:
   - `reward_definitions` (összegek, csak repo+migrációval változhat)
+  - `reward_grants` (Append-only ledger, ami a signup bónusz és más TippCoin jóváírások naplója)
+- `user_events`: minden TippCoin művelet eseményt rögzít, hogy az Üzenetek képernyő megbízható legyen
+- `docs/core_logic/bonus_system.md`: a bónuszrendszer single source of truth-ja; ide hivatkozik minden kapcsolatban szereplő dokumentum a verifikáció utáni triggerponton és a folyamatok részleteinél
   - `reward_grants` (egyszeri/ismétlődő jóváírások naplója)
 - Felhasználói eseményfolyam:
   - `user_events` (minden TippCoin jóváírás/levonás eseményt generál)
 - Szerveroldali folyamat:
-  - a `profiles` beszúrása után automatikus: `user_stats` biztosítás + signup bónusz jóváírás + `user_events` rögzítés
+  - a post-auth init logika automatikusan gondoskodik a `user_stats` biztosításáról, a verifikáció utáni `signup_bonus` jóváírásról és a `user_events` sorokról
 - UI:
   - Home: TippCoin egyenleg megjelenítés (csak bejelentkezett user)
   - Események oldal: TippCoin jóváírások/levonások listázása a `user_events` alapján

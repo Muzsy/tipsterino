@@ -1,6 +1,6 @@
 # Supabase – `reward_grants` tábla dokumentáció
 
-**Fájl helye a repóban:** `docs/data_model/reward_grants.md`
+**Fájl helye a repóban:** `docs/data_model/reward_grants_table_doc.md`
 
 Ez a dokumentum a `reward_grants` tábla felépítését és a hozzá tartozó hozzáférési logikát rögzíti (kód és migráció nélkül).
 
@@ -123,8 +123,8 @@ Minden jutalom jóváírása ugyanazon mintát követi:
    - amount: a jóváírt összeg
 
 ### Signup bónusz (MVP)
-- A signup bónusz jóváírás a regisztráció **utolsó lépése**.
-- Trigger pont: a `profiles` rekord sikeres beszúrása után.
+- A signup bónusz jóváírása a szerveroldali post-auth init logika része; csak akkor történik meg, ha a felhasználó `email_verified` státusza igaz, és az első authenticated session server-oldali inicializációja sikeresen lezárult.
+- A folyamat a `reward_definitions.signup_bonus` rekordját olvassa, ellenőrzi, hogy `enabled=true`, majd atomikusan insertál egy `reward_grants` sort; a duplázást a `user_id + code` egyediség garantálja.
 
 ## 🧪 Tesztállapot
 Kötelező ellenőrzések:
@@ -147,6 +147,4 @@ Megjelenítés:
   - a `reward_grants` létrejötte atomikusan növeli a `user_stats.tippcoins` mezőt
 - `user_events`:
   - minden grant kötelezően generál egy eseményt
-- Regisztráció:
-  - `profiles` insert után automatikus `signup_bonus` grant
-
+- `docs/core_logic/bonus_system.md`: a single source of truth a bónuszrendszer triggerpontjairól, összegeiről és az email-verifikáció utáni logikáról

@@ -1,6 +1,6 @@
 # Supabase – `user_events` tábla dokumentáció
 
-**Fájl helye a repóban:** `docs/data_model/user_events.md`
+**Fájl helye a repóban:** `docs/data_model/user_events_table_doc.md`
 
 Ez a dokumentum a `user_events` tábla felépítését és a hozzá tartozó hozzáférési logikát rögzíti (kód és migráció nélkül).
 
@@ -15,7 +15,7 @@ Cél:
   - kihívások
   - egyéb gamification események
 
-**MVP fókusz:** TippCoin jóváírás események rögzítése (`tippcoin_credit`) a regisztrációs signup bónuszhoz.
+**MVP fókusz:** TippCoin jóváírás események rögzítése (`tippcoin_credit`) a verifikáció utáni signup bónuszhoz, amelyet az email-verified + első authenticated session információi hajtanak.
 
 A `user_events` nem publikus. Anon felhasználó nem férhet hozzá.
 
@@ -137,7 +137,7 @@ Kötelező mintázat:
   - `payload` opcionális
 
 MVP kötelező esemény:
-- signup bónusz jóváírásakor esemény jön létre a regisztráció lezárásakor.
+- signup bónusz jóváírásakor esemény jön létre a post-auth init logika részeként; a trigger csak akkor indul el, ha az adott user email verified és az első authenticated session szerveroldali inicializációja lezárult.
 
 ## 🔎 Lekérdezés az "Események" képernyőhöz
 Kötelező szabályok:
@@ -169,4 +169,4 @@ Megjelenítés:
 - UI:
   - "Események" oldal: `user_events` lista
   - később: üzenetek/barátjelölések/kihívások is ide kerülnek
-
+- `docs/core_logic/bonus_system.md`: a bónuszrendszer single source of truth-ja; innen származik a verifikáció utáni triggerpont és a `signup_bonus` események részletes leírása
