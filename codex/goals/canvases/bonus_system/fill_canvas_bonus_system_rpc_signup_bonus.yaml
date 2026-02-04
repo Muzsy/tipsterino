@@ -1,0 +1,81 @@
+steps:
+  - name: "Canvas preflight finomítás"
+    description: >
+      Ellenőrizd a meglévő DB sémát és RLS-t a legutóbbi migráció alapján
+      (supabase/migrations/20260203000000_bonus_system_db_schema_rls.sql), és finomítsd a
+      canvases/bonus_system/bonus_system_rpc_signup_bonus.md tartalmát, hogy a konkrét tábla- és
+      oszlopnevekhez (reward_definitions/reward_grants/user_stats/user_events) és a meglévő unique
+      indexhez (reward_grants user_id+code) pontosan illeszkedjen.
+    outputs:
+      - "canvases/bonus_system/bonus_system_rpc_signup_bonus.md"
+
+  - name: "DB migráció: RPC + helper az email verifikációhoz"
+    description: >
+      Hozd létre a supabase/migrations/20260204000000_bonus_system_rpc_signup_bonus.sql migrációt.
+      Kötelező tartalom:
+      1) Helper függvény: public.is_email_verified(p_user_id uuid) returns boolean
+         - SECURITY DEFINER
+         - beállított search_path (pl. pg_catalog, public, auth)
+         - az auth.users táblából olvasson, és COALESCE-szel kezelje a mezőneveket
+           (email_confirmed_at / confirmed_at). Ha a mezőnév-eltérés nem kezelhető dinamikusan,
+           akkor a cél DB-ben létező oszlophoz igazodj.
+      2) Fő RPC: public.grant_signup_bonus_if_eligible() returns jsonb
+         - SECURITY DEFINER + stabil search_path
+         - auth.uid() kötelező (anon eset: granted=false, reason=not_authenticated)
+         - email verified ellenőrzés (not_verified)
+         - reward_definitions-ban signup_bonus enabled=true, amount>=0 (disabled)
+         - insert reward_grants(user_id, code, amount, reason) ON CONFLICT DO NOTHING RETURNING id
+           * csak akkor folytassa a stat/event műveleteket, ha új grant keletkezett
+           * already_granted eset külön reason
+         - insert user_stats(user_id) ON CONFLICT DO NOTHING
+         - update user_stats set tippcoins = tippcoins + amount, updated_at=now()
+         - insert user_events(user_id,type,code,amount,payload) értékekkel:
+           type='tippcoin_credit', code='signup_bonus', amount=<amount>, payload legalább
+           {"source":"rpc","grant_code":"signup_bonus"}
+         - visszatérő jsonb:
+           { "granted": <bool>, "amount": <int>, "reason": <text> }
+      3) Privilege:
+         - GRANT EXECUTE ON FUNCTION public.grant_signup_bonus_if_eligible() TO authenticated;
+         - (helper execute grant nem kötelező, mert belső használat, de ha adsz, akkor csak authenticated)
+      Használj CREATE OR REPLACE FUNCTION-t és a migrációban rendezetten kommenteld a szerződést.
+    outputs:
+      - "supabase/migrations/20260204000000_bonus_system_rpc_signup_bonus.sql"
+
+  - name: "SQL checks: RPC és mellékhatások"
+    description: >
+      Hozd létre a supabase/sql_checks/bonus_system_rpc_signup_bonus_checks.sql fájlt.
+      Minimum ellenőrzések:
+      - a függvények léteznek (to_regprocedure / pg_proc)
+      - a grant_signup_bonus_if_eligible SECURITY DEFINER
+      - EXECUTE jog authenticated számára megvan
+      - (opcionális) smoke: ha van test user környezet, akkor csak szerkezeti check; ne próbálj auth nélkül RPC-t futtatni.
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_signup_bonus_checks.sql"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot:
+      - migráció + checks létrehozás
+      - db push
+      - psql checks futtatás
+      - scripts/check.sh
+      A reportban legyen külön szekció a verified mezőnév döntésről (email_confirmed_at vs confirmed_at),
+      és arról, hogy a kód melyiket használja.
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_rpc_signup_bonus.md"
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus.md"
+
+  - name: "DB push + checks futtatása"
+    description: >
+      Futtasd:
+      - set -a; source .env.local; set +a; ./scripts/supabase.sh db push
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_checks.sql
+      Az eredményt rögzítsd a reportban. Ha nem futtatható, dokumentáld a konkrét okot.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd a ./scripts/check.sh parancsot, és röviden írd be az eredményt a reportba.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus.md"
