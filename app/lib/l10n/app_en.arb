@@ -77,5 +77,11 @@
   "guestInfoRegisterCta": "Register",
   "homeGuestLoginCta": "Log in",
   "homeGuestRegisterCta": "Register",
-  "homeAuthPlaceholder": "User stats coming soon."
+  "homeAuthPlaceholder": "User stats coming soon.",
+  "eventsInboxTitle": "Events",
+  "eventsInboxEntry": "Events inbox",
+  "eventsEmptyTitle": "No events yet",
+  "eventsEmptyBody": "We will show your events here as soon as they arrive.",
+  "eventSignupBonusTitle": "Signup bonus",
+  "eventSignupBonusBody": "You earned {amount} TippCoins as a signup bonus."
 }

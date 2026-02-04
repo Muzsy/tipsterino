@@ -1,0 +1,44 @@
+steps:
+  - name: "Events feature mappák + domain modell"
+    description: >
+      Hozd létre az Events feature alap mappáit:
+      - app/lib/src/features/events/domain/
+      - app/lib/src/features/events/data/
+      - app/lib/src/features/events/application/
+
+      Készítsd el a UserEvent domain modellt a docs/data_model/user_events_table_doc.md alapján.
+      Követelmények:
+      - mezők: id, type, code, amount, payload, createdAt, readAt
+      - factory: fromMap(Map<String,dynamic>) (created_at, read_at parse DateTime.parse)
+      - getter: isUnread (readAt == null)
+    outputs:
+      - "app/lib/src/features/events/domain/user_event.dart"
+
+  - name: "UserEventsRepository (Supabase query + read_at update)"
+    description: >
+      Készítsd el a repositoryt, ami a SupabaseClientet használja.
+
+      Követelmények:
+      - fetchPage({offset, limit}) -> List<UserEvent>
+        * from('user_events').select().order('created_at', ascending:false)
+        * range(offset, offset+limit-1)
+      - markRead({id}) -> void
+        * csak read_at: update({'read_at': nowIso}).eq('id', id)
+    outputs:
+      - "app/lib/src/features/events/data/user_events_repository.dart"
+
+  - name: "Provider + StateNotifier (offline/not_configured kezeléssel)"
+    description: >
+      Készítsd el a provider + notifier réteget.
+
+      Követelmények:
+      - userEventsRepositoryProvider:
+        * supabaseConfigProvider-ből olvas
+        * ha !isConfigured vagy client null -> null
+        * különben UserEventsRepository(client)
+      - userEventsProvider: StateNotifierProvider
+      - state: items, isNotConfigured, isLoading, isLoadingMore, hasMore, errorMessage
+      - metódusok: loadInitial, refresh, loadMore, markRead
+      - offline/not_configured esetén ne hívjon DB-t (repo null -> state.isNotConfigured=true)
+    outputs:
+      - "app/lib/src/features/events/application/user_events_provider.dart"

@@ -7,6 +7,7 @@ import 'package:tipsterino/src/features/auth/presentation/screens/auth_callback_
 import 'package:tipsterino/src/features/auth/presentation/screens/login_screen.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/verify_email_pending_screen.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
+import 'package:tipsterino/src/features/events/presentation/screens/events_inbox_screen.dart';
 import '../../screens/bets_screen.dart';
 import '../../screens/forum_screen.dart';
 import '../../screens/guest_info_screen.dart';
@@ -126,6 +127,11 @@ GoRouter createAppRouter(Ref ref, {String initialLocation = '/home'}) {
             path: '/settings',
             name: 'settings',
             builder: (context, state) => const SettingsScreen(),
+          ),
+          GoRoute(
+            path: '/events',
+            name: 'events',
+            builder: (context, state) => const EventsInboxScreen(),
           ),
         ],
       ),

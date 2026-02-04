@@ -1,0 +1,42 @@
+steps:
+  - name: "Widget teszt: /events route offline render"
+    description: >
+      Készíts egy widget tesztet, ami bizonyítja, hogy a /events route renderel offline/not_configured módban.
+
+      Követelmények:
+      - fájl: app/test/widget/events_inbox_route_test.dart
+      - override authNotifierProvider:
+        * AuthNotifier(ref, initialState: AuthViewState(status: authenticated), autoListen: false)
+      - override supabaseConfigProvider:
+        * SupabaseConfiguration(isConfigured: false)
+      - router.go('/events') után assert:
+        * loc.eventsInboxTitle
+        * loc.offlineNotice
+    outputs:
+      - "app/test/widget/events_inbox_route_test.dart"
+
+  - name: "Codex checklist + report (events inbox UI split)"
+    description: >
+      Készíts checklistet és reportot ehhez a split taskhoz.
+
+      Checklist tartalmazza:
+      - /events route létezik
+      - settings belépési pont létezik
+      - screen offline render stabil
+      - widget teszt hozzáadva és lefut
+
+      Report tartalmazza:
+      - rövid összegzés a tesztről (mit override-ol)
+      - fontos döntések (offline/not_configured mit jelent)
+      - futtatandó parancsok listája
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_events_inbox_ui_tests_docs.md"
+      - "codex/reports/bonus_system/bonus_system_events_inbox_ui_tests_docs.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd: ./scripts/check.sh
+
+      A PASS/FAIL státuszt és a lényeges kimeneti összegzést írd bele a reportba.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_events_inbox_ui_tests_docs.md"

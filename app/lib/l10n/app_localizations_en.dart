@@ -235,4 +235,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeAuthPlaceholder => 'User stats coming soon.';
+
+  @override
+  String get eventsInboxTitle => 'Events';
+
+  @override
+  String get eventsInboxEntry => 'Events inbox';
+
+  @override
+  String get eventsEmptyTitle => 'No events yet';
+
+  @override
+  String get eventsEmptyBody => 'We will show your events here as soon as they arrive.';
+
+  @override
+  String get eventSignupBonusTitle => 'Signup bonus';
+
+  @override
+  String eventSignupBonusBody(Object amount) {
+    return 'You earned $amount TippCoins as a signup bonus.';
+  }
 }

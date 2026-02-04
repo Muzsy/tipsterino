@@ -235,4 +235,24 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get homeAuthPlaceholder => 'Felhasználói statisztikák hamarosan.';
+
+  @override
+  String get eventsInboxTitle => 'Események';
+
+  @override
+  String get eventsInboxEntry => 'Események';
+
+  @override
+  String get eventsEmptyTitle => 'Még nincs esemény';
+
+  @override
+  String get eventsEmptyBody => 'Az események itt jelennek meg, amint történik valami.';
+
+  @override
+  String get eventSignupBonusTitle => 'Regisztrációs bónusz';
+
+  @override
+  String eventSignupBonusBody(Object amount) {
+    return '$amount TippCoin jóváírás a regisztrációért.';
+  }
 }

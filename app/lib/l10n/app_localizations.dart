@@ -538,6 +538,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'User stats coming soon.'**
   String get homeAuthPlaceholder;
+
+  /// No description provided for @eventsInboxTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get eventsInboxTitle;
+
+  /// No description provided for @eventsInboxEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Events inbox'**
+  String get eventsInboxEntry;
+
+  /// No description provided for @eventsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No events yet'**
+  String get eventsEmptyTitle;
+
+  /// No description provided for @eventsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We will show your events here as soon as they arrive.'**
+  String get eventsEmptyBody;
+
+  /// No description provided for @eventSignupBonusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Signup bonus'**
+  String get eventSignupBonusTitle;
+
+  /// No description provided for @eventSignupBonusBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You earned {amount} TippCoins as a signup bonus.'**
+  String eventSignupBonusBody(Object amount);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

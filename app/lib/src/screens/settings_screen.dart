@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tipsterino/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,6 +16,8 @@ class SettingsScreen extends ConsumerWidget {
     final isOffline = !ref.watch(supabaseConfigProvider).isConfigured;
     final userEmail = authState.session?.user.email;
     final canLogout =
+        authState.status == AuthStatus.authenticated && !isOffline;
+    final canOpenEvents =
         authState.status == AuthStatus.authenticated && !isOffline;
 
     return Scaffold(
@@ -48,6 +51,15 @@ class SettingsScreen extends ConsumerWidget {
                     }
                   : null,
               child: Text(loc.logoutLabel),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.inbox),
+              title: Text(loc.eventsInboxEntry),
+              trailing: const Icon(Icons.chevron_right),
+              enabled: canOpenEvents,
+              onTap: canOpenEvents ? () => context.goNamed('events') : null,
             ),
             if (isOffline) ...[
               const SizedBox(height: 12),

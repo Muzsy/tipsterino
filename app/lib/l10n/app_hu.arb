@@ -76,5 +76,11 @@
   "guestInfoRegisterCta": "Regisztráció",
   "homeGuestLoginCta": "Bejelentkezés",
   "homeGuestRegisterCta": "Regisztráció",
-  "homeAuthPlaceholder": "Felhasználói statisztikák hamarosan."
+  "homeAuthPlaceholder": "Felhasználói statisztikák hamarosan.",
+  "eventsInboxTitle": "Események",
+  "eventsInboxEntry": "Események",
+  "eventsEmptyTitle": "Még nincs esemény",
+  "eventsEmptyBody": "Az események itt jelennek meg, amint történik valami.",
+  "eventSignupBonusTitle": "Regisztrációs bónusz",
+  "eventSignupBonusBody": "{amount} TippCoin jóváírás a regisztrációért."
 }

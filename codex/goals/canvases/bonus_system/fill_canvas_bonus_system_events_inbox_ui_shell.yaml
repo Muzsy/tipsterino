@@ -1,0 +1,52 @@
+steps:
+  - name: "EventsInboxScreen (minimum UI)"
+    description: >
+      Hozd létre az Events inbox képernyőt az events provider alapján.
+
+      Követelmények:
+      - fájl: app/lib/src/features/events/presentation/screens/events_inbox_screen.dart
+      - AppBar title: loc.eventsInboxTitle
+      - ha state.isNotConfigured -> offline UI: loc.offlineNotice + loc.offlineDescription
+      - loading / empty / error kezelések
+      - lista: unread jelölés + createdAt megjelenítés egyszerűen
+      - tap: markRead csak unread esetén
+      - mapping minimum:
+        * type='tippcoin_credit' és code='signup_bonus' -> loc.eventSignupBonusTitle + loc.eventSignupBonusBody(amount)
+        * fallback: "$type${code != null ? ':$code' : ''}"
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"
+
+  - name: "Routing: /events + Settings belépési pont"
+    description: >
+      Kösd be a képernyőt a go_routerbe és a Settings screenből legyen elérhető.
+
+      Követelmények:
+      - app/lib/src/app/router/app_router.dart:
+        * ShellRoute routes alá új GoRoute:
+          - path: /events
+          - name: events
+          - builder: EventsInboxScreen()
+      - app/lib/src/screens/settings_screen.dart:
+        * adj hozzá belépési pontot (pl. ListTile) címkével: loc.eventsInboxEntry
+        * navigáció routerrel: context.goNamed('events') vagy context.go('/events')
+        * ne használj Navigator.push-t
+      - bottom nav tabok változatlanok maradjanak
+    outputs:
+      - "app/lib/src/app/router/app_router.dart"
+      - "app/lib/src/screens/settings_screen.dart"
+
+  - name: "Lokalizáció (EN+HU) – events inbox minimum kulcsok"
+    description: >
+      Add hozzá az új ARB kulcsokat mindkét fájlhoz:
+
+      - eventsInboxTitle
+      - eventsInboxEntry
+      - eventsEmptyTitle
+      - eventsEmptyBody
+      - eventSignupBonusTitle
+      - eventSignupBonusBody (param: {amount})
+
+      Tartsd a meglévő ARB stílust (nincs külön @meta blokk a placeholderökhöz).
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
