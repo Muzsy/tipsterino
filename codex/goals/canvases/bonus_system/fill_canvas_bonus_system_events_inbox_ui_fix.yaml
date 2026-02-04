@@ -1,0 +1,34 @@
+steps:
+  - name: "P0: EventsInboxScreen initial load (lifecycle-ból)"
+    description: >
+      Javítsd az EventsInboxScreen-t úgy, hogy belépéskor elinduljon az első betöltés.
+
+      Követelmények:
+      - alakítsd ConsumerStatefulWidget-té
+      - initState()-ben (Future.microtask) hívd: ref.read(userEventsProvider.notifier).loadInitial()
+      - legyen mounted guard (ha a microtask későn fut)
+      - ne build()-ből indítsd a loadInitial-t
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"
+
+  - name: "P1: Theme rules compliance (ColorScheme + TextTheme, hardcode kiszedés)"
+    description: >
+      A docs/architect/theme_rules.md az elsődleges. A képernyőben:
+      - szedd ki a Colors.blue (és bármilyen Colors.* hardcode) használatot
+      - unread jelölés: Theme.of(context).colorScheme.primary tokenből jöjjön (pl. primary / primary.withAlpha(0))
+      - offline/empty címsorok: Theme.of(context).textTheme.titleMedium alapú stílus, csak fontWeight finomhangolás megengedett
+      - ne maradjon const TextStyle(...) a végleges UI-ban
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"
+
+  - name: "P2: Refresh + infinite scroll (pull-to-refresh + AppBar refresh + loadMore listener)"
+    description: >
+      Bővítsd az inbox UX-et:
+      - AppBar actions: refresh IconButton → notifier.refresh(), state.isNotConfigured esetén disabled
+      - listás állapot: RefreshIndicator(onRefresh: notifier.refresh) + AlwaysScrollableScrollPhysics
+      - ScrollController listener:
+        * threshold alapú trigger: extentAfter < 300
+        * csak akkor hívj loadMore()-t, ha hasMore és nem isLoading és nem isLoadingMore és nem not_configured
+      - a meglévő "loading more" sor maradjon működő
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"

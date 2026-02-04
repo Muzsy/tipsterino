@@ -1,0 +1,99 @@
+steps:
+  - name: "Unit teszt: UserEventsNotifier (loadInitial/refresh/loadMore/markRead + error + not_configured)"
+    description: >
+      Hozd létre a provider-szintű unit tesztet a UserEventsNotifier logikára.
+      UI-t ne tesztelj, csak ProviderContainer + overrides + notifier hívások.
+
+      Fájl: app/test/unit/user_events_provider_test.dart
+
+      Követelmények:
+      - Használd a repó mintáját: ProviderContainer(overrides: [...]) + addTearDown(container.dispose)
+      - Override-old a userEventsRepositoryProvider-t:
+        * not_configured teszthez: overrideWithValue(null)
+        * működési tesztekhez: overrideWithValue(fakeRepo)
+
+      Fake repo:
+      - class FakeUserEventsRepository extends UserEventsRepository
+      - dummy: SupabaseClient('http://localhost', 'anon') a super-nek
+      - mezők:
+        * Map<int, List<UserEvent>> pages (offset -> list)
+        * List<int> fetchOffsets
+        * List<String> markReadIds
+        * bool throwOnFetch, bool throwOnMarkRead
+      - fetchPage: pusholja offsetet a fetchOffsets-be, majd:
+        * ha throwOnFetch: throw StateError('fetch failure')
+        * különben return pages[offset] ?? <UserEvent>[]
+      - markRead: ha throwOnMarkRead: throw StateError('markRead failure'), különben markReadIds.add(id)
+
+      Minimum tesztesetek (test() blokkok):
+      1) not_configured:
+         - userEventsRepositoryProvider = null
+         - expect initial state.isNotConfigured true
+         - await notifier.loadInitial()
+         - expect state.isNotConfigured true, items üres, isLoading false, errorMessage null
+      2) loadInitial success (hasMore false):
+         - pages[0] = 2 item
+         - await loadInitial()
+         - expect fetchOffsets == [0]
+         - expect items.length == 2
+         - expect hasMore == false
+         - expect isLoading == false, errorMessage null
+      3) refresh replaces items:
+         - pages[0] = [itemA]
+         - loadInitial()
+         - pages[0] = [itemB]
+         - refresh()
+         - expect fetchOffsets contains 0 legalább kétszer
+         - expect items == [itemB] (id alapján ellenőrizd)
+      4) loadMore appends:
+         - pages[0] = 20 item (pageSize trigger)
+         - pages[20] = 1 item
+         - loadInitial(); loadMore()
+         - expect fetchOffsets == [0, 20]
+         - expect items.length == 21
+         - expect hasMore == false
+      5) loadMore guard (hasMore=false):
+         - pages[0] = 1 item
+         - loadInitial(); loadMore()
+         - expect fetchOffsets == [0] (ne legyen 1-es offset fetch)
+      6) markRead success + idempotencia state-ből:
+         - pages[0] = 1 unread event (readAt null), id='e1'
+         - loadInitial()
+         - await notifier.markRead(state.items.first) -> markReadIds == ['e1'], state.items.first.readAt != null
+         - await notifier.markRead(container.read(userEventsProvider).items.first)
+           -> markReadIds marad 1 elem (nem duplázódik)
+      7) error handling:
+         - throwOnFetch=true -> loadInitial után errorMessage != null, isLoading false
+         - loadMore error: pages[0]=20, throwOnFetch=true csak loadMore előtt -> errorMessage != null, isLoadingMore false, items.length marad 20
+         - markRead error: throwOnMarkRead=true -> errorMessage != null, readAt nem változik null-ról
+
+      Tipp:
+      - UserEvent példányokhoz használj helper függvényt (id, readAt param), createdAt lehet DateTime(2024,1,1).toUtc().
+    outputs:
+      - "app/test/unit/user_events_provider_test.dart"
+
+  - name: "Codex checklist + report (events provider unit tesztek)"
+    description: >
+      Készíts checklistet és reportot ehhez a unit teszt taskhoz.
+
+      Checklist minimum:
+      - új unit teszt fájl létrejött
+      - not_configured viselkedés lefedve
+      - loadInitial/refresh/loadMore/markRead lefedve
+      - error handling lefedve
+      - check.sh PASS
+
+      Report minimum:
+      - rövid leírás a fake repo megközelítésről (mock lib nélkül)
+      - felsorolva, melyik teszt mit bizonyít
+      - futtatott parancsok + PASS státusz
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_events_provider_unit_tests.md"
+      - "codex/reports/bonus_system/bonus_system_events_provider_unit_tests.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd: ./scripts/check.sh
+      A PASS státuszt és rövid összegzést írd bele a reportba.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_events_provider_unit_tests.md"
