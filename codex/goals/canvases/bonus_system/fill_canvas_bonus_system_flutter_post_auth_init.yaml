@@ -1,0 +1,87 @@
+steps:
+  - name: "Felderítés + canvas pontosítás"
+    description: >
+      Nézd át a jelenlegi auth flow-t és a Supabase client elérését:
+      - app/lib/src/features/auth/presentation/state/auth_provider.dart
+      - app/lib/src/core/clients/supabase_provider.dart
+      - app/lib/src/features/auth/presentation/state/signup_wizard_provider.dart (RPC hívás minta)
+      Ellenőrizd a DB oldali RPC nevét és szerződését:
+      - supabase/migrations/20260204000000_bonus_system_rpc_signup_bonus.sql
+      A talált konkrét implementációs részletek alapján pontosítsd a
+      canvases/bonus_system/bonus_system_flutter_post_auth_init.md fájlt (ne inventálj nem létező fájlokat).
+    outputs:
+      - "canvases/bonus_system/bonus_system_flutter_post_auth_init.md"
+
+  - name: "Signup bonus RPC kliens réteg"
+    description: >
+      Hozd létre a signup bónusz RPC hívás kliens oldali wrappert.
+      Követelmények:
+      - használja a supabaseConfigProvider-t a SupabaseClient eléréséhez
+      - hívja a 'grant_signup_bonus_if_eligible' RPC-t
+      - a választ parse-olja egy típusos result modellre (granted/amount/reason)
+      - biztonság: ha Supabase nincs konfigurálva, dobjon értelmes (nem UI) kivételt vagy adjon vissza "not_configured" jellegű eredményt (döntést dokumentáld a reportban)
+      - legyen injektálható (providerből) a tényleges RPC caller, hogy unit tesztben stubolható legyen
+    outputs:
+      - "app/lib/src/features/rewards/data/signup_bonus_rpc.dart"
+      - "app/lib/src/features/rewards/domain/signup_bonus_grant_result.dart"
+
+  - name: "Post-auth init provider (idempotens kliens oldali runner)"
+    description: >
+      Hozz létre egy Riverpod StateNotifier alapú post-auth init runnert.
+      Követelmények:
+      - runIfNeeded(Session session) metódus
+      - ne fusson párhuzamosan (isRunning guard)
+      - tárolja: lastUserId, lastRunAt, lastResult (granted/amount/reason), lastError (ha volt)
+      - reason=not_verified nem hiba (csak eltárolni + debugPrint opcionális)
+      - a runner a signup bonus RPC wrapperen keresztül hívjon
+      - a runner nem dobhat kivételt felfelé (ne tudja megakasztani az auth flow-t)
+    outputs:
+      - "app/lib/src/features/rewards/application/post_auth_init_provider.dart"
+
+  - name: "Bekötés az AuthNotifier session változásaira"
+    description: >
+      Módosítsd az AuthNotifier-t úgy, hogy amikor authenticated session lesz (initial currentSession és onAuthStateChange),
+      akkor a post-auth init runner meghívódjon.
+      Követelmények:
+      - a hívás ne blokkolja az auth state frissítést (ne awaiteld a stream callbackben; használj microtask/unawaited mintát)
+      - offline / nincs Supabase konfiguráció esetén ne történjen hívás
+      - a meglévő AuthNotifier viselkedése (state + stream + routing) ne sérüljön
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/auth_provider.dart"
+
+  - name: "Dokumentáció: registration flow kiegészítés"
+    description: >
+      Egészítsd ki a docs/core_logic/registration_flow.md dokumentumot egy rövid, konkrét résszel:
+      - email verifikáció + első authenticated session után a kliens post-auth init fut
+      - ez meghívja a grant_signup_bonus_if_eligible RPC-t
+      - a DB oldalon történik a grant/stats/event írás (RLS miatt)
+      Ne írj hosszú elméletet, csak a flow lényegét és a hivatkozott RPC nevét.
+    outputs:
+      - "docs/core_logic/registration_flow.md"
+
+  - name: "Unit teszt: PostAuthInitNotifier"
+    description: >
+      Adj hozzá unit tesztet, ami ProviderContainerrel stubolja a signup bonus RPC caller providert.
+      Minimum esetek:
+      - sikeres granted=true válasz → state lastResult kitöltve, isRunning vissza false
+      - not_verified válasz → nincs error, lastResult reason=not_verified
+      - kivétel dobás a stubban → lastError kitöltve, nem dob tovább
+      A teszt ne igényeljen SupabaseClient-et.
+    outputs:
+      - "app/test/unit/bonus_system_post_auth_init_test.dart"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot a feladathoz.
+      Checklist: canvas ok, új rewards fájlok, runner, auth bekötés, doc frissítés, unit teszt, check.sh.
+      Report: röviden írd le a bekötési pontot, a concurrency guardot, és a futtatott parancsok kimenetét.
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_flutter_post_auth_init.md"
+      - "codex/reports/bonus_system/bonus_system_flutter_post_auth_init.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd: ./scripts/check.sh
+      Az eredményt (PASS/FAIL + lényeges összegzés) írd bele a report fájlba.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_flutter_post_auth_init.md"

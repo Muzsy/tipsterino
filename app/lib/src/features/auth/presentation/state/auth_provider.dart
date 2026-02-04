@@ -6,6 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, AuthState, Session;
 
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
+import 'package:tipsterino/src/features/rewards/application/post_auth_init_provider.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated, offline }
 
@@ -46,9 +47,7 @@ class AuthNotifier extends StateNotifier<AuthViewState> {
     final client = config.client!;
     final session = client.auth.currentSession;
     if (session != null) {
-      _updateState(
-        AuthViewState(status: AuthStatus.authenticated, session: session),
-      );
+      _handleAuthenticated(session);
     } else {
       _updateState(const AuthViewState(status: AuthStatus.unauthenticated));
     }
@@ -56,12 +55,7 @@ class AuthNotifier extends StateNotifier<AuthViewState> {
     _authSubscription = client.auth.onAuthStateChange.listen((data) {
       final currentSession = data.session;
       if (currentSession != null) {
-        _updateState(
-          AuthViewState(
-            status: AuthStatus.authenticated,
-            session: currentSession,
-          ),
-        );
+        _handleAuthenticated(currentSession);
       } else {
         _updateState(const AuthViewState(status: AuthStatus.unauthenticated));
       }
@@ -113,6 +107,23 @@ class AuthNotifier extends StateNotifier<AuthViewState> {
 
     await config.client!.auth.signOut();
     _updateState(const AuthViewState(status: AuthStatus.unauthenticated));
+  }
+
+  void _handleAuthenticated(Session session) {
+    _updateState(
+      AuthViewState(status: AuthStatus.authenticated, session: session),
+    );
+    _runPostAuthInit(session);
+  }
+
+  void _runPostAuthInit(Session session) {
+    final config = _ref.read(supabaseConfigProvider);
+    if (!config.isConfigured || config.client == null) {
+      return;
+    }
+
+    final notifier = _ref.read(postAuthInitProvider.notifier);
+    unawaited(notifier.runIfNeeded(session));
   }
 
   void _updateState(AuthViewState next) {

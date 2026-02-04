@@ -198,6 +198,18 @@ SignUp siker → `VerifyEmailPendingScreen`
 * A Supabase `signUp` hívásban használt `emailRedirectTo` érték: `io.tipsterino://auth-callback/auth/callback`. Ez a deep link érkezik a kliensbe, és közvetlenül a GoRouter `/auth/callback` útvonalát hivatott megnyitni.
 * A Supabase Auth Redirect URLs listájába ezért fel kell venni ezt az URI-t, különben a verifikációs link hibát dob vagy nem fut le az appban.
 * Android: a `app/android/app/src/main/AndroidManifest.xml`-ben a `MainActivity` mellé meg kell adni egy `VIEW` intent-filtert, amely a `io.tipsterino` scheme-re, `auth-callback` hostra és `/auth/callback` pathPrefix-re van beállítva (DEFAULT + BROWSABLE kategóriákkal), így a CLI-s linkek és a Supabase visszahívás ugyanazzal a route-tal találkozik.
+
+## 5) Post-auth init (signup bónusz RPC)
+
+Az email verifikációt követő első authenticated session során a kliens egy *post-auth init* lépést futtat, amely nem blokkolja az auth állapot frissülését. Az `AuthNotifier` az `AuthState` streamben (és inicializációkor, ha a `currentSession` már létezik) meghívja a `PostAuthInitNotifier`-t, amely a `public.grant_signup_bonus_if_eligible()` RPC-t hívja.
+
+A RPC:
+
+* az `auth.users` email igazolt státuszát ellenőrzi (`email_confirmed_at` / `confirmed_at`)
+* lefedi az idempotens `reward_grants` `/reward_grants_user_id_code_unique` konfliktusokat
+* biztosítja a `user_stats` sort, növeli a TippCoin egyenleget és létrehozza a `user_events` (`tippcoin_credit` + `signup_bonus`) eseményt
+
+A kliens csak a strukturált eredményt (`granted`, `amount`, `reason`) logolja/eltárolja, de nem jelenít meg UI üzenetet; a részletek és a trigger zajlása a serveroldali RLS és RPC lekérdezésekben zajlanak.
 * iOS: a `app/ios/Runner/Info.plist`-ben a `CFBundleURLTypes` tömbben regisztrálni kell a `io.tipsterino` URL scheme-et, hogy az `xcrun simctl openurl` vagy a Supabase link is a felhasználó által nyitott appba kerülhessen.
 * A dokumentációban ez a platform konfiguráció fix referenciát ad az E2E felvételeknek, tehát a biztonsági check listák/QA leírások is erre a URI-ra hivatkoznak.
 ---
