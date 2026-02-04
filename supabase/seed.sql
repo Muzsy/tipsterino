@@ -1,0 +1,2 @@
+-- Placeholder seed file required by supabase/config.toml.
+-- No seed data is injected for the bonus system schema task yet.

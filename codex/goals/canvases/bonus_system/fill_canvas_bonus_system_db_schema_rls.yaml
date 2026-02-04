@@ -1,0 +1,82 @@
+steps:
+  - name: "Preflight és canvas frissítés"
+    description: >
+      Ellenőrizd a releváns forrásokat a repóban (docs/core_logic/bonus_system.md + docs/data_model/*),
+      és frissítsd/finomítsd a canvases/bonus_system/bonus_system_db_schema_rls.md tartalmát,
+      hogy a tényleges supabase/ mappa szerkezettel, a wrapper scriptekkel (scripts/supabase.sh),
+      és a létrehozandó migráció/checks fájlok pontos útvonalával konzisztens legyen.
+      Ha van Supabase MCP, read-only módon ellenőrizd, hogy a reward_definitions/reward_grants/user_stats/user_events
+      táblák nem léteznek már a cél DB-ben; az eredményt majd a reportban rögzítsd.
+    outputs:
+      - "canvases/bonus_system/bonus_system_db_schema_rls.md"
+
+  - name: "Supabase seed.sql placeholder"
+    description: >
+      A supabase/config.toml seedelést vár (./seed.sql), de a fájl hiányzik. Hozd létre a
+      supabase/seed.sql fájlt üres vagy komment-only tartalommal, hogy a lokális db reset/db push folyamat
+      ne bukjon el seed hiány miatt.
+    outputs:
+      - "supabase/seed.sql"
+
+  - name: "DB migráció: bonus system táblák + RLS + grant"
+    description: >
+      Hozd létre a supabase/migrations/20260203000000_bonus_system_db_schema_rls.sql migrációt.
+      Kötelező elemek:
+      - create extension if not exists "pgcrypto";
+      - create table if not exists: public.reward_definitions, public.reward_grants, public.user_stats, public.user_events
+        a docs/data_model leírások szerint (mezők + constraint-ek + FK-k + indexek).
+      - updated_at trigger function (public.set_updated_at) + trigger reward_definitions és user_stats táblákra.
+      - RLS enable mind a 4 táblán.
+      - Policy-k:
+        * reward_definitions: nincs policy (kliens nem olvashat).
+        * reward_grants: SELECT own (user_id = auth.uid()).
+        * user_stats: SELECT own (user_id = auth.uid()).
+        * user_events: SELECT own + UPDATE own (user_id = auth.uid()).
+      - GRANT-ok:
+        * grant select on reward_grants/user_stats/user_events to authenticated;
+        * grant update (read_at) on user_events to authenticated;
+        * reward_definitions: ne adj select grantet.
+      - Bootstrap: reward_definitions kapjon signup_bonus sort (on conflict do nothing).
+        Ha az összeg még nincs véglegesítve, ideiglenesen állítsd 0-ra, és ezt írd le később a reportban.
+      Használj drop policy if exists + create policy mintát, és idempotens (IF NOT EXISTS) sémát.
+    outputs:
+      - "supabase/migrations/20260203000000_bonus_system_db_schema_rls.sql"
+
+  - name: "SQL checks: bonus system schema + rls"
+    description: >
+      Hozd létre a supabase/sql_checks/bonus_system_db_schema_rls_checks.sql fájlt.
+      Legyenek benne psql-ben futtatható ellenőrzések:
+      - to_regclass(...) alapján a 4 tábla létezése
+      - pg_class.relrowsecurity alapján RLS engedélyezve
+      - pg_policies alapján a szükséges policy-k léteznek
+      - pg_indexes alapján a kritikus indexek léteznek (reward_grants unique (user_id, code), listázós indexek)
+      - reward_definitions tartalmazza a signup_bonus rekordot
+    outputs:
+      - "supabase/sql_checks/bonus_system_db_schema_rls_checks.sql"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts pipálható checklistet és reportot a feladathoz.
+      A checklist tartalmazza: migráció + checks + seed létrehozás, db push, psql checks futtatás,
+      scripts/check.sh futtatás.
+      A reportban legyen hely a futtatott parancsoknak és rövid eredmény-összegzésnek.
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_db_schema_rls.md"
+      - "codex/reports/bonus_system/bonus_system_db_schema_rls.md"
+
+  - name: "DB push + SQL ellenőrzések"
+    description: >
+      Futtasd:
+      - set -a; source .env.local; set +a; ./scripts/supabase.sh db push
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_db_schema_rls_checks.sql
+      Az eredményt (PASS/FAIL + lényeges sorok) rögzítsd a reportban.
+      Ha a környezetben nincs db push lehetőség, dokumentáld pontosan mi hiányzik (pl. link/projektref),
+      és a checks fájl akkor is maradjon készen későbbi futtatásra.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_db_schema_rls.md"
+
+  - name: "Repo ellenőrzés"
+    description: >
+      Futtasd a ./scripts/check.sh parancsot, és a kimenet rövid összegzését írd be a reportba.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_db_schema_rls.md"
