@@ -15,7 +15,14 @@ final signupBonusRpcCallerProvider = Provider<SignupBonusRpcCaller>((ref) {
   return () async {
     final response = await client
         .rpc<Map<String, dynamic>>('grant_signup_bonus_if_eligible')
-        .single();
+        .maybeSingle();
+    if (response == null) {
+      return const SignupBonusGrantResult(
+        granted: false,
+        amount: 0,
+        reason: SignupBonusReason.disabled,
+      );
+    }
     return SignupBonusGrantResult.fromJson(response);
   };
 });

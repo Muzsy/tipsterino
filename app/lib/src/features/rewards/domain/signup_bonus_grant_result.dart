@@ -1,7 +1,16 @@
+enum SignupBonusReason {
+  granted,
+  notConfigured,
+  disabled,
+  alreadyGranted,
+  notVerified,
+  notAuthenticated,
+}
+
 class SignupBonusGrantResult {
   final bool granted;
   final int amount;
-  final String reason;
+  final SignupBonusReason reason;
 
   const SignupBonusGrantResult({
     required this.granted,
@@ -14,7 +23,7 @@ class SignupBonusGrantResult {
       return const SignupBonusGrantResult(
         granted: false,
         amount: 0,
-        reason: 'unknown',
+        reason: SignupBonusReason.notConfigured,
       );
     }
 
@@ -31,12 +40,31 @@ class SignupBonusGrantResult {
     return SignupBonusGrantResult(
       granted: map['granted'] == true,
       amount: amount,
-      reason: map['reason']?.toString() ?? 'unknown',
+      reason: SignupBonusGrantResult._reasonFromString(
+        map['reason']?.toString(),
+      ),
     );
   }
 
   const SignupBonusGrantResult.notConfigured()
       : granted = false,
         amount = 0,
-        reason = 'not_configured';
+        reason = SignupBonusReason.notConfigured;
+
+  static SignupBonusReason _reasonFromString(String? value) {
+    switch (value) {
+      case 'granted':
+        return SignupBonusReason.granted;
+      case 'not_verified':
+        return SignupBonusReason.notVerified;
+      case 'disabled':
+        return SignupBonusReason.disabled;
+      case 'already_granted':
+        return SignupBonusReason.alreadyGranted;
+      case 'not_authenticated':
+        return SignupBonusReason.notAuthenticated;
+      default:
+        return SignupBonusReason.notConfigured;
+    }
+  }
 }

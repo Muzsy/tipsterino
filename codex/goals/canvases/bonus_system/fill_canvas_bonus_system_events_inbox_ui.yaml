@@ -1,0 +1,132 @@
+steps:
+  - name: "Felderítés + canvas pontosítás"
+    description: >
+      Ellenőrizd a jelenlegi router/shell/settings struktúrát a repóban:
+      - app/lib/src/app/router/app_router.dart
+      - app/lib/src/app/router/app_shell.dart
+      - app/lib/src/screens/settings_screen.dart
+      Ellenőrizd a user_events DB szerződését:
+      - supabase/migrations/20260203000000_bonus_system_db_schema_rls.sql
+      - docs/data_model/user_events_table_doc.md
+      Ezek alapján pontosítsd a canvases/bonus_system/bonus_system_events_inbox_ui.md fájlt
+      (ne legyen benne hibás fájlnév vagy útvonal).
+    outputs:
+      - "canvases/bonus_system/bonus_system_events_inbox_ui.md"
+
+  - name: "Events domain model"
+    description: >
+      Hozd létre a user_events rekordhoz a típusos domain modellt.
+      Követelmények:
+      - id, type, code, amount, payload, createdAt, readAt mezők
+      - factory Map<String,dynamic> -> model (Supabase select map alapján)
+      - helper getter: isUnread (readAt == null)
+    outputs:
+      - "app/lib/src/features/events/domain/user_event.dart"
+
+  - name: "User events repository (Supabase query + update)"
+    description: >
+      Hozd létre a repositoryt, ami a SupabaseClienten keresztül kezeli a user_events táblát.
+      Követelmények:
+      - fetchPage({required int offset, required int limit}) -> List<UserEvent>
+        * order by created_at desc
+        * paging: range(offset, offset+limit-1)
+      - markRead({required String id}) -> void
+        * csak read_at frissítés: update({'read_at': nowIso}).eq('id', id)
+      - ne dobjon kivételt konfigurálatlan Supabase esetén: ezt a provider/notifier réteg kezelje
+        (a repo feltételezheti, hogy kap érvényes clientet)
+    outputs:
+      - "app/lib/src/features/events/data/user_events_repository.dart"
+
+  - name: "Events state + notifier provider"
+    description: >
+      Hozz létre Riverpod StateNotifier alapú állapotkezelést a listához.
+      Követelmények:
+      - állapot: items, isLoading, isLoadingMore, hasMore, errorMessage
+      - metódusok: loadInitial(), refresh(), loadMore(), markRead(UserEvent event)
+      - isRunning jellegű guard (ne fusson párhuzamosan ugyanaz a művelet)
+      - supabaseConfigProvider alapján:
+        * ha nincs konfigurálva -> állapot legyen offline (errorMessage nélkül, inkább egy flag vagy "not_configured" state)
+        * ne hívjon DB-t offline módban
+      - hiba esetén: errorMessage kitölt + retry lehetséges
+    outputs:
+      - "app/lib/src/features/events/application/user_events_provider.dart"
+
+  - name: "Events inbox screen (UI)"
+    description: >
+      Hozd létre a képernyőt, ami a notifier state-et figyeli és megjeleníti.
+      Követelmények:
+      - AppBar title: loc.eventsInboxTitle
+      - Offline nézet: loc.offlineNotice + loc.offlineDescription (ha supabase nincs konfigurálva)
+      - Loading: progress
+      - Empty: loc.eventsEmptyTitle + loc.eventsEmptyBody
+      - Lista: ListView + RefreshIndicator
+        * olvasatlan jelölés (pl. leading dot / fontWeight / badge)
+        * tap: markRead (csak ha unread)
+        * az esemény címe legalább a következőket kezelje:
+          - type='tippcoin_credit' + code='signup_bonus' -> loc.eventSignupBonusTitle + loc.eventSignupBonusBody(amount)
+          - fallback: "$type${code != null ? ':$code' : ''}"
+      - Pagination: load more gomb vagy scroll trigger (egyszerű, stabil megoldás)
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"
+
+  - name: "Routing: /events route + settings belépési pont"
+    description: >
+      Kösd be a képernyőt a routerbe és a Settings screenből legyen elérhető.
+      Követelmények:
+      - app_router.dart: új GoRoute a ShellRoute alatt:
+        * path: /events
+        * name: events
+        * builder: EventsInboxScreen()
+      - settings_screen.dart: adj hozzá ListTile-t (vagy hasonló) belépési pontnak:
+        * cím: loc.eventsInboxEntry
+        * navigáció: router alapú (context.goNamed('events') vagy context.go('/events'))
+        * ne használj Navigator.push-t
+      - a bottom nav tabok NE változzanak
+    outputs:
+      - "app/lib/src/app/router/app_router.dart"
+      - "app/lib/src/screens/settings_screen.dart"
+
+  - name: "Lokalizáció (EN+HU)"
+    description: >
+      Add hozzá az új kulcsokat mindkét ARB fájlhoz:
+      - eventsInboxTitle
+      - eventsInboxEntry
+      - eventsEmptyTitle
+      - eventsEmptyBody
+      - eventSignupBonusTitle
+      - eventSignupBonusBody (param: amount)
+      Futtasd a standard generálást a repo szokásos módján (a check.sh úgyis lefuttatja),
+      és javítsd a buildet, ha gen-l10n miatt törik.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+
+  - name: "Widget smoke teszt: /events route"
+    description: >
+      Adj hozzá egy widget tesztet, ami bizonyítja, hogy a /events route elérhető és renderel.
+      Minimum elvárás:
+      - ProviderScope override:
+        * authNotifierProvider -> authenticated (autoListen false)
+        * supabaseConfigProvider -> isConfigured false (offline)
+      - navigálj routerrel /events-re
+      - assert: loc.eventsInboxTitle és loc.offlineNotice megjelenik
+      Bónusz: ellenőrizd, hogy Settings screenben látszik az events belépési tile.
+    outputs:
+      - "app/test/widget/events_inbox_route_test.dart"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot.
+      Checklist: routing + settings entry, events feature fájlok, l10n kulcsok, widget teszt.
+      Report: röviden rögzítsd a fő döntéseket (paging, unread jelölés, offline viselkedés),
+      és a futtatott parancsok összegzését.
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_events_inbox_ui.md"
+      - "codex/reports/bonus_system/bonus_system_events_inbox_ui.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd: ./scripts/check.sh
+      Az eredményt (PASS/FAIL + lényeges összegzés) írd bele a reportba.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_events_inbox_ui.md"

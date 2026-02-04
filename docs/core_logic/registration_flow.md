@@ -210,11 +210,9 @@ A RPC:
 * biztosítja a `user_stats` sort, növeli a TippCoin egyenleget és létrehozza a `user_events` (`tippcoin_credit` + `signup_bonus`) eseményt
 
 A kliens csak a strukturált eredményt (`granted`, `amount`, `reason`) logolja/eltárolja, de nem jelenít meg UI üzenetet; a részletek és a trigger zajlása a serveroldali RLS és RPC lekérdezésekben zajlanak.
-* iOS: a `app/ios/Runner/Info.plist`-ben a `CFBundleURLTypes` tömbben regisztrálni kell a `io.tipsterino` URL scheme-et, hogy az `xcrun simctl openurl` vagy a Supabase link is a felhasználó által nyitott appba kerülhessen.
-* A dokumentációban ez a platform konfiguráció fix referenciát ad az E2E felvételeknek, tehát a biztonsági check listák/QA leírások is erre a URI-ra hivatkoznak.
 ---
 
-## 5) Megjegyzés a „nincs AUTH_NO_PROFILE” szabályhoz
+## 6) Megjegyzés a „nincs AUTH_NO_PROFILE” szabályhoz
 
 Bár a flow első lépése email+jelszó, a user **nem jön létre** addig, amíg a nickname+avatar és a kötelező jóváhagyások nincsenek meg.
 

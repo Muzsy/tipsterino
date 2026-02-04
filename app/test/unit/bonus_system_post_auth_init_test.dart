@@ -28,7 +28,7 @@ void main() {
 
   test('records granted result when RPC returns success', () async {
     final container = ProviderContainer(overrides: [
-      signupBonusRpcCallerProvider.overrideWithValue(() async => const SignupBonusGrantResult(granted: true, amount: 42, reason: 'granted')),
+      signupBonusRpcCallerProvider.overrideWithValue(() async => const SignupBonusGrantResult(granted: true, amount: 42, reason: SignupBonusReason.granted)),
     ]);
     addTearDown(container.dispose);
 
@@ -37,7 +37,7 @@ void main() {
 
     expect(state.lastResult?.granted, isTrue);
     expect(state.lastResult?.amount, 42);
-    expect(state.lastResult?.reason, 'granted');
+    expect(state.lastResult?.reason, SignupBonusReason.granted);
     expect(state.lastUserId, userId);
     expect(state.isRunning, isFalse);
     expect(state.lastError, isNull);
@@ -45,14 +45,14 @@ void main() {
 
   test('records not_verified result without marking error', () async {
     final container = ProviderContainer(overrides: [
-      signupBonusRpcCallerProvider.overrideWithValue(() async => const SignupBonusGrantResult(granted: false, amount: 0, reason: 'not_verified')),
+      signupBonusRpcCallerProvider.overrideWithValue(() async => const SignupBonusGrantResult(granted: false, amount: 0, reason: SignupBonusReason.notVerified)),
     ]);
     addTearDown(container.dispose);
 
     await container.read(postAuthInitProvider.notifier).runIfNeeded(session);
     final state = container.read(postAuthInitProvider);
 
-    expect(state.lastResult?.reason, 'not_verified');
+    expect(state.lastResult?.reason, SignupBonusReason.notVerified);
     expect(state.lastError, isNull);
     expect(state.isRunning, isFalse);
   });
