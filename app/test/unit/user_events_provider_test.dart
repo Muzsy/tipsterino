@@ -36,6 +36,7 @@ class FakeUserEventsRepository extends UserEventsRepository {
   final Map<int, List<UserEvent>> pages;
   final List<int> fetchOffsets = [];
   final List<String> markReadIds = [];
+  int markReadCallCount = 0;
   bool throwOnFetch;
   bool throwOnMarkRead;
 
@@ -57,9 +58,8 @@ class FakeUserEventsRepository extends UserEventsRepository {
     if (throwOnMarkRead) {
       throw StateError('markRead failure');
     }
-    if (!markReadIds.contains(id)) {
-      markReadIds.add(id);
-    }
+    markReadCallCount++;
+    markReadIds.add(id);
   }
 }
 
@@ -202,10 +202,12 @@ void main() {
     final firstEvent = container.read(userEventsProvider).items.first;
     await notifier.markRead(firstEvent);
     expect(repo.markReadIds, ['e1']);
+    expect(repo.markReadCallCount, 1);
     expect(container.read(userEventsProvider).items.first.readAt, isNotNull);
 
     await notifier.markRead(container.read(userEventsProvider).items.first);
-    expect(repo.markReadIds, ['e1']);
+    expect(repo.markReadCallCount, 1);
+    expect(repo.markReadIds.length, 1);
   });
 
   group('error handling', () {

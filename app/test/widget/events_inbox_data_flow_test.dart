@@ -16,6 +16,7 @@ class FakeUserEventsRepository implements UserEventsRepository {
   final Map<int, List<UserEvent>> _pages;
   final List<int> fetchOffsets = [];
   final List<String> markReadIds = [];
+  int markReadCallCount = 0;
 
   @override
   Future<List<UserEvent>> fetchPage({required int offset, required int limit}) async {
@@ -27,9 +28,8 @@ class FakeUserEventsRepository implements UserEventsRepository {
   @override
   Future<void> markRead({required String id}) async {
     await Future.delayed(Duration.zero);
-    if (!markReadIds.contains(id)) {
-      markReadIds.add(id);
-    }
+    markReadCallCount++;
+    markReadIds.add(id);
   }
 }
 
@@ -127,9 +127,11 @@ void main() {
     await tester.tap(tileFinder);
     await tester.pumpAndSettle();
     expect(repo.markReadIds, equals(['e1']));
+    expect(repo.markReadCallCount, 1);
 
     await tester.tap(tileFinder);
     await tester.pumpAndSettle();
-    expect(repo.markReadIds, equals(['e1']));
+    expect(repo.markReadCallCount, 1);
+    expect(repo.markReadIds.length, 1);
   });
 }

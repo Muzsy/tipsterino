@@ -1,0 +1,70 @@
+steps:
+  - name: "Widget teszt: fake repo dedup kivétele + markRead call count assert"
+    description: >
+      Módosítsd a widget tesztben lévő FakeUserEventsRepository-t úgy, hogy ne dedupolja a markRead hívásokat.
+
+      Fájl: app/test/widget/events_inbox_data_flow_test.dart
+
+      Teendők:
+      - a FakeUserEventsRepository-ben vezess be:
+        * int markReadCallCount = 0;
+        * List<String> markReadIds = <String>[];
+      - markRead({id}) implementáció:
+        * ha throwOnMarkRead -> dobjon
+        * markReadCallCount++
+        * markReadIds.add(id) (ne legyen contains alapú dedup)
+      - a "MarkRead is idempotent" tesztben frissítsd az elvárásokat:
+        * első tap után: callCount == 1, ids == ['e1']
+        * második tap után: callCount továbbra is 1, ids.length == 1
+
+      Cél: ha a notifier kétszer hívná a markRead-ot, a teszt bukjon.
+    outputs:
+      - "app/test/widget/events_inbox_data_flow_test.dart"
+
+  - name: "Unit teszt: fake repo dedup kivétele + markRead call count assert"
+    description: >
+      Módosítsd a unit tesztben lévő FakeUserEventsRepository-t úgy, hogy ne dedupolja a markRead hívásokat.
+
+      Fájl: app/test/unit/user_events_provider_test.dart
+
+      Teendők:
+      - a FakeUserEventsRepository-ben vezess be:
+        * int markReadCallCount = 0;
+        * List<String> markReadIds = <String>[];
+      - markRead({id}) implementáció:
+        * ha throwOnMarkRead -> dobjon
+        * markReadCallCount++
+        * markReadIds.add(id) (ne legyen contains alapú dedup)
+      - az idempotencia tesztrészt frissítsd:
+        * első markRead után: callCount == 1, ids == ['e1']
+        * második markRead (state-ből vett eventtel) után: callCount marad 1, ids.length == 1
+
+      Cél: ha a notifier kétszer hívná a markRead-ot, a teszt bukjon.
+    outputs:
+      - "app/test/unit/user_events_provider_test.dart"
+
+  - name: "Codex checklist + report (markRead teszt hardening)"
+    description: >
+      Készíts checklistet és reportot ehhez a javító taskhoz.
+
+      Checklist minimum:
+      - widget teszt fake repo dedup kivezetve
+      - unit teszt fake repo dedup kivezetve
+      - idempotencia assert már callCount-al bizonyít
+      - check.sh PASS
+
+      Report minimum:
+      - mi volt a hiba (dedup miatt ál-bizonyítás)
+      - milyen módon lett javítva (callCount + duplikátum engedése)
+      - milyen tesztek érintettek (2 fájl)
+      - futtatott parancsok + PASS státusz
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_events_markread_test_hardening.md"
+      - "codex/reports/bonus_system/bonus_system_events_markread_test_hardening.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd: ./scripts/check.sh
+      A PASS státuszt és rövid összegzést írd bele a reportba.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_events_markread_test_hardening.md"
