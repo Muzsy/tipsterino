@@ -1,0 +1,68 @@
+steps:
+  - name: "user_events DB contract SQL checks"
+    description: >
+      Hozd létre: supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql
+
+      Követelmények:
+      - BEGIN; ... ROLLBACK;
+      - DO $$ ... $$; blokk(ok), hibánál RAISE EXCEPTION.
+
+      1) Oszlopok + típusok ellenőrzése:
+         - public.user_events létezik
+         - ellenőrizd a minimum oszlopokat és data_type-ot:
+           id uuid
+           user_id uuid
+           type text
+           payload jsonb
+           created_at timestamp with time zone
+           read_at timestamp with time zone (nullable)
+         - code/amount típusát is ellenőrizd a repo doksi szerint (ha nullable, akkor is ok)
+
+      2) RLS:
+         - pg_class.relrowsecurity true a public.user_events-re
+
+      3) Grants:
+         - has_table_privilege('authenticated','public.user_events','SELECT') = true
+         - has_table_privilege('authenticated','public.user_events','INSERT') = false
+         - has_table_privilege('authenticated','public.user_events','DELETE') = false
+         - has_column_privilege('authenticated','public.user_events','read_at','UPDATE') = true
+         - has_column_privilege('authenticated','public.user_events','type','UPDATE') = false
+         - has_column_privilege('authenticated','public.user_events','code','UPDATE') = false
+         - has_column_privilege('authenticated','public.user_events','amount','UPDATE') = false
+         - has_column_privilege('authenticated','public.user_events','payload','UPDATE') = false
+
+      4) Index sanity:
+         - legyen legalább 1 index, amiben benne van user_id és created_at (bármilyen sorrendben)
+         - ha nincs -> RAISE EXCEPTION
+
+      - search_path: pg_catalog, public, auth
+    outputs:
+      - "supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql"
+
+  - name: "Checklist + report (user_events DB contract)"
+    description: >
+      Készíts checklistet és reportot.
+
+      Checklist minimum:
+      - oszlopok+típusok ellenőrzés megvan
+      - RLS enabled check megvan
+      - grants/column update contract megvan
+      - index sanity check megvan
+      - futtatási parancs dokumentálva
+      - PASS
+
+      Report minimum:
+      - rövid összegzés: mit véd a contract (UI query + read_at update)
+      - futtatott parancs + PASS
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_user_events_db_contract_checks.md"
+      - "codex/reports/bonus_system/bonus_system_user_events_db_contract_checks.md"
+
+  - name: "DB checks futtatása psql-lel"
+    description: >
+      Futtasd:
+      set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql
+
+      Írd bele a reportba a PASS státuszt és rövid összegzést.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_user_events_db_contract_checks.md"

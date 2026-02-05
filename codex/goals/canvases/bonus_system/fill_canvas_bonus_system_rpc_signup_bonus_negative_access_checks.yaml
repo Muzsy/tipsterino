@@ -1,0 +1,65 @@
+steps:
+  - name: "Negatív access SQL checks (anon/authenticated privilege)"
+    description: >
+      Hozd létre: supabase/sql_checks/bonus_system_rpc_signup_bonus_negative_access_checks.sql
+
+      Követelmények:
+      - BEGIN; ... ROLLBACK;
+      - DO $$ ... $$; blokk(ok) privilege ellenőrzésre.
+
+      1) anon EXECUTE tiltás az RPC-re:
+         - SET LOCAL ROLE anon;
+         - próbáld meghívni: select public.grant_signup_bonus_if_eligible();
+         - elvárt: insufficient_privilege
+         - ha nem dob -> RAISE EXCEPTION
+
+      2) anon közvetlen írás tiltás:
+         - SET LOCAL ROLE anon;
+         - próbáld:
+           * insert into public.reward_grants(...)
+           * insert/update public.user_stats
+           * insert into public.user_events(...)
+         - mindegyiknél elvárt: insufficient_privilege (fogd és oké)
+         - ha nem dob -> RAISE EXCEPTION
+         - Tipp: használj minimál dummy sorokat (pl. uuid_generate_v4() vagy gen_random_uuid()) a próbákhoz;
+           ha a táblák NOT NULL miatt túl sok mezőt kérnek, akkor elég privilege függvényeket ellenőrizni:
+           has_table_privilege('anon','public.reward_grants','INSERT') = false stb.
+
+      3) authenticated oszlopszintű UPDATE:
+         - Ellenőrizd:
+           * has_column_privilege('authenticated','public.user_events','read_at','UPDATE') = true
+           * has_column_privilege('authenticated','public.user_events','amount','UPDATE') = false
+           * has_column_privilege('authenticated','public.user_events','type','UPDATE') = false
+           * has_column_privilege('authenticated','public.user_events','code','UPDATE') = false
+         - Ha bármelyik eltér -> RAISE EXCEPTION
+
+      - állíts be search_path-et: pg_catalog, public, auth
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_signup_bonus_negative_access_checks.sql"
+
+  - name: "Checklist + report (negatív access checks)"
+    description: >
+      Készíts checklistet és reportot.
+
+      Checklist minimum:
+      - RPC anon EXECUTE tiltás bizonyítva
+      - anon táblák írás tiltás bizonyítva (vagy has_table_privilege false)
+      - authenticated user_events csak read_at update oszlopon
+      - futtatási parancs dokumentálva
+      - PASS
+
+      Report minimum:
+      - rövid összegzés, hogy milyen privilege-eket ellenőriz
+      - futtatott parancs + PASS
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_rpc_signup_bonus_negative_access_checks.md"
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus_negative_access_checks.md"
+
+  - name: "DB checks futtatása psql-lel"
+    description: >
+      Futtasd:
+      set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_negative_access_checks.sql
+
+      Írd bele a reportba a PASS státuszt és rövid összegzést.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus_negative_access_checks.md"

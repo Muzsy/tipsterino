@@ -1,0 +1,84 @@
+steps:
+  - name: "SQL behavior checks fájl létrehozása (RPC signup bonus)"
+    description: >
+      Hozd létre a supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql fájlt.
+
+      Követelmények:
+      - BEGIN; ... ROLLBACK; (ne maradjon szemét adat)
+      - DO $$ ... $$; blokkban ellenőrizd a public.grant_signup_bonus_if_eligible() viselkedését:
+
+        1) not_authenticated:
+           - request.jwt.claim.sub NINCS beállítva
+           - select public.grant_signup_bonus_if_eligible() -> jsonb:
+             * granted=false
+             * reason='not_authenticated'
+
+        2) test user létrehozás:
+           - generálj v_user_id uuid-ot
+           - hozz létre auth.users sort v_user_id-hoz úgy, hogy a public.* táblák FK-ja ne akadjon
+           - email legyen egyedi (uuid-ból)
+           - a beszúrás legyen minimálisan robosztus: tipikus kötelező mezők (id/email/aud/role/instance_id/created_at/updated_at/encrypted_password stb.)
+           - verifikáció kezdetben legyen null (not_verified eset)
+
+        3) not_verified:
+           - set_config('request.jwt.claim.sub', v_user_id::text, true)
+           - call RPC -> granted=false, reason='not_verified'
+           - assert: reward_grants/user_stats/user_events darabszám 0 a userre
+
+        4) granted:
+           - tranzakción belül állítsd be determinisztikusan:
+             * update public.reward_definitions set amount=100, enabled=true where code='signup_bonus'
+           - állítsd verifikáltra a usert:
+             * ha van email_confirmed_at oszlop: update auth.users set email_confirmed_at=now()
+             * különben confirmed_at=now()
+           - call RPC -> granted=true, reason='granted', amount=100
+           - assert:
+             * reward_grants count = 1 (user_id+code='signup_bonus')
+             * user_stats.tippcoins = 100
+             * user_events count = 1 (type='tippcoin_credit', code='signup_bonus', amount=100)
+
+        5) idempotencia:
+           - call RPC újra -> granted=false, reason='already_granted'
+           - assert:
+             * reward_grants count továbbra is 1
+             * user_events count továbbra is 1
+             * user_stats.tippcoins továbbra is 100
+
+      - Hibánál RAISE EXCEPTION (ne csak NOTICE)
+      - Használj search_path beállítást: pg_catalog, public, auth
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql"
+
+  - name: "Codex checklist + report (RPC behavior checks)"
+    description: >
+      Készíts checklistet és reportot ehhez a DB behavior checks taskhoz.
+
+      Checklist minimum:
+      - új SQL checks fájl létrejött
+      - not_authenticated ág ellenőrizve
+      - not_verified ág és 'no side effects' ellenőrizve
+      - granted ág (grants + stats + events) ellenőrizve
+      - idempotencia ág (nincs duplázás) ellenőrizve
+      - psql futtatás parancsa dokumentálva
+      - futás PASS
+
+      Report minimum:
+      - rövid összegzés a tranzakció+rollback megközelítésről
+      - a 4-5 ellenőrzési pont röviden
+      - futtatott parancs:
+        set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql
+      - PASS státusz
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_rpc_signup_bonus_behavior_checks.md"
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus_behavior_checks.md"
+
+  - name: "DB checks futtatása psql-lel"
+    description: >
+      Futtasd a behavior checks fájlt psql-lel.
+
+      Követelmények:
+      - .env.local betöltése: set -a; source .env.local; set +a
+      - psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql
+      - A kimenet rövid összegzését írd bele a reportba (PASS).
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus_behavior_checks.md"

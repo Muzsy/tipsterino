@@ -1,0 +1,71 @@
+steps:
+  - name: "Migráció: profile complete gate a grant_signup_bonus_if_eligible() RPC-ben"
+    description: >
+      Hozz létre új migrációt:
+      supabase/migrations/20260205000000_bonus_system_signup_bonus_profile_complete_gate.sql
+
+      Követelmények:
+      - CREATE OR REPLACE FUNCTION public.grant_signup_bonus_if_eligible() módosítása
+      - a not_authenticated és not_verified gate-ek maradjanak
+      - új gate: profile_incomplete
+        * auth.uid() alapján olvasd a public.profiles sort
+        * ellenőrizd:
+          - nickname nem null és trim(nickname) != ''
+          - avatar mező nem null és trim(avatar) != '' (a tényleges oszlopnév a repo profiles táblája szerint)
+        * ha bármelyik hiányzik:
+          - return jsonb: granted=false, reason='profile_incomplete'
+          - ne legyen side effect (ne inserteljen grant/stats/events)
+
+      Fontos:
+      - SECURITY DEFINER + search_path biztonság maradjon a meglévő stílus szerint
+      - Ne találj ki nem létező oszlopnevet: a public.profiles tényleges oszlopait olvasd ki a repóból/migrációkból/dokuból.
+    outputs:
+      - "supabase/migrations/20260205000000_bonus_system_signup_bonus_profile_complete_gate.sql"
+
+  - name: "Behavior checks frissítése (profile_incomplete ág)"
+    description: >
+      Frissítsd:
+      supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql
+
+      Követelmények:
+      - legyen új ellenőrzés:
+        * user verified
+        * request.jwt.claim.sub beállítva
+        * profiles sor hiányos (nickname null/üres vagy avatar null/üres)
+        -> RPC: granted=false, reason='profile_incomplete'
+        -> reward_grants/user_stats/user_events mind 0
+
+      - a 'granted' esetnél biztosítsd, hogy a profiles sor teljes (nickname+avatar kitöltve)
+      - idempotencia ellenőrzés maradjon
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql"
+
+  - name: "Checklist + report (profile complete gate)"
+    description: >
+      Készíts checklistet és reportot.
+
+      Checklist minimum:
+      - migráció létrejött és RPC frissült
+      - behavior checks új profile_incomplete ággal bővült
+      - migrations + checks futtatva
+      - PASS
+
+      Report minimum:
+      - milyen profile mezőket használt a gate (nickname + avatar oszlopnév)
+      - hogyan viselkedik: profile_incomplete + no side effects
+      - futtatott parancsok + PASS
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_rpc_signup_bonus_profile_complete_gate.md"
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus_profile_complete_gate.md"
+
+  - name: "Repo/DB gate"
+    description: >
+      Futtasd a szokásos DB flow-t (ahogy a projektben szokás), majd a behavior checks-et psql-lel.
+
+      Minimum:
+      - set -a; source .env.local; set +a
+      - psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql
+
+      A PASS státuszt és rövid összegzést írd bele a reportba.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus_profile_complete_gate.md"
