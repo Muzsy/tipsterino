@@ -1,0 +1,118 @@
+steps:
+  - name: "Javítás: negatív access SQL checks (PERFORM bug, SET ROLE kiváltása, teljes privilege lista)"
+    description: >
+      Módosítsd a supabase/sql_checks/bonus_system_rpc_signup_bonus_negative_access_checks.sql fájlt.
+
+      Követelmények:
+      - BEGIN; ... ROLLBACK;
+      - SET LOCAL search_path TO pg_catalog, public, auth;
+      - A file top-level részében NE legyen PERFORM.
+        (PERFORM csak DO $$ ... $$; blokkon belül megengedett.)
+      - Ne használj SET LOCAL ROLE / SET ROLE-t.
+      - Privilege ellenőrzés kizárólag has_*_privilege függvényekkel.
+      - Hibánál RAISE EXCEPTION.
+
+      Ellenőrzések:
+
+      1) anon: RPC EXECUTE tiltás
+         - has_function_privilege('anon', 'public.grant_signup_bonus_if_eligible()', 'EXECUTE') = false
+
+      2) anon: táblák DML tiltás (mindegyikre mindhárom)
+         - public.reward_grants: INSERT=false, UPDATE=false, DELETE=false
+         - public.user_stats:   INSERT=false, UPDATE=false, DELETE=false
+         - public.user_events:  INSERT=false, UPDATE=false, DELETE=false
+
+         (has_table_privilege('anon','public.reward_grants','INSERT') stb.)
+
+      3) authenticated: user_events contract
+         - has_table_privilege('authenticated','public.user_events','SELECT') = true
+         - has_table_privilege('authenticated','public.user_events','INSERT') = false
+         - has_table_privilege('authenticated','public.user_events','DELETE') = false
+         - has_column_privilege('authenticated','public.user_events','read_at','UPDATE') = true
+         - has_column_privilege('authenticated','public.user_events','type','UPDATE') = false
+         - has_column_privilege('authenticated','public.user_events','code','UPDATE') = false
+         - has_column_privilege('authenticated','public.user_events','amount','UPDATE') = false
+         - has_column_privilege('authenticated','public.user_events','payload','UPDATE') = false
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_signup_bonus_negative_access_checks.sql"
+
+  - name: "Javítás: user_events DB contract checks (INSERT/DELETE tiltás + oszlop UPDATE tiltás + index check robusztus)"
+    description: >
+      Módosítsd a supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql fájlt.
+
+      Követelmények:
+      - BEGIN; ... ROLLBACK;
+      - SET LOCAL search_path TO pg_catalog, public, auth;
+      - DO $$ ... $$; blokk(ok) hibánál RAISE EXCEPTION.
+
+      Ellenőrzések:
+
+      1) Schema minimum + típusok (information_schema.columns):
+         - public.user_events létezik
+         - id uuid
+         - user_id uuid
+         - type text
+         - payload jsonb (nullable megengedett)
+         - created_at timestamp with time zone
+         - read_at timestamp with time zone (nullable megengedett)
+         - code text (nullable megengedett)
+         - amount integer vagy bigint (a repó tényleges sémája szerint ellenőrizd; ne találgass)
+
+      2) RLS enabled:
+         - pg_class.relrowsecurity = true a public.user_events-re
+
+      3) Grants szerződés (explicit, ne maradjon ki):
+         - authenticated SELECT = true
+         - authenticated INSERT = false
+         - authenticated DELETE = false
+         - authenticated UPDATE csak read_at oszlopon:
+           * read_at UPDATE = true
+           * type/code/amount/payload UPDATE = false
+
+      4) Index sanity (robosztus, ne csak LIKE):
+         - legyen legalább 1 index a public.user_events táblán,
+           amelynek oszlopai között szerepel user_id ÉS created_at.
+         - Használj pg_index + pg_class + pg_attribute join-t az indexoszlopok név szerinti kigyűjtéséhez,
+           és logikai feltétellel döntsd el, hogy van-e megfelelõ index.
+         - Ha nincs -> RAISE EXCEPTION.
+    outputs:
+      - "supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql"
+
+  - name: "Checklist + report javítás (a valós checkekkel konzisztensen)"
+    description: >
+      Frissítsd a checklist + report fájlokat úgy, hogy csak olyan állításokat tartalmazzanak,
+      amit a SQL check ténylegesen ellenőriz.
+
+      Érintett fájlok:
+      - codex/codex_checklist/bonus_system/bonus_system_rpc_signup_bonus_negative_access_checks.md
+      - codex/reports/bonus_system/bonus_system_rpc_signup_bonus_negative_access_checks.md
+      - codex/codex_checklist/bonus_system/bonus_system_user_events_db_contract_checks.md
+      - codex/reports/bonus_system/bonus_system_user_events_db_contract_checks.md
+
+      Követelmények:
+      - írd le röviden: mi volt a hiba (PERFORM top-level + hiányzó privilege checkek)
+      - sorold fel: pontosan milyen privilege-eket és contract pontokat ellenőriz a SQL
+      - mindkét report tartalmazza a futtatási parancsot
+      - a reportban legyen PASS státusz csak tényleges futtatás után
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_rpc_signup_bonus_negative_access_checks.md"
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus_negative_access_checks.md"
+      - "codex/codex_checklist/bonus_system/bonus_system_user_events_db_contract_checks.md"
+      - "codex/reports/bonus_system/bonus_system_user_events_db_contract_checks.md"
+
+  - name: "DB gate: psql futtatás mindkét SQL checks fájlra"
+    description: >
+      Futtasd le mindkét SQL checks fájlt psql-lel.
+
+      Követelmények:
+      - set -a; source .env.local; set +a
+      - psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_negative_access_checks.sql
+      - psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql
+
+      A két reportba írd bele:
+      - a futtatott parancsokat
+      - PASS státuszt
+      - 1-2 soros összegzést (melyik contract pontokat bizonyította).
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_rpc_signup_bonus_negative_access_checks.md"
+      - "codex/reports/bonus_system/bonus_system_user_events_db_contract_checks.md"

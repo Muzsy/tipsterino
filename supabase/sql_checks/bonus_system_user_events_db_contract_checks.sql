@@ -2,48 +2,79 @@
 
 BEGIN;
 
-SET LOCAL search_path = pg_catalog, public, auth;
+SET LOCAL search_path TO pg_catalog, public, auth;
 
 DO $$
 DECLARE
-  expected_columns text[] := ARRAY[
-    'id:uuid',
-    'user_id:uuid',
-    'type:text',
-    'code:text',
-    'amount:integer',
-    'payload:jsonb',
-    'created_at:timestamp with time zone',
-    'read_at:timestamp with time zone'
-  ];
-  row record;
-  found_columns int := 0;
-  index_record record;
-  col text;
+  amt_type text;
+  idx_exists boolean;
 BEGIN
   IF to_regclass('public.user_events') IS NULL THEN
     RAISE EXCEPTION 'public.user_events table is missing';
   END IF;
 
-  FOR row IN
-    SELECT column_name, udt_name, data_type
-    FROM information_schema.columns
-    WHERE table_schema = 'public'
-      AND table_name = 'user_events'
-  LOOP
-    FOREACH col IN ARRAY expected_columns LOOP
-      IF row.column_name || ':' || row.data_type = col
-         OR (row.column_name = 'amount' AND row.data_type = 'integer' AND col LIKE 'amount:%')
-         OR (row.column_name = 'code' AND row.data_type = 'text' AND col LIKE 'code:%')
-         OR (row.column_name = 'payload' AND row.data_type = 'jsonb' AND col LIKE 'payload:%') THEN
-        found_columns := found_columns + 1;
-        EXIT;
-      END IF;
-    END LOOP;
-  END LOOP;
+  PERFORM 1
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_events'
+    AND column_name = 'id' AND udt_name = 'uuid';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'user_events.id column missing or wrong type';
+  END IF;
 
-  IF found_columns < array_length(expected_columns, 1) THEN
-    RAISE EXCEPTION 'user_events columns do not match contract (found % of %)', found_columns, array_length(expected_columns, 1);
+  PERFORM 1
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_events'
+    AND column_name = 'user_id' AND udt_name = 'uuid';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'user_events.user_id column missing or wrong type';
+  END IF;
+
+  PERFORM 1
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_events'
+    AND column_name = 'type' AND data_type = 'text';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'user_events.type missing or wrong type';
+  END IF;
+
+  PERFORM 1
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_events'
+    AND column_name = 'code' AND data_type = 'text';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'user_events.code missing or wrong type';
+  END IF;
+
+  SELECT data_type INTO amt_type
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_events'
+    AND column_name = 'amount';
+  IF amt_type IS NULL OR NOT (amt_type IN ('integer', 'bigint')) THEN
+    RAISE EXCEPTION 'user_events.amount wrong or missing type (found %)', amt_type;
+  END IF;
+
+  PERFORM 1
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_events'
+    AND column_name = 'payload' AND data_type = 'jsonb';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'user_events.payload missing or wrong type';
+  END IF;
+
+  PERFORM 1
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_events'
+    AND column_name = 'created_at' AND data_type = 'timestamp with time zone';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'user_events.created_at missing or wrong type';
+  END IF;
+
+  PERFORM 1
+  FROM information_schema.columns
+  WHERE table_schema = 'public' AND table_name = 'user_events'
+    AND column_name = 'read_at' AND data_type = 'timestamp with time zone';
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'user_events.read_at missing or wrong type';
   END IF;
 
   IF NOT (SELECT relrowsecurity FROM pg_class WHERE oid = 'public.user_events'::regclass) THEN
@@ -53,20 +84,49 @@ BEGIN
   IF NOT has_table_privilege('authenticated', 'public.user_events', 'SELECT') THEN
     RAISE EXCEPTION 'authenticated lacks SELECT on user_events';
   END IF;
+  IF has_table_privilege('authenticated', 'public.user_events', 'INSERT') THEN
+    RAISE EXCEPTION 'authenticated has INSERT on user_events';
+  END IF;
+  IF has_table_privilege('authenticated', 'public.user_events', 'DELETE') THEN
+    RAISE EXCEPTION 'authenticated has DELETE on user_events';
+  END IF;
 
   IF NOT has_column_privilege('authenticated', 'public.user_events', 'read_at', 'UPDATE') THEN
     RAISE EXCEPTION 'authenticated lacks UPDATE on user_events.read_at';
   END IF;
-  SELECT *
-  INTO index_record
-  FROM pg_indexes
-  WHERE tablename = 'user_events'
-    AND indexdef ILIKE '%user_id%'
-    AND indexdef ILIKE '%created_at%'
-  LIMIT 1;
+  IF has_column_privilege('authenticated', 'public.user_events', 'type', 'UPDATE') THEN
+    RAISE EXCEPTION 'authenticated has UPDATE on user_events.type';
+  END IF;
+  IF has_column_privilege('authenticated', 'public.user_events', 'code', 'UPDATE') THEN
+    RAISE EXCEPTION 'authenticated has UPDATE on user_events.code';
+  END IF;
+  IF has_column_privilege('authenticated', 'public.user_events', 'amount', 'UPDATE') THEN
+    RAISE EXCEPTION 'authenticated has UPDATE on user_events.amount';
+  END IF;
+  IF has_column_privilege('authenticated', 'public.user_events', 'payload', 'UPDATE') THEN
+    RAISE EXCEPTION 'authenticated has UPDATE on user_events.payload';
+  END IF;
 
-  IF index_record IS NULL THEN
-    RAISE EXCEPTION 'No index found covering user_id and created_at on user_events';
+  SELECT EXISTS (
+    SELECT 1
+    FROM pg_index idx
+    JOIN pg_class tab ON tab.oid = idx.indrelid
+    JOIN pg_class idx_rel ON idx_rel.oid = idx.indexrelid
+    WHERE tab.relname = 'user_events'
+      AND tab.relnamespace = 'public'::regnamespace
+      AND idx.indisvalid
+      AND idx.indisready
+      AND (
+        SELECT COUNT(DISTINCT attr.attname)
+        FROM pg_attribute attr
+        WHERE attr.attrelid = tab.oid
+          AND attr.attnum = ANY(idx.indkey)
+          AND attr.attname IN ('user_id', 'created_at')
+      ) = 2
+  ) INTO idx_exists;
+
+  IF NOT idx_exists THEN
+    RAISE EXCEPTION 'No index covers user_id and created_at on user_events';
   END IF;
 END;
 $$;
