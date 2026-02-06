@@ -11,6 +11,8 @@ class DailyBonusClaimState {
     this.lastError,
   });
 
+  static const Object _undefined = Object();
+
   final bool isRunning;
   final DailyBonusGrantResult? lastResult;
   final DateTime? cachedNextEligibleAt;
@@ -34,13 +36,13 @@ class DailyBonusClaimState {
     bool? isRunning,
     DailyBonusGrantResult? lastResult,
     DateTime? cachedNextEligibleAt,
-    Object? lastError,
+    Object? lastError = _undefined,
   }) {
     return DailyBonusClaimState(
       isRunning: isRunning ?? this.isRunning,
       lastResult: lastResult ?? this.lastResult,
       cachedNextEligibleAt: cachedNextEligibleAt ?? this.cachedNextEligibleAt,
-      lastError: lastError ?? this.lastError,
+      lastError: identical(lastError, _undefined) ? this.lastError : lastError,
     );
   }
 }
@@ -67,6 +69,7 @@ class DailyBonusClaimNotifier extends StateNotifier<DailyBonusClaimState> {
             ? (result.nextEligibleAt ?? state.cachedNextEligibleAt)
             : state.cachedNextEligibleAt,
         isRunning: false,
+        lastError: null,
       );
       return result;
     } catch (error) {

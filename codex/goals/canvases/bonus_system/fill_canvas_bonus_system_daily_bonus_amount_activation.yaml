@@ -1,0 +1,42 @@
+steps:
+  - name: "Preflight: daily_bonus definíció és jelenlegi amount"
+    description: >
+      Ellenőrizd a repóban a meglévő daily_bonus reward definition seed migrációt,
+      és rögzítsd a canvasben, hogy jelenleg amount=0 miatt disabled az RPC.
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_amount_activation.md"
+
+  - name: "Supabase migráció: daily_bonus amount aktiválása"
+    description: >
+      Hozz létre új migrációt a supabase/migrations alatt:
+      - fájlnév: 20260211000000_bonus_system_daily_bonus_amount_activation.sql
+      - determinisztikus INSERT ... ON CONFLICT UPDATE
+      - daily_bonus: amount=50, enabled=true
+    outputs:
+      - "supabase/migrations/20260211000000_bonus_system_daily_bonus_amount_activation.sql"
+
+  - name: "Doksi patch (kicsi): induló amount rögzítése"
+    description: >
+      Frissítsd a documents/bonus_system/daily_bonus.md fájlt a Reward definition résznél:
+      - rögzítsd az aktuális induló amount-ot (50) és a migráció timestampjét
+      - említsd meg, hogy csak migrációval változtatható
+    outputs:
+      - "documents/bonus_system/daily_bonus.md"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot:
+      - migráció + doksi patch
+      - futtatások és eredmények
+      - módosított fájlok listája
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_amount_activation.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_amount_activation.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd és dokumentáld:
+      - ./scripts/check.sh
+      - supabase db push + a kapcsolódó sql_checks futtatása
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_amount_activation.md"

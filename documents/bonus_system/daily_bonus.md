@@ -4,7 +4,7 @@
 
 - `code = 'daily_bonus'`
 - `enabled = true` alapértelmezés szerint, értékét és engedélyező flag-jét kizárólag migrációk módosíthatják.
-- Az `amount` változtatható `reward_definitions` migrációval; alapértelmezésben a napi jóváírás értékét tartalmazza.
+- Az `amount` változtatható `reward_definitions` migrációval; alapértelmezésben a napi jóváírás értékét tartalmazza. A jelenlegi induló érték 50 TippCoin (`amount = 50`), ezt a `20260211000000_bonus_system_daily_bonus_amount_activation.sql` migráció állítja be determinisztikusan, és csak újabb migrációk módosíthatják.
 
 ## Gate-ek
 
