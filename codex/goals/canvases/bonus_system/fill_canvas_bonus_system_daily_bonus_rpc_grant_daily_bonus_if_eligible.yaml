@@ -1,0 +1,94 @@
+steps:
+  - name: "Preflight: jelenlegi szerződések és minták"
+    description: >
+      Ellenőrizd a repóban:
+      - a grant_day + partial unique indexek létezését (202602080 migráció)
+      - a daily_bonus reward_definitions seedet (202602090 migráció)
+      - a signup RPC aktuális definícióját (202602080 migrációban)
+      - a privilege contract fix/reapply mintát (202602070 migráció)
+      Cél: a daily RPC ugyanazt a gate sorrendet és user_stats/user_events mintát kövesse.
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_rpc_grant_daily_bonus_if_eligible.md"
+
+  - name: "Új migráció: grant_daily_bonus_if_eligible() + privilege grant"
+    description: >
+      Hozz létre új Supabase migrációt a következőkkel:
+      1) CREATE OR REPLACE FUNCTION public.grant_daily_bonus_if_eligible() RETURNS jsonb SECURITY DEFINER plpgsql
+         - set_config('search_path', 'pg_catalog, public, auth', true)
+         - gate sorrend: not_authenticated -> not_verified -> profile_incomplete -> disabled -> already_claimed_today/granted
+         - reward_definitions: code='daily_bonus', ha enabled=false VAGY amount<=0 => disabled
+         - grant_day := (now() AT TIME ZONE 'UTC')::date
+         - next_eligible_at := (date_trunc('day', now() AT TIME ZONE 'UTC') + interval '1 day') AT TIME ZONE 'UTC'
+         - insert reward_grants (user_id, code, amount, reason, grant_day)
+           ON CONFLICT (user_id, code, grant_day) WHERE code='daily_bonus' DO NOTHING
+         - siker esetén user_stats upsert + tippcoins increment + user_events insert (tippcoin_credit, daily_bonus)
+         - response: jsonb_build_object('granted', ..., 'amount', ..., 'reason', ..., 'next_eligible_at', ...)
+      2) Privilege contract a függvényre:
+         - REVOKE ALL ON FUNCTION public.grant_daily_bonus_if_eligible() FROM PUBLIC, anon, authenticated;
+         - GRANT EXECUTE ON FUNCTION public.grant_daily_bonus_if_eligible() TO authenticated;
+      A migráció timestamp a következő szabad legyen 20260210000000_* (ha foglalt, következő).
+    outputs:
+      - "supabase/migrations/*_bonus_system_rpc_daily_bonus.sql"
+
+  - name: "SQL check: daily RPC existence + SECURITY DEFINER + EXECUTE"
+    description: >
+      Hozd létre a supabase/sql_checks/bonus_system_rpc_daily_bonus_checks.sql fájlt a signup minta alapján:
+      - to_regprocedure('public.grant_daily_bonus_if_eligible()') nem lehet NULL
+      - pg_proc.prosecdef true
+      - has_function_privilege('authenticated', 'public.grant_daily_bonus_if_eligible()', 'EXECUTE') true
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_daily_bonus_checks.sql"
+
+  - name: "SQL behavior checks: daily RPC ágak + mellékhatások"
+    description: >
+      Hozd létre a supabase/sql_checks/bonus_system_rpc_daily_bonus_behavior_checks.sql fájlt a signup behavior minta alapján:
+      - BEGIN; ... ROLLBACK; (ne hagyjon maradék adatot)
+      - not_authenticated: claim nélkül 'not_authenticated'
+      - hozz létre auth.users sort + állíts request.jwt.claim.sub-t
+      - not_verified: email_confirmed_at/confirmed_at null -> 'not_verified' és nincs reward_grants/user_stats/user_events insert
+      - email verified beállítás után:
+        - profile_incomplete: profiles.avatar_key üres -> 'profile_incomplete' és nincs insert
+      - disabled: daily_bonus amount=0 vagy enabled=false -> 'disabled'
+      - grant: állítsd daily_bonus amount=50 enabled=true -> 'granted', amount=50, next_eligible_at > now()
+        és ellenőrizd:
+        - reward_grants (code='daily_bonus') pontosan 1 sor
+        - reward_grants.grant_day == (now() AT TIME ZONE 'UTC')::date
+        - user_stats.tippcoins == 50
+        - user_events 1 sor (type=tippcoin_credit, code=daily_bonus, amount=50)
+      - idempotencia: újrahívás -> granted=false, reason='already_claimed_today', nem nő a grants/events/stats
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_daily_bonus_behavior_checks.sql"
+
+  - name: "SQL negative access checks: anon/authenticated jogok"
+    description: >
+      Hozd létre a supabase/sql_checks/bonus_system_rpc_daily_bonus_negative_access_checks.sql fájlt a signup negative access minta alapján:
+      - anon: ne legyen EXECUTE a daily RPC-n
+      - anon: ne legyen INSERT/UPDATE/DELETE a reward_grants/user_stats/user_events táblákon
+      - authenticated: user_events-re ne legyen table-level UPDATE (csak read_at oszlop UPDATE)
+      (A meglévő privilege contractot nem módosítjuk, csak verifikáljuk.)
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_daily_bonus_negative_access_checks.sql"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot:
+      - migráció (RPC + revoke/grant)
+      - 3 új sql_check fájl
+      - futtatások és regresszió (signup checkek + check.sh)
+      Reportban: változott fájlok listája + futtatások PASS/FAIL + lényegi log.
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_rpc_grant_daily_bonus_if_eligible.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_rpc_grant_daily_bonus_if_eligible.md"
+
+  - name: "Futtatások (DB + regresszió)"
+    description: >
+      Futtasd és dokumentáld a reportban:
+      - set -a; source .env.local; set +a; ./scripts/supabase.sh db push
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_daily_bonus_checks.sql
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_daily_bonus_behavior_checks.sql
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_daily_bonus_negative_access_checks.sql
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_checks.sql
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql
+      - ./scripts/check.sh
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_rpc_grant_daily_bonus_if_eligible.md"
