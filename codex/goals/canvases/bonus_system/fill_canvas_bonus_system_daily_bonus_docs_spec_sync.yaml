@@ -1,0 +1,52 @@
+steps:
+  - name: "Canvas preflight"
+    description: >
+      Ellenőrizd a repóban a bonus rendszer dokumentációs struktúrát és a cél útvonalakat:
+      - docs/core_logic/bonus_system.md létezik-e és hol érdemes belelinkelni a daily bonus specifikációt
+      - documents/ mappa szerepe az AGENTS.md alapján (spec-ek helye)
+      Ha bármelyik útvonal/konvenció eltér, finomítsd a canvas szövegét úgy, hogy a repó valós
+      struktúrájához igazodjon (ne legyen kitalált fájl).
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_docs_spec_sync.md"
+
+  - name: "Daily bonus specifikáció import (documents/)"
+    description: >
+      Hozd létre a documents/bonus_system/daily_bonus.md fájlt a daily bonus részletes specifikációval.
+      Kötelező tartalom:
+      - reward_definitions: daily_bonus code/enabled/amount és repo+migráció alapelv
+      - gate-ek: not_authenticated, not_verified, profile_incomplete, disabled
+      - napi limit definíció: UTC nap, és ajánlott DB megoldás grant_day + partial unique index (csak leírás)
+      - RPC contract: grant_daily_bonus_if_eligible() jsonb (granted/amount/reason + javasolt next_eligible_at)
+      - mellékhatások: reward_grants + user_stats + user_events (tippcoin_credit, daily_bonus)
+      - UI contract: Home tile állapotok (available/claimed/offline), next_eligible_at felhasználás
+      - lokalizáció: javasolt HU/EN kulcsok (csak felsorolás)
+      - DoD: DB + Flutter pontok (csak checklista jelleggel)
+    outputs:
+      - "documents/bonus_system/daily_bonus.md"
+
+  - name: "Bonus system core doksi frissítése (link + rövid daily bonus szekció)"
+    description: >
+      Frissítsd a docs/core_logic/bonus_system.md fájlt:
+      - adj hozzá egy 'Daily bonus' szekciót
+      - linkeld be a documents/bonus_system/daily_bonus.md specifikációt
+      - rögzítsd, hogy daily bonus a standard grant pipeline-t használja és napi (UTC) idempotens
+      - jelezd, hogy az implementáció külön taskokban történik (migráció/RPC/UI), ne állíts kész állapotot
+    outputs:
+      - "docs/core_logic/bonus_system.md"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot ehhez a taskhoz.
+      Checklist: a két doc létrehozása/frissítése + formázás + repo gate.
+      Report: röviden írd le, milyen fájlok változtak, és rögzítsd a repo gate futtatás eredményét.
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_docs_spec_sync.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_docs_spec_sync.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd a repó standard ellenőrzését:
+      - ./scripts/check.sh
+      Az eredményt (PASS/FAIL + lényegi log-részlet) írd be a reportba.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_docs_spec_sync.md"

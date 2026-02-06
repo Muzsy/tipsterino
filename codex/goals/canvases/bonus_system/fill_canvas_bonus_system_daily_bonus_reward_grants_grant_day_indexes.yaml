@@ -1,0 +1,71 @@
+steps:
+  - name: "Preflight: valós fájlok és aktuális definíciók"
+    description: >
+      Ellenőrizd a repóban:
+      - hol van a legfrissebb grant_signup_bonus_if_eligible() definíció (migrációk alapján)
+      - létezik-e a reward_grants_user_id_code_unique index a jelenlegi sémában
+      - a supabase/sql_checks/bonus_system_db_schema_rls_checks.sql milyen index-neveket vár
+      Cél: a migráció és a check frissítés a valós állapothoz igazodjon.
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_reward_grants_grant_day_indexes.md"
+
+  - name: "Új migráció: reward_grants grant_day + index szerződés"
+    description: >
+      Hozz létre egy új Supabase migrációt a következő tartalommal:
+      - ALTER TABLE public.reward_grants ADD COLUMN IF NOT EXISTS grant_day date;
+      - (Javasolt) CHECK constraint: code <> 'daily_bonus' OR grant_day is not null
+      - DROP INDEX IF EXISTS reward_grants_user_id_code_unique;
+      - CREATE UNIQUE INDEX a signup_bonus-ra: (user_id, code) WHERE code='signup_bonus'
+      - CREATE UNIQUE INDEX a daily_bonus-ra: (user_id, code, grant_day) WHERE code='daily_bonus' AND grant_day is not null
+      - A reward_grants_user_created_at_idx index maradjon meg (ha nem létezik, hozd létre).
+      A migráció fájl neve a repo konvenció szerint a következő szabad timestamp + beszédes slug legyen.
+    outputs:
+      - "supabase/migrations/*_bonus_system_reward_grants_grant_day_and_indexes.sql"
+
+  - name: "Signup bonus RPC kompatibilitás (ON CONFLICT partial indexhez)"
+    description: >
+      Készíts follow-up create or replace function public.grant_signup_bonus_if_eligible() migrációs blokkot
+      (ugyanabban az új migrációban), ami a beszúrást így módosítja:
+      - on conflict (user_id, code) where code = 'signup_bonus' do nothing
+      Minden más logika maradjon változatlan (email verified + profile_incomplete gate + stats update + user_events insert).
+    outputs:
+      - "supabase/migrations/*_bonus_system_reward_grants_grant_day_and_indexes.sql"
+
+  - name: "SQL check frissítés: schema/rls"
+    description: >
+      Frissítsd a supabase/sql_checks/bonus_system_db_schema_rls_checks.sql fájlt:
+      - ellenőrizze a grant_day oszlop létezését a reward_grants táblában
+      - a reward_grants_user_id_code_unique index ellenőrzést cseréld le az új partial unique indexekre (név szerint)
+      - reward_grants_user_created_at_idx ellenőrzés maradjon
+      Ügyelj arra, hogy a check fájl továbbra is egyértelműen FAIL-oljon hiány esetén.
+    outputs:
+      - "supabase/sql_checks/bonus_system_db_schema_rls_checks.sql"
+
+  - name: "Dokumentáció frissítés: reward_grants"
+    description: >
+      Frissítsd a docs/data_model/reward_grants_table_doc.md dokumentumot:
+      - add hozzá a grant_day mezőt (UTC nap definíció)
+      - rögzítsd az egyediség szabályokat: signup_bonus egyszer, daily_bonus naponta (UTC) egyszer
+      - tartsd meg a ledger/append-only és hozzáférési elveket
+    outputs:
+      - "docs/data_model/reward_grants_table_doc.md"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot ehhez a taskhoz.
+      Checklist: migráció létrehozás + signup RPC kompatibilitás + sql_check update + doc update + futtatások.
+      Report: fájlváltozások listája + a futtatások eredménye (PASS/FAIL + lényegi log).
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_reward_grants_grant_day_indexes.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_reward_grants_grant_day_indexes.md"
+
+  - name: "Futtatások (DB + app gate)"
+    description: >
+      Futtasd és dokumentáld a reportban:
+      - set -a; source .env.local; set +a; ./scripts/supabase.sh db push
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_db_schema_rls_checks.sql
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_checks.sql
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql
+      - ./scripts/check.sh
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_reward_grants_grant_day_indexes.md"

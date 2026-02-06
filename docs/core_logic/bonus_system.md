@@ -76,6 +76,12 @@ Bármely jövőbeli bónusz (pl. daily bonus, challenge reward) ugyanazt a sém�
 * `user_stats`: kliens csak a saját statját olvashatja
 * `user_events`: kliens a saját eseményeit olvashatja; csak `read_at` módosítható
 
+### Daily bonus (spec link)
+
+- Részletes specifikáció a `documents/bonus_system/daily_bonus.md` fájlban található; minden új szabályt ott kell átvezetni.
+- A daily bonus a standard grant pipeline-t használja, napi (UTC) idempotencia mellett.
+- Az implementáció (reward definition, migráció, RPC, UI) külön járatokban készül; jelen dokumentáció csak a szerződést dokumentálja, nem feltételez kész állapotot.
+
 ### Értesítések / inbox (user_events)
 
 Az „értesítés” itt **nem push**, hanem **in-app inbox**.

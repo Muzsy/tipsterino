@@ -72,15 +72,26 @@ A `reward_grants` nem publikus. Anon felhasználó nem férhet hozzá.
 - DB default.
 - nem módosítható.
 
+#### 7) `grant_day` (date)
+**Szerep:**
+- a kiosztás napja UTC-ben (a napi limit igazságforrása).
+
+**Logika:**
+- a szerveroldali logika számolja: `grant_day = DATE_TRUNC('day', (NOW() AT TIME ZONE 'UTC'))`.
+- `daily_bonus` esetén kötelező (a migráció egy CHECK constrainttel biztosítja).
+- a `grant_day` segít a napi 1× duplázás elleni védelemben, a `signup_bonus`-nál pedig `NULL` lehet.
+
 ### Egyediség és duplázás elleni védelem
 
 #### Signup bónusz (MVP)
 - A `signup_bonus` jóváírás **egyszeri**.
 - Kötelező szabály: egy user csak egyszer kaphatja meg.
 - Ezt DB-szinten egy egyedi szabály garantálja (user + code szinten).
+  - A partial unique index `reward_grants_user_signup_bonus_unique` biztosítja, hogy `code = 'signup_bonus'` esetén user+code egyediség érvényes.
 
 #### Későbbi jutalmak
 - Napi bónusz esetén a duplázás elleni védelem napra bontott (user + code + dátum), ezt későbbi bővítéskor vezetjük be.
+  - A `grant_day` mező biztosítja a napi (UTC) napot; a partial unique index `reward_grants_user_daily_bonus_day_unique` garantálja, hogy `code = 'daily_bonus'` és `grant_day` egyediséget eredményez.
 
 ## 🛡️ RLS / Policy logika (kód nélkül)
 

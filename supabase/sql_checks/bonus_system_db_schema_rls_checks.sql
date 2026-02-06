@@ -53,8 +53,22 @@ $$;
 
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'reward_grants_user_id_code_unique') THEN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'reward_grants'
+      AND column_name = 'grant_day'
+      AND data_type = 'date'
+  ) THEN
+    RAISE EXCEPTION 'reward_grants.grant_day column missing';
+  END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'reward_grants_user_signup_bonus_unique') THEN
     RAISE EXCEPTION 'reward_grants user+code unique index missing';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'reward_grants_user_daily_bonus_day_unique') THEN
+    RAISE EXCEPTION 'reward_grants user+code+grant_day unique index missing';
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'reward_grants_user_created_at_idx') THEN
     RAISE EXCEPTION 'reward_grants list index missing';
