@@ -83,5 +83,14 @@
   "eventsEmptyTitle": "No events yet",
   "eventsEmptyBody": "We will show your events here as soon as they arrive.",
   "eventSignupBonusTitle": "Signup bonus",
-  "eventSignupBonusBody": "You earned {amount} TippCoins as a signup bonus."
+  "eventSignupBonusBody": "You earned {amount} TippCoins as a signup bonus.",
+  "daily_bonus_title": "Daily bonus",
+  "daily_bonus_body_available": "Claim your daily TippCoins.",
+  "daily_bonus_body_claimed": "Already claimed today. Come back tomorrow.",
+  "daily_bonus_body_disabled": "Daily bonus is not active.",
+  "daily_bonus_body_not_verified": "Verify your email to claim the daily bonus.",
+  "daily_bonus_body_profile_incomplete": "Complete your profile to claim the daily bonus.",
+  "daily_bonus_cta_claim": "Claim",
+  "daily_bonus_cta_claimed": "Claimed",
+  "daily_bonus_snackbar_granted": "Daily bonus claimed: +{amount} TippCoins!"
 }

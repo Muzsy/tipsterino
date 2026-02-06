@@ -82,5 +82,14 @@
   "eventsEmptyTitle": "Még nincs esemény",
   "eventsEmptyBody": "Az események itt jelennek meg, amint történik valami.",
   "eventSignupBonusTitle": "Regisztrációs bónusz",
-  "eventSignupBonusBody": "{amount} TippCoin jóváírás a regisztrációért."
+  "eventSignupBonusBody": "{amount} TippCoin jóváírás a regisztrációért.",
+  "daily_bonus_title": "Napi bónusz",
+  "daily_bonus_body_available": "Igényeld a napi TippCoin jutalmad.",
+  "daily_bonus_body_claimed": "Ma már igényelted. Gyere vissza holnap.",
+  "daily_bonus_body_disabled": "A napi bónusz jelenleg nem aktív.",
+  "daily_bonus_body_not_verified": "Email megerősítése szükséges a napi bónusz igényléséhez.",
+  "daily_bonus_body_profile_incomplete": "Profil kitöltése szükséges a napi bónusz igényléséhez.",
+  "daily_bonus_cta_claim": "Igénylés",
+  "daily_bonus_cta_claimed": "Igényelve",
+  "daily_bonus_snackbar_granted": "Napi bónusz jóváírva: +{amount} TippCoin!"
 }

@@ -574,6 +574,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You earned {amount} TippCoins as a signup bonus.'**
   String eventSignupBonusBody(Object amount);
+
+  /// No description provided for @daily_bonus_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonus'**
+  String get daily_bonus_title;
+
+  /// No description provided for @daily_bonus_body_available.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim your daily TippCoins.'**
+  String get daily_bonus_body_available;
+
+  /// No description provided for @daily_bonus_body_claimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Already claimed today. Come back tomorrow.'**
+  String get daily_bonus_body_claimed;
+
+  /// No description provided for @daily_bonus_body_disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonus is not active.'**
+  String get daily_bonus_body_disabled;
+
+  /// No description provided for @daily_bonus_body_not_verified.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your email to claim the daily bonus.'**
+  String get daily_bonus_body_not_verified;
+
+  /// No description provided for @daily_bonus_body_profile_incomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete your profile to claim the daily bonus.'**
+  String get daily_bonus_body_profile_incomplete;
+
+  /// No description provided for @daily_bonus_cta_claim.
+  ///
+  /// In en, this message translates to:
+  /// **'Claim'**
+  String get daily_bonus_cta_claim;
+
+  /// No description provided for @daily_bonus_cta_claimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Claimed'**
+  String get daily_bonus_cta_claimed;
+
+  /// No description provided for @daily_bonus_snackbar_granted.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonus claimed: +{amount} TippCoins!'**
+  String daily_bonus_snackbar_granted(Object amount);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

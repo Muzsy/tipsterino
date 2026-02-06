@@ -255,4 +255,35 @@ class AppLocalizationsHu extends AppLocalizations {
   String eventSignupBonusBody(Object amount) {
     return '$amount TippCoin jóváírás a regisztrációért.';
   }
+
+  @override
+  String get daily_bonus_title => 'Napi bónusz';
+
+  @override
+  String get daily_bonus_body_available => 'Igényeld a napi TippCoin jutalmad.';
+
+  @override
+  String get daily_bonus_body_claimed => 'Ma már igényelted. Gyere vissza holnap.';
+
+  @override
+  String get daily_bonus_body_disabled => 'A napi bónusz jelenleg nem aktív.';
+
+  @override
+  String get daily_bonus_body_not_verified =>
+      'Email megerősítése szükséges a napi bónusz igényléséhez.';
+
+  @override
+  String get daily_bonus_body_profile_incomplete =>
+      'Profil kitöltése szükséges a napi bónusz igényléséhez.';
+
+  @override
+  String get daily_bonus_cta_claim => 'Igénylés';
+
+  @override
+  String get daily_bonus_cta_claimed => 'Igényelve';
+
+  @override
+  String daily_bonus_snackbar_granted(Object amount) {
+    return 'Napi bónusz jóváírva: +$amount TippCoin!';
+  }
 }

@@ -1,0 +1,80 @@
+steps:
+  - name: "Preflight: home + rewards minták ellenőrzése"
+    description: >
+      Ellenőrizd a HomeScreen authenticated ágát és a rewards feature meglévő mintáit
+      (post_auth_init_provider, daily bonus domain+rpc). Cél: a tile NEM hívhat RPC-t automatikusan.
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_home_tile_claim_flow.md"
+
+  - name: "Application: daily bonus claim provider (StateNotifier)"
+    description: >
+      Hozd létre az app/lib/src/features/rewards/application/daily_bonus_claim_provider.dart fájlt:
+      - DailyBonusClaimState: isRunning, lastResult, cachedNextEligibleAt, lastError
+      - DailyBonusClaimNotifier: claim() a dailyBonusRpcCallerProvider alapján
+      - isClaimedNow helper logika (UTC összehasonlítás)
+      - Fontos: nincs automatikus claim/refresh initkor.
+    outputs:
+      - "app/lib/src/features/rewards/application/daily_bonus_claim_provider.dart"
+
+  - name: "Presentation: DailyBonusTile widget"
+    description: >
+      Hozd létre az app/lib/src/features/rewards/presentation/daily_bonus_tile.dart fájlt:
+      - AppLocalizations szövegek: daily_bonus_* kulcsok
+      - UI state: running/claimed/disabled/not_verified/profile_incomplete/default
+      - CTA: claim gomb csak default esetben aktív
+      - claim után success snackbar: daily_bonus_snackbar_granted(amount)
+    outputs:
+      - "app/lib/src/features/rewards/presentation/daily_bonus_tile.dart"
+
+  - name: "Home integráció"
+    description: >
+      Frissítsd az app/lib/src/screens/home_screen.dart fájlt:
+      - authenticated ágban a placeholder helyett Column legyen, ami tartalmazza a DailyBonusTile-t,
+        és alatta megtartható a meglévő homeAuthPlaceholder szöveg.
+      - guest ág változatlan.
+    outputs:
+      - "app/lib/src/screens/home_screen.dart"
+
+  - name: "L10n: daily bonus kulcsok + generated dart frissítés"
+    description: >
+      Add hozzá a daily_bonus_* kulcsokat az app/lib/l10n/app_en.arb és app_hu.arb fájlokhoz.
+      Ezután frissítsd a commitolt generated fájlokat is:
+      - app/lib/l10n/app_localizations.dart (új getterek + paraméteres snackbar)
+      - app/lib/l10n/app_localizations_en.dart
+      - app/lib/l10n/app_localizations_hu.dart
+      Ügyelj a meglévő stílusra és a paraméteres minta (pl. {email}) mintájára.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Widget teszt: DailyBonusTile"
+    description: >
+      Hozd létre az app/test/widget/daily_bonus_tile_test.dart fájlt:
+      - MaterialApp + AppLocalizations delegátok
+      - ProviderScope override-okkal állítsd be a dailyBonusClaimProvider state-eket:
+        1) default -> Claim gomb
+        2) claimed -> Claimed gomb disabled
+        3) disabled -> disabled szöveg + Claim disabled
+      Minimal, stabil assertion-ök.
+    outputs:
+      - "app/test/widget/daily_bonus_tile_test.dart"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot:
+      - provider + tile + home integráció + l10n + widget teszt
+      - futtatás: ./scripts/check.sh
+      Report: változott fájlok + PASS/FAIL log kivonat.
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_home_tile_claim_flow.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_home_tile_claim_flow.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd és dokumentáld:
+      - ./scripts/check.sh
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_home_tile_claim_flow.md"

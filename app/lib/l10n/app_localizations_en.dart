@@ -255,4 +255,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String eventSignupBonusBody(Object amount) {
     return 'You earned $amount TippCoins as a signup bonus.';
   }
+
+  @override
+  String get daily_bonus_title => 'Daily bonus';
+
+  @override
+  String get daily_bonus_body_available => 'Claim your daily TippCoins.';
+
+  @override
+  String get daily_bonus_body_claimed => 'Already claimed today. Come back tomorrow.';
+
+  @override
+  String get daily_bonus_body_disabled => 'Daily bonus is not active.';
+
+  @override
+  String get daily_bonus_body_not_verified => 'Verify your email to claim the daily bonus.';
+
+  @override
+  String get daily_bonus_body_profile_incomplete =>
+      'Complete your profile to claim the daily bonus.';
+
+  @override
+  String get daily_bonus_cta_claim => 'Claim';
+
+  @override
+  String get daily_bonus_cta_claimed => 'Claimed';
+
+  @override
+  String daily_bonus_snackbar_granted(Object amount) {
+    return 'Daily bonus claimed: +$amount TippCoins!';
+  }
 }
