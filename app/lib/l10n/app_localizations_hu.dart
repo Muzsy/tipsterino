@@ -294,4 +294,13 @@ class AppLocalizationsHu extends AppLocalizations {
   String daily_bonus_snackbar_granted(Object amount) {
     return 'Napi bónusz jóváírva: +$amount TippCoin!';
   }
+
+  @override
+  String get daily_bonus_body_not_configured => 'A napi bónusz nem elérhető (nincs beállítva).';
+
+  @override
+  String get daily_bonus_body_offline => 'Úgy tűnik, nincs internetkapcsolat. Próbáld újra.';
+
+  @override
+  String get daily_bonus_cta_retry => 'Újrapróbálás';
 }

@@ -640,6 +640,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Daily bonus claimed: +{amount} TippCoins!'**
   String daily_bonus_snackbar_granted(Object amount);
+
+  /// No description provided for @daily_bonus_body_not_configured.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonus is unavailable (not configured).'**
+  String get daily_bonus_body_not_configured;
+
+  /// No description provided for @daily_bonus_body_offline.
+  ///
+  /// In en, this message translates to:
+  /// **'You appear to be offline. Try again.'**
+  String get daily_bonus_body_offline;
+
+  /// No description provided for @daily_bonus_cta_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get daily_bonus_cta_retry;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

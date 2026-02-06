@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:tipsterino/l10n/app_localizations.dart';
+import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/rewards/application/daily_bonus_claim_provider.dart';
 import 'package:tipsterino/src/features/rewards/domain/daily_bonus_grant_result.dart';
 
@@ -17,12 +18,23 @@ class DailyBonusTile extends ConsumerWidget {
     final isRunning = state.isRunning;
     final isClaimedNow = state.isClaimedNow;
     final hasError = state.lastError != null;
+    final isSupabaseConfigured = ref.watch(supabaseConfigProvider).isConfigured;
+    final showNotConfigured = !isSupabaseConfigured;
+    final showOffline = hasError && isSupabaseConfigured;
 
-    final bodyText = _bodyText(loc, hasError, isClaimedNow, reason);
-    final buttonLabel = isClaimedNow ? loc.daily_bonus_cta_claimed : loc.daily_bonus_cta_claim;
+    final bodyText = _bodyText(
+      loc,
+      showNotConfigured,
+      showOffline,
+      isClaimedNow,
+      reason,
+    );
+    final buttonLabel = isClaimedNow
+        ? loc.daily_bonus_cta_claimed
+        : (showOffline ? loc.daily_bonus_cta_retry : loc.daily_bonus_cta_claim);
     final canClaim = !isRunning &&
         !isClaimedNow &&
-        !hasError &&
+        !showNotConfigured &&
         reason != DailyBonusReason.disabled &&
         reason != DailyBonusReason.notVerified &&
         reason != DailyBonusReason.profileIncomplete &&
@@ -86,7 +98,8 @@ class DailyBonusTile extends ConsumerWidget {
 
   String _bodyText(
     AppLocalizations loc,
-    bool hasError,
+    bool showNotConfigured,
+    bool showOffline,
     bool isClaimedNow,
     DailyBonusReason? reason,
   ) {
@@ -94,13 +107,9 @@ class DailyBonusTile extends ConsumerWidget {
       return loc.daily_bonus_body_claimed;
     }
 
-    if (hasError) {
-      return loc.authGenericError;
-    }
-
     switch (reason) {
       case DailyBonusReason.notConfigured:
-        return loc.offlineNotice;
+        return loc.daily_bonus_body_not_configured;
       case DailyBonusReason.disabled:
         return loc.daily_bonus_body_disabled;
       case DailyBonusReason.notVerified:
@@ -108,7 +117,17 @@ class DailyBonusTile extends ConsumerWidget {
       case DailyBonusReason.profileIncomplete:
         return loc.daily_bonus_body_profile_incomplete;
       default:
-        return loc.daily_bonus_body_available;
+        break;
     }
+
+    if (showNotConfigured) {
+      return loc.daily_bonus_body_not_configured;
+    }
+
+    if (showOffline) {
+      return loc.daily_bonus_body_offline;
+    }
+
+    return loc.daily_bonus_body_available;
   }
 }

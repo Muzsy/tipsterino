@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:tipsterino/l10n/app_localizations.dart';
+import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/rewards/application/daily_bonus_claim_provider.dart';
 import 'package:tipsterino/src/features/rewards/domain/daily_bonus_grant_result.dart';
 import 'package:tipsterino/src/features/rewards/presentation/daily_bonus_tile.dart';
@@ -12,6 +13,7 @@ void main() {
 
   Widget wrapWithLocalizations(Widget child) {
     return MaterialApp(
+      locale: const Locale('en'),
       home: Scaffold(body: child),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -20,8 +22,9 @@ void main() {
 
   Future<void> pumpTile(
     WidgetTester tester,
-    DailyBonusClaimState state,
-  ) async {
+    DailyBonusClaimState state, {
+    bool isSupabaseConfigured = true,
+  }) async {
     final notifier = DailyBonusClaimNotifier(
       () async => const DailyBonusGrantResult.notConfigured(),
     );
@@ -30,6 +33,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          supabaseConfigProvider.overrideWithValue(
+            SupabaseConfiguration(isConfigured: isSupabaseConfigured),
+          ),
           dailyBonusClaimProvider.overrideWith((ref) => notifier),
         ],
         child: wrapWithLocalizations(const DailyBonusTile()),
@@ -93,11 +99,25 @@ void main() {
       const DailyBonusClaimState(
         lastResult: DailyBonusGrantResult.notConfigured(),
       ),
+      isSupabaseConfigured: false,
     );
 
-    expect(find.text('Supabase not configured'), findsOneWidget);
+    expect(find.text('Daily bonus is unavailable (not configured).'), findsOneWidget);
     expect(find.text('Claimed'), findsNothing);
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     expect(button.onPressed, isNull);
+  });
+
+  testWidgets('offline error shows retry CTA when Supabase configured', (tester) async {
+    await pumpTile(
+      tester,
+      const DailyBonusClaimState(lastError: Object()),
+      isSupabaseConfigured: true,
+    );
+
+    expect(find.text('You appear to be offline. Try again.'), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    expect(button.onPressed, isNotNull);
   });
 }

@@ -1,0 +1,64 @@
+steps:
+  - name: "Preflight: DailyBonusTile és supabaseConfigProvider viszony"
+    description: >
+      Ellenőrizd, hogy a DailyBonusTile jelenleg hogyan dönti el a CTA engedélyezését,
+      és a supabaseConfigProvider milyen API-t ad (pl. isConfigured).
+      Cél: a notConfigured állapotot már UI szinten (preflight) is tudjuk tiltani.
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_tile_not_configured_offline.md"
+
+  - name: "DailyBonusTile: notConfigured + offline/error state kezelés"
+    description: >
+      Módosítsd az app/lib/src/features/rewards/presentation/daily_bonus_tile.dart fájlt:
+      - olvasd a supabaseConfigProvider-t és számolj isSupabaseConfigured flaget
+      - ha !isSupabaseConfigured: body = daily_bonus_body_not_configured, CTA disabled
+      - ha lastError != null és isSupabaseConfigured: body = daily_bonus_body_offline, CTA = daily_bonus_cta_retry (enabled)
+      - tartsd meg a prioritást: running -> claimed -> blocked reasons -> notConfigured -> offline -> default
+      - retry gomb ugyanazt a claim() hívást indítsa
+      - opcionális snackbar hiba üzenethez: daily_bonus_snackbar_error (ha implementálod, add l10n kulcsot is)
+    outputs:
+      - "app/lib/src/features/rewards/presentation/daily_bonus_tile.dart"
+
+  - name: "L10n: notConfigured/offline kulcsok + generated dart frissítés"
+    description: >
+      Add hozzá a kulcsokat:
+      - app/lib/l10n/app_en.arb: daily_bonus_body_not_configured, daily_bonus_body_offline, daily_bonus_cta_retry
+      - app/lib/l10n/app_hu.arb: daily_bonus_body_not_configured, daily_bonus_body_offline, daily_bonus_cta_retry
+      (Opcionális: daily_bonus_snackbar_error mindkét nyelven, ha bevezeted.)
+      Majd frissítsd a commitolt generated fájlokat:
+      - app/lib/l10n/app_localizations.dart
+      - app/lib/l10n/app_localizations_en.dart
+      - app/lib/l10n/app_localizations_hu.dart
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Widget teszt: notConfigured + offline state"
+    description: >
+      Bővítsd az app/test/widget/daily_bonus_tile_test.dart fájlt:
+      - notConfigured: supabaseConfigProvider override isConfigured=false -> not_configured szöveg + CTA disabled
+      - offline/error: supabaseConfigProvider override isConfigured=true + dailyBonusClaimProvider state lastError != null ->
+        offline szöveg + Retry CTA enabled
+      A teszt legyen stabil és provider override alapú.
+    outputs:
+      - "app/test/widget/daily_bonus_tile_test.dart"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot:
+      - tile state bővítés + l10n + widget tesztek
+      - futtatás: ./scripts/check.sh
+      Report: módosított fájlok + PASS/FAIL log kivonat.
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_tile_not_configured_offline.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_tile_not_configured_offline.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd és dokumentáld:
+      - ./scripts/check.sh
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_tile_not_configured_offline.md"

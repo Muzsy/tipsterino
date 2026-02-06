@@ -93,5 +93,8 @@
   "daily_bonus_body_profile_incomplete": "Profil kitöltése szükséges a napi bónusz igényléséhez.",
   "daily_bonus_cta_claim": "Igénylés",
   "daily_bonus_cta_claimed": "Igényelve",
-  "daily_bonus_snackbar_granted": "Napi bónusz jóváírva: +{amount} TippCoin!"
+  "daily_bonus_snackbar_granted": "Napi bónusz jóváírva: +{amount} TippCoin!",
+  "daily_bonus_body_not_configured": "A napi bónusz nem elérhető (nincs beállítva).",
+  "daily_bonus_body_offline": "Úgy tűnik, nincs internetkapcsolat. Próbáld újra.",
+  "daily_bonus_cta_retry": "Újrapróbálás"
 }

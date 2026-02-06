@@ -293,4 +293,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String daily_bonus_snackbar_granted(Object amount) {
     return 'Daily bonus claimed: +$amount TippCoins!';
   }
+
+  @override
+  String get daily_bonus_body_not_configured => 'Daily bonus is unavailable (not configured).';
+
+  @override
+  String get daily_bonus_body_offline => 'You appear to be offline. Try again.';
+
+  @override
+  String get daily_bonus_cta_retry => 'Retry';
 }
