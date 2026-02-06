@@ -83,6 +83,8 @@
   "eventsEmptyBody": "Az események itt jelennek meg, amint történik valami.",
   "eventSignupBonusTitle": "Regisztrációs bónusz",
   "eventSignupBonusBody": "{amount} TippCoin jóváírás a regisztrációért.",
+  "event_daily_bonus_title": "Napi bónusz",
+  "event_daily_bonus_body": "Napi bónusz jóváírva: +{amount} TippCoin.",
   "daily_bonus_title": "Napi bónusz",
   "daily_bonus_body_available": "Igényeld a napi TippCoin jutalmad.",
   "daily_bonus_body_claimed": "Ma már igényelted. Gyere vissza holnap.",

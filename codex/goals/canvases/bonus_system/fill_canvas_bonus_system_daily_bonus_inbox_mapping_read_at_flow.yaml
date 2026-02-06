@@ -1,0 +1,77 @@
+steps:
+  - name: "Preflight: Inbox és user_events integráció felderítése"
+    description: >
+      Keresd meg a repóban az Inbox képernyőt és a user_events adatfolyamot:
+      - melyik fájl rendereli a user_events listát
+      - hol van a read_at alapján az unread jelölés
+      - van-e meglévő mark-as-read update logika
+      A cél az, hogy valós fájlokba nyúljunk, ne hozzunk létre párhuzamos inboxot.
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_inbox_mapping_read_at_flow.md"
+
+  - name: "Daily bonus event mapping beépítése"
+    description: >
+      Az Inbox list item szövegezésébe építsd be a daily bonus mappinget:
+      - ha event.type == 'tippcoin_credit' és event.code == 'daily_bonus', akkor:
+        title = event_daily_bonus_title
+        body = event_daily_bonus_body(amount)
+      Ha már van mapper/helper, abba tedd; ha nincs, hozz létre egy kicsi, jól tesztelhető helper-t
+      az Inbox feature-en belül.
+    outputs:
+      - "app/lib/src/**/inbox/**"
+      - "app/lib/src/**/events_inbox/**"
+      - "app/lib/src/**/user_events/**"
+
+  - name: "read_at flow: mark as read (csak read_at update)"
+    description: >
+      Valósítsd meg (vagy bővítsd) az Inbox item tap kezelést:
+      - ha read_at null, update user_events táblában csak a read_at mezőt (UTC ISO string)
+      - legyen guard: ha nincs Supabase konfiguráció, ne próbáljon update-elni (fail-safe)
+      Törekedj provider/callback alapú megoldásra, hogy widget tesztben mockolható legyen.
+    outputs:
+      - "app/lib/src/**/inbox/**"
+      - "app/lib/src/**/events_inbox/**"
+      - "app/lib/src/**/user_events/**"
+
+  - name: "L10n: daily bonus inbox kulcsok + generated dart frissítés"
+    description: >
+      Add hozzá az új kulcsokat:
+      - app/lib/l10n/app_en.arb: event_daily_bonus_title, event_daily_bonus_body({amount})
+      - app/lib/l10n/app_hu.arb: event_daily_bonus_title, event_daily_bonus_body({amount})
+      Majd frissítsd a commitolt generated fájlokat:
+      - app/lib/l10n/app_localizations.dart
+      - app/lib/l10n/app_localizations_en.dart
+      - app/lib/l10n/app_localizations_hu.dart
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Widget teszt: daily bonus inbox item + read_at"
+    description: >
+      Adj hozzá egy widget tesztet az Inboxhoz, ami:
+      - daily bonus eseményt renderel (code='daily_bonus', amount=50)
+      - ellenőrzi a lokalizált title/body-t
+      - tap esetén mockolt/override-olt markRead logika lefut, és a UI read állapotba vált
+      A teszt legyen stabil: provider override / fake repository ajánlott.
+    outputs:
+      - "app/test/widget/**"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot:
+      - inbox mapping + read_at flow + l10n + widget teszt
+      - futtatás: ./scripts/check.sh
+      Report: módosított fájlok listája + PASS/FAIL log kivonat.
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_inbox_mapping_read_at_flow.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_inbox_mapping_read_at_flow.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd és dokumentáld:
+      - ./scripts/check.sh
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_inbox_mapping_read_at_flow.md"

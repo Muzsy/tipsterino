@@ -86,4 +86,18 @@ void main() {
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     expect(button.onPressed, isNull);
   });
+
+  testWidgets('notConfigured result shows offline notice and keeps CTA disabled', (tester) async {
+    await pumpTile(
+      tester,
+      const DailyBonusClaimState(
+        lastResult: DailyBonusGrantResult.notConfigured(),
+      ),
+    );
+
+    expect(find.text('Supabase not configured'), findsOneWidget);
+    expect(find.text('Claimed'), findsNothing);
+    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    expect(button.onPressed, isNull);
+  });
 }

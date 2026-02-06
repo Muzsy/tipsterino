@@ -575,6 +575,18 @@ abstract class AppLocalizations {
   /// **'You earned {amount} TippCoins as a signup bonus.'**
   String eventSignupBonusBody(Object amount);
 
+  /// No description provided for @eventDailyBonusTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonus'**
+  String get eventDailyBonusTitle;
+
+  /// No description provided for @eventDailyBonusBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily bonus credited: +{amount} TippCoins.'**
+  String eventDailyBonusBody(Object amount);
+
   /// No description provided for @daily_bonus_title.
   ///
   /// In en, this message translates to:

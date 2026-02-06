@@ -84,6 +84,8 @@
   "eventsEmptyBody": "We will show your events here as soon as they arrive.",
   "eventSignupBonusTitle": "Signup bonus",
   "eventSignupBonusBody": "You earned {amount} TippCoins as a signup bonus.",
+  "event_daily_bonus_title": "Daily bonus",
+  "event_daily_bonus_body": "Daily bonus credited: +{amount} TippCoins.",
   "daily_bonus_title": "Daily bonus",
   "daily_bonus_body_available": "Claim your daily TippCoins.",
   "daily_bonus_body_claimed": "Already claimed today. Come back tomorrow.",

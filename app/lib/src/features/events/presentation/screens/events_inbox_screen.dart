@@ -175,15 +175,25 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
   }
 
   String _mapTitle(UserEvent event, AppLocalizations loc) {
-    if (event.type == 'tippcoin_credit' && event.code == 'signup_bonus') {
-      return loc.eventSignupBonusTitle;
+    if (event.type == 'tippcoin_credit') {
+      if (event.code == 'signup_bonus') {
+        return loc.eventSignupBonusTitle;
+      }
+      if (event.code == 'daily_bonus') {
+        return loc.eventDailyBonusTitle;
+      }
     }
     return _fallbackText(event);
   }
 
   String _mapBody(UserEvent event, AppLocalizations loc) {
-    if (event.type == 'tippcoin_credit' && event.code == 'signup_bonus') {
-      return loc.eventSignupBonusBody(event.amount?.toString() ?? '0');
+    if (event.type == 'tippcoin_credit') {
+      if (event.code == 'signup_bonus') {
+        return loc.eventSignupBonusBody(event.amount?.toString() ?? '0');
+      }
+      if (event.code == 'daily_bonus') {
+        return loc.eventDailyBonusBody(event.amount?.toString() ?? '0');
+      }
     }
     return _fallbackText(event);
   }

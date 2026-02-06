@@ -257,6 +257,14 @@ class AppLocalizationsHu extends AppLocalizations {
   }
 
   @override
+  String get eventDailyBonusTitle => 'Napi bónusz';
+
+  @override
+  String eventDailyBonusBody(Object amount) {
+    return 'Napi bónusz jóváírva: +$amount TippCoin.';
+  }
+
+  @override
   String get daily_bonus_title => 'Napi bónusz';
 
   @override

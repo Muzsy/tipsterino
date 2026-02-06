@@ -257,6 +257,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get eventDailyBonusTitle => 'Daily bonus';
+
+  @override
+  String eventDailyBonusBody(Object amount) {
+    return 'Daily bonus credited: +$amount TippCoins.';
+  }
+
+  @override
   String get daily_bonus_title => 'Daily bonus';
 
   @override

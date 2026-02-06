@@ -16,14 +16,17 @@ class DailyBonusTile extends ConsumerWidget {
     final reason = state.lastResult?.reason;
     final isRunning = state.isRunning;
     final isClaimedNow = state.isClaimedNow;
+    final hasError = state.lastError != null;
 
-    final bodyText = _bodyText(loc, isClaimedNow, reason);
+    final bodyText = _bodyText(loc, hasError, isClaimedNow, reason);
     final buttonLabel = isClaimedNow ? loc.daily_bonus_cta_claimed : loc.daily_bonus_cta_claim;
     final canClaim = !isRunning &&
         !isClaimedNow &&
+        !hasError &&
         reason != DailyBonusReason.disabled &&
         reason != DailyBonusReason.notVerified &&
-        reason != DailyBonusReason.profileIncomplete;
+        reason != DailyBonusReason.profileIncomplete &&
+        reason != DailyBonusReason.notConfigured;
 
     return Card(
       child: Padding(
@@ -83,6 +86,7 @@ class DailyBonusTile extends ConsumerWidget {
 
   String _bodyText(
     AppLocalizations loc,
+    bool hasError,
     bool isClaimedNow,
     DailyBonusReason? reason,
   ) {
@@ -90,7 +94,13 @@ class DailyBonusTile extends ConsumerWidget {
       return loc.daily_bonus_body_claimed;
     }
 
+    if (hasError) {
+      return loc.authGenericError;
+    }
+
     switch (reason) {
+      case DailyBonusReason.notConfigured:
+        return loc.offlineNotice;
       case DailyBonusReason.disabled:
         return loc.daily_bonus_body_disabled;
       case DailyBonusReason.notVerified:
