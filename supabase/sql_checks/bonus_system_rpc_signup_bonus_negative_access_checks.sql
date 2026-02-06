@@ -53,6 +53,9 @@ BEGIN
   IF has_table_privilege('authenticated', 'public.user_events', 'DELETE') THEN
     RAISE EXCEPTION 'authenticated has DELETE privilege on user_events';
   END IF;
+  IF has_table_privilege('authenticated', 'public.user_events', 'UPDATE') THEN
+    RAISE EXCEPTION 'authenticated has table-level UPDATE privilege on user_events';
+  END IF;
 
   IF NOT has_column_privilege('authenticated', 'public.user_events', 'read_at', 'UPDATE') THEN
     RAISE EXCEPTION 'authenticated lacks UPDATE privilege on user_events.read_at';

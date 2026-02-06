@@ -1,0 +1,86 @@
+steps:
+  - name: "Migráció: privilege contract fix (RPC + user_events + optional read-only ledger)"
+    description: >
+      Hozd létre az új migrációt:
+      supabase/migrations/20260206000000_bonus_system_privilege_contract_fix.sql
+
+      Kötelező pontok:
+
+      1) RPC EXECUTE szűkítése:
+         - REVOKE ALL ON FUNCTION public.grant_signup_bonus_if_eligible() FROM PUBLIC;
+         - GRANT EXECUTE ON FUNCTION public.grant_signup_bonus_if_eligible() TO authenticated;
+
+      2) user_events privilege szerződés:
+         - REVOKE ALL ON TABLE public.user_events FROM PUBLIC;
+         - REVOKE ALL ON TABLE public.user_events FROM anon;
+         - REVOKE ALL ON TABLE public.user_events FROM authenticated;
+         - GRANT SELECT ON TABLE public.user_events TO authenticated;
+         - GRANT UPDATE (read_at) ON TABLE public.user_events TO authenticated;
+
+      3) Ajánlott (ha nem okoz regressziót):
+         - reward_grants és user_stats legyen read-only kliensnek:
+           * REVOKE ALL ON TABLE public.reward_grants FROM PUBLIC, anon, authenticated;
+           * GRANT SELECT ON TABLE public.reward_grants TO authenticated;
+           * REVOKE ALL ON TABLE public.user_stats FROM PUBLIC, anon, authenticated;
+           * GRANT SELECT ON TABLE public.user_stats TO authenticated;
+
+      Megjegyzés:
+      - Ne adj új jogokat anon-nak.
+      - Ha valamelyik REVOKE/GRANT már létezik, attól még fusson le idempotensen.
+    outputs:
+      - "supabase/migrations/20260206000000_bonus_system_privilege_contract_fix.sql"
+
+  - name: "SQL checks megerősítés: table-level UPDATE tiltás explicit ellenőrzése"
+    description: >
+      Módosítsd a következő fájlokat:
+
+      1) supabase/sql_checks/bonus_system_rpc_signup_bonus_negative_access_checks.sql
+      2) supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql
+
+      Követelmények mindkettőben:
+      - explicit assert: has_table_privilege('authenticated','public.user_events','UPDATE') = false
+        (ha true -> RAISE EXCEPTION)
+      - az eddigi ellenőrzések maradjanak változatlanok
+      - BEGIN/ROLLBACK + SET LOCAL search_path + DO $$ ... $$ stílus maradjon
+
+      Cél: az oszlopszintű UPDATE grant ne legyen megkerülhető table UPDATE joggal.
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_signup_bonus_negative_access_checks.sql"
+      - "supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql"
+
+  - name: "Checklist + report (privilege contract fix)"
+    description: >
+      Készíts checklistet és reportot:
+
+      - codex/codex_checklist/bonus_system/bonus_system_db_privilege_contract_fix.md
+      - codex/reports/bonus_system/bonus_system_db_privilege_contract_fix.md
+
+      Checklist minimum:
+      - új migráció létrejött (RPC EXECUTE revoke PUBLIC + grant authenticated)
+      - user_events: authenticated csak SELECT + UPDATE(read_at)
+      - SQL checks bővítve table-level UPDATE tiltás ellenőrzéssel
+      - DB gate futtatva
+      - PASS
+
+      Report minimum:
+      - összegzés: miért volt FAIL (anon EXECUTE és authenticated INSERT/UPDATE mismatch)
+      - migrációs változások felsorolása
+      - SQL checks bővítés röviden
+      - futtatott parancsok + PASS
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_db_privilege_contract_fix.md"
+      - "codex/reports/bonus_system/bonus_system_db_privilege_contract_fix.md"
+
+  - name: "DB gate: migrációk alkalmazása + SQL checks futtatása"
+    description: >
+      Alkalmazd a migrációkat a projekt szokásos Supabase flow-ja szerint.
+
+      Ezután futtasd:
+
+      - set -a; source .env.local; set +a
+      - psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_negative_access_checks.sql
+      - psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql
+
+      A reportba írd bele a PASS státuszt és rövid összegzést.
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_db_privilege_contract_fix.md"
