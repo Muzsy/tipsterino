@@ -563,6 +563,36 @@ abstract class AppLocalizations {
   /// **'We will show your events here as soon as they arrive.'**
   String get eventsEmptyBody;
 
+  /// No description provided for @eventsFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get eventsFilterAll;
+
+  /// No description provided for @eventsFilterCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Credits'**
+  String get eventsFilterCredits;
+
+  /// No description provided for @eventsFilterChallenges.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenges'**
+  String get eventsFilterChallenges;
+
+  /// No description provided for @eventsFilterSocial.
+  ///
+  /// In en, this message translates to:
+  /// **'Social'**
+  String get eventsFilterSocial;
+
+  /// No description provided for @eventsFilterSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get eventsFilterSystem;
+
   /// No description provided for @eventSignupBonusTitle.
   ///
   /// In en, this message translates to:

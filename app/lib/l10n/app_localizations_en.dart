@@ -249,6 +249,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsEmptyBody => 'We will show your events here as soon as they arrive.';
 
   @override
+  String get eventsFilterAll => 'All';
+
+  @override
+  String get eventsFilterCredits => 'Credits';
+
+  @override
+  String get eventsFilterChallenges => 'Challenges';
+
+  @override
+  String get eventsFilterSocial => 'Social';
+
+  @override
+  String get eventsFilterSystem => 'System';
+
+  @override
   String get eventSignupBonusTitle => 'Signup bonus';
 
   @override

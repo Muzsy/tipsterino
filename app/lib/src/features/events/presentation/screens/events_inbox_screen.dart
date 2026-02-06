@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:tipsterino/l10n/app_localizations.dart';
+import 'package:tipsterino/src/features/events/domain/events_filter.dart';
 
 import '../../application/user_events_provider.dart';
 import '../../domain/user_event.dart';
@@ -120,42 +121,94 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
     UserEventsNotifier notifier,
   ) {
     final theme = Theme.of(context);
-    return RefreshIndicator(
-      onRefresh: notifier.refresh,
-      child: ListView.separated(
-        controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: state.items.length + (state.isLoadingMore ? 1 : 0),
-        separatorBuilder: (context, index) => Divider(color: theme.dividerColor, height: 1),
-        itemBuilder: (context, index) {
-          if (index >= state.items.length) {
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: Center(child: CircularProgressIndicator()),
-            );
-          }
+    final filteredItems = state.filteredItems;
+    final hasItems = filteredItems.isNotEmpty;
+    final loadingExtras = hasItems && state.isLoadingMore ? 1 : 0;
+    final itemCount = hasItems ? filteredItems.length + loadingExtras : 1;
 
-          final event = state.items[index];
-          return ListTile(
-            contentPadding: const EdgeInsets.symmetric(vertical: 8),
-            leading: _buildUnreadIndicator(event, theme),
-            title: Text(
-              _mapTitle(event, loc),
-              style: event.isUnread ? theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600) : null,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildFilterBar(loc, state.filter, notifier.setFilter),
+        const SizedBox(height: 12),
+        Expanded(
+          child: RefreshIndicator(
+            onRefresh: notifier.refresh,
+            child: ListView.separated(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              itemCount: itemCount,
+              separatorBuilder: (context, index) => Divider(color: theme.dividerColor, height: 1),
+              itemBuilder: (context, index) {
+                if (!hasItems) {
+                  return Column(
+                    children: [
+                      const SizedBox(height: 32),
+                      Text(
+                        loc.eventsEmptyBody,
+                        style: theme.textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  );
+                }
+
+                if (index >= filteredItems.length) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+
+                final event = filteredItems[index];
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                  leading: _buildUnreadIndicator(event, theme),
+                  title: Text(
+                    _mapTitle(event, loc),
+                    style: event.isUnread ? theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600) : null,
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(_mapBody(event, loc)),
+                      const SizedBox(height: 4),
+                      Text(
+                        _formatTimestamp(event.createdAt),
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                  onTap: event.isUnread ? () => notifier.markRead(event) : null,
+                );
+              },
             ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(_mapBody(event, loc)),
-                const SizedBox(height: 4),
-                Text(
-                  _formatTimestamp(event.createdAt),
-                  style: theme.textTheme.bodySmall,
-                ),
-              ],
-            ),
-            onTap: event.isUnread ? () => notifier.markRead(event) : null,
-          );
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterBar(
+    AppLocalizations loc,
+    EventsFilter selected,
+    void Function(EventsFilter) onFilterChanged,
+  ) {
+    final segments = EventsFilter.values.map(
+      (filter) => ButtonSegment<EventsFilter>(
+        value: filter,
+        label: Text(_filterLabel(filter, loc)),
+      ),
+    ).toList();
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SegmentedButton<EventsFilter>(
+        segments: segments,
+        selected: <EventsFilter>{selected},
+        onSelectionChanged: (selection) {
+          if (selection.isEmpty) return;
+          onFilterChanged(selection.first);
         },
       ),
     );
@@ -211,5 +264,20 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
     final hour = local.hour.toString().padLeft(2, '0');
     final minute = local.minute.toString().padLeft(2, '0');
     return '$year-$month-$day $hour:$minute';
+  }
+
+  String _filterLabel(EventsFilter filter, AppLocalizations loc) {
+    switch (filter) {
+      case EventsFilter.all:
+        return loc.eventsFilterAll;
+      case EventsFilter.credits:
+        return loc.eventsFilterCredits;
+      case EventsFilter.social:
+        return loc.eventsFilterSocial;
+      case EventsFilter.challenges:
+        return loc.eventsFilterChallenges;
+      case EventsFilter.system:
+        return loc.eventsFilterSystem;
+    }
   }
 }

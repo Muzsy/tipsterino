@@ -3,11 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 
 import '../data/user_events_repository.dart';
+import '../domain/events_filter.dart';
 import '../domain/user_event.dart';
 
 class UserEventsState {
   const UserEventsState({
     this.items = const [],
+    this.filter = EventsFilter.all,
     this.isNotConfigured = false,
     this.isLoading = false,
     this.isLoadingMore = false,
@@ -16,6 +18,7 @@ class UserEventsState {
   });
 
   final List<UserEvent> items;
+  final EventsFilter filter;
   final bool isNotConfigured;
   final bool isLoading;
   final bool isLoadingMore;
@@ -26,6 +29,7 @@ class UserEventsState {
 
   UserEventsState copyWith({
     List<UserEvent>? items,
+    EventsFilter? filter,
     bool? isNotConfigured,
     bool? isLoading,
     bool? isLoadingMore,
@@ -34,6 +38,7 @@ class UserEventsState {
   }) {
     return UserEventsState(
       items: items ?? this.items,
+      filter: filter ?? this.filter,
       isNotConfigured: isNotConfigured ?? this.isNotConfigured,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
@@ -42,6 +47,8 @@ class UserEventsState {
           identical(errorMessage, _undefined) ? this.errorMessage : errorMessage as String?,
     );
   }
+
+  List<UserEvent> get filteredItems => items.where(filter.matches).toList();
 }
 
 final userEventsRepositoryProvider = Provider<UserEventsRepository?>((ref) {
@@ -157,6 +164,13 @@ class UserEventsNotifier extends StateNotifier<UserEventsState> {
       isLoadingMore: false,
       errorMessage: null,
     );
+  }
+
+  void setFilter(EventsFilter value) {
+    if (state.filter == value) {
+      return;
+    }
+    state = state.copyWith(filter: value);
   }
 }
 

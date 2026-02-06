@@ -249,6 +249,21 @@ class AppLocalizationsHu extends AppLocalizations {
   String get eventsEmptyBody => 'Az események itt jelennek meg, amint történik valami.';
 
   @override
+  String get eventsFilterAll => 'Mind';
+
+  @override
+  String get eventsFilterCredits => 'Jóváírások';
+
+  @override
+  String get eventsFilterChallenges => 'Kihívások';
+
+  @override
+  String get eventsFilterSocial => 'Közösségi';
+
+  @override
+  String get eventsFilterSystem => 'Rendszer';
+
+  @override
   String get eventSignupBonusTitle => 'Regisztrációs bónusz';
 
   @override

@@ -1,0 +1,85 @@
+steps:
+  - name: "Preflight: Events Inbox és provider felderítése"
+    description: >
+      Nyisd meg és rögzítsd a canvasban a valós belépési pontokat:
+      - EventsInboxScreen jelenlegi UI struktúra
+      - UserEventsState/UserEventsNotifier jelenlegi mezők és adatfolyam
+      - jelenlegi item mapping és empty/offline state
+      Cél: csak létező fájlokhoz nyúljunk, ne legyen párhuzamos implementáció.
+    outputs:
+      - "canvases/events_inbox/events_inbox_ux_filter_bar.md"
+
+  - name: "EventsFilter enum bevezetése"
+    description: >
+      Hozd létre az EventsFilter enumot a events feature domainben:
+      - all, credits, social, challenges, system
+      - adj hozzá egy bővíthető matching logikát (pl. matches(UserEvent))
+      Ügyelj rá, hogy a mapping jelenleg csak credits-re legyen éles (type == tippcoin_credit),
+      a többinél lehet explicit üres/placeholder (későbbi bővítésre).
+    outputs:
+      - "app/lib/src/features/events/domain/events_filter.dart"
+
+  - name: "Provider state bővítése filterrel"
+    description: >
+      A UserEventsState kapjon egy filter mezőt (default: EventsFilter.all) és egy derived listát
+      (pl. filteredItems getter), ami state.items-t szűri.
+      A notifier kapjon setFilter(EventsFilter) metódust.
+      A loadInitial/loadMore/refresh ne nullázza a filtert.
+    outputs:
+      - "app/lib/src/features/events/application/user_events_provider.dart"
+
+  - name: "UI: filter bar megjelenítése és szűrt lista renderelése"
+    description: >
+      Az EventsInboxScreen body elejére építs be egy filter sort:
+      - Material 3 kompatibilis megoldás
+      - preferált: SegmentedButton + horizontal scroll container
+      - feliratok AppLocalizations-ból jönnek
+      A lista itemCount/forrás a szűrt listára épüljön (state.filteredItems).
+      A jelenlegi refresh/load-more/read/unread logika maradjon működőképes.
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"
+
+  - name: "L10n: filter kulcsok HU/EN + generated frissítés"
+    description: >
+      Add hozzá a kulcsokat:
+      - eventsFilterAll
+      - eventsFilterCredits
+      - eventsFilterChallenges
+      - eventsFilterSocial
+      - eventsFilterSystem
+      Mindkét ARB fájlban, majd frissítsd a commitolt generated lokalizációs dart fájlokat.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Widget teszt: filter váltás és lista szűrés"
+    description: >
+      Hozz létre egy új widget tesztet Events Inbox filterhez:
+      - FakeUserEventsRepository adjon vissza 2 eventet (tippcoin_credit/signup_bonus + message/fallback)
+      - default filter (all): mindkettő látszik
+      - credits filter: csak a tippcoin event látszik
+      Használj ProviderScope override mintát a meglévő events_inbox_* tesztekből.
+    outputs:
+      - "app/test/widget/events_inbox_filter_test.dart"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts pipálható checklistet és reportot az elvégzett munkáról.
+      A report tartalmazza:
+      - módosított/létrehozott fájlok listáját
+      - futtatott parancsot és PASS/FAIL összegzést
+      Kötelező futtatás: ./scripts/check.sh
+    outputs:
+      - "codex/codex_checklist/events_inbox/events_inbox_ux_filter_bar.md"
+      - "codex/reports/events_inbox/events_inbox_ux_filter_bar.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd és dokumentáld a standard ellenőrzést:
+      - ./scripts/check.sh
+      Az eredményt írd bele a reportba.
+    outputs:
+      - "codex/reports/events_inbox/events_inbox_ux_filter_bar.md"
