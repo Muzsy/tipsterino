@@ -87,4 +87,12 @@ BEGIN
 END;
 $$;
 
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM public.reward_definitions WHERE code = 'daily_bonus') THEN
+    RAISE EXCEPTION 'daily_bonus definition missing';
+  END IF;
+END;
+$$;
+
 \echo 'bonus_system schema/rls checks passed'

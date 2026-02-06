@@ -19,10 +19,10 @@ Ezek az esetek a standard grant pipeline pre-ellenőrzésében szerepelnek; a pi
 
 ## Napi limit
 
-- A napi limitet az **UTC nap** határozza meg (00:00–23:59 UTC), a DB az igazságforrás.
-- Javasolt modell: a `reward_grants` táblába bekerül egy `grant_day DATE` oszlop, amely a kiosztás napját tartalmazza UTC-ben.
-- Ezen oszlopra opcionálisan partial unique index tehető, például (`user_id`, `grant_day`) komponensekkel, hogy a napi 1× kiosztást a DB szintjén is segítsük.
-- A napi limit definícióját mindaddig le lehet írni a dokumentációban, amíg a konkrét migráció külön taskban jön létre.
+- Az **UTC nap** (00:00–23:59 UTC) határozza meg az idempotens napi kiosztást, a DB-ben tartjuk nyilván.
+- A `reward_grants.grant_day DATE` mező tartalmazza a kiosztás napját: `(now() AT TIME ZONE 'UTC')::date`.
+- A `daily_bonus` esetén a `grant_day` mező nem lehet NULL (a migráció egy CHECK constrainttel biztosítja).
+- A `reward_grants_user_daily_bonus_day_unique` partial unique index (user_id, code, grant_day WHERE code = 'daily_bonus') garantálja, hogy minden user naponta egyszer kaphat `daily_bonus`-t.
 
 ## RPC contract
 
@@ -38,7 +38,7 @@ Ezek az esetek a standard grant pipeline pre-ellenőrzésében szerepelnek; a pi
 
 Ha a grant megtörténik:
 
-1. `reward_grants` – új rekord (`code = 'daily_bonus'`, `grant_day = DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC')`, `amount` a definícióból).
+1. `reward_grants` – új rekord (`code = 'daily_bonus'`, `grant_day = (now() AT TIME ZONE 'UTC')::date`, `amount` a definícióból).
 2. `user_stats.tippcoins` – az adott user sorához hozzáadjuk az `amount` értéket, `updated_at` frissítése.
 3. `user_events` – új esemény készül:
    - `type = 'tippcoin_credit'`
@@ -48,11 +48,11 @@ Ha a grant megtörténik:
 
 ## UI szerződés (szintű leírás)
 
-- Home tile állapotok:
-  - `available`: a user még nem kapta meg a napi bónuszt, `next_eligible_at` későbbi időpont.
-  - `claimed`: a napi bónusz kiosztva, az inbox esemény `read_at` ellenőrzésével a tile jelezheti.
-  - `offline`: nincs kapcsolat, de az előző `next_eligible_at` alapján jelezhető, hogy a bónusz már lejárt.
-- A tile megjelenítéséhez a `next_eligible_at` mező elégséges, ha a mentett érték alapján a kliens kiszámolja az állapotot.
+- A `next_eligible_at` mező és az aktuális idő (`now()`) határozza meg a tile állapotát.
+- `available`: a user most jogosult (`next_eligible_at` hiányzik vagy `<= now()`), a claim gomb aktív.
+- `claimed`: a napi bónuszt már igényelték, ezért a `next_eligible_at` jövőbeli (tipikusan a következő napi 00:00 UTC); a tile letilthatja a claim gombot.
+- `offline`: nincs hálózati kapcsolat; az utolsó cache-elt `next_eligible_at` alapján becsülhető, melyik állapot valószínű (ha `<= now()` → `available`, egyébként `claimed`).
+- A claimed állapotot **ne** az inbox `read_at` mezője alapján számítsuk, mert az csak az esemény olvasottságát jelzi, nem a grant tényét.
 
 ## Lokalizáció (kulcs-javaslatok)
 

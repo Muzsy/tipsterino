@@ -1,0 +1,72 @@
+steps:
+  - name: "Preflight: érintett fájlok és konvenciók ellenőrzése"
+    description: >
+      Ellenőrizd a repóban, hogy:
+      - a latest supabase migráció timestampje mi (jelenleg 20260208000000)
+      - a reward_definitions tábla seedelve van-e signup_bonus-szal (20260203000000-ban)
+      - a bonus_system_db_schema_rls_checks.sql már ellenőrzi-e a signup_bonus definíciót (igen),
+        és hol célszerű hozzáadni a daily_bonus ellenőrzést.
+      A canvas tartalmát ne változtasd nagyban, csak ha valós eltérés miatt muszáj.
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_reward_definition_migration_and_docs_patch.md"
+
+  - name: "Új migráció: daily_bonus reward_definitions sor"
+    description: >
+      Hozz létre egy új Supabase migrációt a következő (determinista) seed logikával:
+      - INSERT a public.reward_definitions táblába: code='daily_bonus', amount=0, enabled=true
+      - ON CONFLICT (code) DO UPDATE SET amount=EXCLUDED.amount, enabled=EXCLUDED.enabled;
+      Megjegyzés: az amount=0 szándékos placeholder; végleges összeget későbbi migráció állít be.
+      A fájlnév a következő szabad timestamp legyen: 20260209000000_* (ha már foglalt, akkor a következő).
+    outputs:
+      - "supabase/migrations/*_bonus_system_daily_bonus_reward_definition.sql"
+
+  - name: "Doksi patch: daily_bonus specifikáció pontosítása"
+    description: >
+      Frissítsd a documents/bonus_system/daily_bonus.md fájlt:
+      - Napi limit: ne opcionális/javasolt legyen, hanem rögzítse a megvalósított szerződést:
+        grant_day DATE + daily_bonus grant_day NOT NULL CHECK + reward_grants_user_daily_bonus_day_unique index.
+      - Mellékhatások: grant_day képlet legyen típusegyező: (now() AT TIME ZONE 'UTC')::date
+      - UI szerződés: állapotok legyenek ellentmondásmentesek:
+        available = most jogosult (next_eligible_at hiányzik vagy <= now()),
+        claimed = már igényelte ma (next_eligible_at a jövőben),
+        offline = cache-elt next_eligible_at alapján becslés.
+      - Távolítsd el/írd át azt a részt, ami a claimed állapotot az inbox read_at-ból vezetné le.
+    outputs:
+      - "documents/bonus_system/daily_bonus.md"
+
+  - name: "Doksi patch: reward_grants grant_day képlet javítása"
+    description: >
+      Frissítsd a docs/data_model/reward_grants_table_doc.md fájlt:
+      - grant_day logikában a képlet legyen date típusú: (now() AT TIME ZONE 'UTC')::date
+      - A daily_bonus egyediség leírásában ne “későbbi bővítés” legyen, hanem a jelenlegi állapot:
+        reward_grants_user_daily_bonus_day_unique index már létezik.
+    outputs:
+      - "docs/data_model/reward_grants_table_doc.md"
+
+  - name: "SQL check bővítés: daily_bonus reward definition létezés"
+    description: >
+      Frissítsd a supabase/sql_checks/bonus_system_db_schema_rls_checks.sql fájlt:
+      - A signup_bonus definition check mellé add hozzá a daily_bonus existence check-et is:
+        ha nincs public.reward_definitions sor code='daily_bonus', akkor FAIL.
+    outputs:
+      - "supabase/sql_checks/bonus_system_db_schema_rls_checks.sql"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot ehhez a taskhoz.
+      Checklist: migráció + 2 doksi patch + sql_check update + futtatások.
+      Report: érintett fájlok, rövid indoklás, és a futtatások eredménye (PASS/FAIL + lényegi log).
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_reward_definition_migration_and_docs_patch.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_reward_definition_migration_and_docs_patch.md"
+
+  - name: "Futtatások (DB + repo gate)"
+    description: >
+      Futtasd és dokumentáld a reportban:
+      - set -a; source .env.local; set +a; ./scripts/supabase.sh db push
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_db_schema_rls_checks.sql
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_checks.sql
+      - set -a; source .env.local; set +a; psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql
+      - ./scripts/check.sh
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_reward_definition_migration_and_docs_patch.md"

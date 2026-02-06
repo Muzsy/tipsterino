@@ -77,7 +77,7 @@ A `reward_grants` nem publikus. Anon felhasználó nem férhet hozzá.
 - a kiosztás napja UTC-ben (a napi limit igazságforrása).
 
 **Logika:**
-- a szerveroldali logika számolja: `grant_day = DATE_TRUNC('day', (NOW() AT TIME ZONE 'UTC'))`.
+- a szerveroldali logika számolja: `grant_day = (now() AT TIME ZONE 'UTC')::date`.
 - `daily_bonus` esetén kötelező (a migráció egy CHECK constrainttel biztosítja).
 - a `grant_day` segít a napi 1× duplázás elleni védelemben, a `signup_bonus`-nál pedig `NULL` lehet.
 
@@ -90,8 +90,8 @@ A `reward_grants` nem publikus. Anon felhasználó nem férhet hozzá.
   - A partial unique index `reward_grants_user_signup_bonus_unique` biztosítja, hogy `code = 'signup_bonus'` esetén user+code egyediség érvényes.
 
 #### Későbbi jutalmak
-- Napi bónusz esetén a duplázás elleni védelem napra bontott (user + code + dátum), ezt későbbi bővítéskor vezetjük be.
-  - A `grant_day` mező biztosítja a napi (UTC) napot; a partial unique index `reward_grants_user_daily_bonus_day_unique` garantálja, hogy `code = 'daily_bonus'` és `grant_day` egyediséget eredményez.
+- Napi bónusz esetén a duplázás elleni védelem napra bontott (user + code + dátum); ezt a szerződést már a partial unique index biztosítja.
+  - A `grant_day` mező rögzíti a napi UTC napot; a `reward_grants_user_daily_bonus_day_unique` partial unique index garantálja, hogy `code = 'daily_bonus'` és `grant_day` egyediséget eredményez.
 
 ## 🛡️ RLS / Policy logika (kód nélkül)
 
