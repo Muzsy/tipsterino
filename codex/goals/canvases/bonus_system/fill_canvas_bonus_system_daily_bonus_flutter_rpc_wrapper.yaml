@@ -1,0 +1,55 @@
+steps:
+  - name: "Preflight: meglévő rewards minták ellenőrzése"
+    description: >
+      Ellenőrizd a repóban a signup bonus domain+rpc wrapper mintákat és a supabaseConfigProvider guardot.
+      Cél: a daily bonus wrapper ugyanazt a szerkezetet kövesse (feature-first: rewards/domain + rewards/data).
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_flutter_rpc_wrapper.md"
+
+  - name: "Domain modell: DailyBonusGrantResult"
+    description: >
+      Hozd létre az app/lib/src/features/rewards/domain/daily_bonus_grant_result.dart fájlt:
+      - DailyBonusReason enum a canvas szerint
+      - DailyBonusGrantResult mezők: granted, amount, reason, nextEligibleAt
+      - fromJson parse: amount (int/double/string), next_eligible_at (ISO string), reason string mapping
+      - notConfigured konstruktor
+    outputs:
+      - "app/lib/src/features/rewards/domain/daily_bonus_grant_result.dart"
+
+  - name: "RPC wrapper: dailyBonusRpcCallerProvider"
+    description: >
+      Hozd létre az app/lib/src/features/rewards/data/daily_bonus_rpc.dart fájlt:
+      - DailyBonusRpcCaller typedef
+      - dailyBonusRpcCallerProvider:
+        - supabaseConfigProvider guard: not configured -> notConfigured result
+        - rpc call: grant_daily_bonus_if_eligible
+        - response null -> fromJson(null)
+        - response map -> fromJson(map)
+    outputs:
+      - "app/lib/src/features/rewards/data/daily_bonus_rpc.dart"
+
+  - name: "Unit tesztek: DailyBonusGrantResult + provider guard"
+    description: >
+      Hozd létre az app/test/unit/daily_bonus_grant_result_test.dart fájlt:
+      - fromJson(null) -> notConfigured
+      - reason mapping: already_claimed_today, profile_incomplete
+      - next_eligible_at parse ISO string -> non-null DateTime
+      - provider guard: default konfigurációval a dailyBonusRpcCallerProvider() hívás notConfigured-et ad és nem dob.
+    outputs:
+      - "app/test/unit/daily_bonus_grant_result_test.dart"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot ehhez a taskhoz.
+      Checklist: domain modell + rpc wrapper + unit teszt + check.sh futtatás.
+      Report: változott fájlok listája + check.sh eredmény (PASS/FAIL + lényegi log).
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_flutter_rpc_wrapper.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_flutter_rpc_wrapper.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd és dokumentáld:
+      - ./scripts/check.sh
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_flutter_rpc_wrapper.md"

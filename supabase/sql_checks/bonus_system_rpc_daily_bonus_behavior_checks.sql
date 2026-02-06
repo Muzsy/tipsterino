@@ -15,6 +15,9 @@ DECLARE
   v_has_email_confirmed boolean;
   v_has_confirmed boolean;
   v_confirmed_generated boolean := false;
+  v_expected_grant_day date := (now() AT TIME ZONE 'UTC')::date;
+  v_expected_next_eligible timestamptz := (date_trunc('day', now() AT TIME ZONE 'UTC') + interval '1 day') AT TIME ZONE 'UTC';
+  v_observed_grant_day date;
 BEGIN
   PERFORM set_config('search_path', 'pg_catalog, public, auth', true);
 
@@ -182,6 +185,13 @@ BEGIN
     RAISE EXCEPTION 'expected one reward_grant, got %', v_reward_grants_count;
   END IF;
 
+  SELECT grant_day INTO v_observed_grant_day
+  FROM public.reward_grants
+  WHERE user_id = v_user_id AND code = 'daily_bonus';
+  IF v_observed_grant_day IS DISTINCT FROM v_expected_grant_day THEN
+    RAISE EXCEPTION 'grant_day mismatch: % vs %', v_observed_grant_day, v_expected_grant_day;
+  END IF;
+
   SELECT tippcoins INTO v_user_stats_tippcoins FROM public.user_stats WHERE user_id = v_user_id;
   IF v_user_stats_tippcoins != 50 THEN
     RAISE EXCEPTION 'user_stats tippcoins mismatch: %', v_user_stats_tippcoins;
@@ -203,6 +213,9 @@ BEGIN
   END IF;
   IF v_result->>'reason' IS DISTINCT FROM 'already_claimed_today' THEN
     RAISE EXCEPTION 'idempotent call wrong reason: %', v_result;
+  END IF;
+  IF (v_result->>'next_eligible_at')::timestamptz <> v_expected_next_eligible THEN
+    RAISE EXCEPTION 'next_eligible_at mismatch: % vs %', (v_result->>'next_eligible_at')::timestamptz, v_expected_next_eligible;
   END IF;
 
   SELECT count(*) INTO v_reward_grants_count

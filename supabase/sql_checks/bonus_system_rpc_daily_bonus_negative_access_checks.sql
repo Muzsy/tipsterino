@@ -56,6 +56,24 @@ BEGIN
   IF has_table_privilege('authenticated', 'public.user_events', 'UPDATE') THEN
     RAISE EXCEPTION 'authenticated has table-level UPDATE privilege on user_events';
   END IF;
+  IF has_table_privilege('authenticated', 'public.reward_grants', 'INSERT') THEN
+    RAISE EXCEPTION 'authenticated has INSERT privilege on reward_grants';
+  END IF;
+  IF has_table_privilege('authenticated', 'public.reward_grants', 'UPDATE') THEN
+    RAISE EXCEPTION 'authenticated has UPDATE privilege on reward_grants';
+  END IF;
+  IF has_table_privilege('authenticated', 'public.reward_grants', 'DELETE') THEN
+    RAISE EXCEPTION 'authenticated has DELETE privilege on reward_grants';
+  END IF;
+  IF has_table_privilege('authenticated', 'public.user_stats', 'INSERT') THEN
+    RAISE EXCEPTION 'authenticated has INSERT privilege on user_stats';
+  END IF;
+  IF has_table_privilege('authenticated', 'public.user_stats', 'UPDATE') THEN
+    RAISE EXCEPTION 'authenticated has UPDATE privilege on user_stats';
+  END IF;
+  IF has_table_privilege('authenticated', 'public.user_stats', 'DELETE') THEN
+    RAISE EXCEPTION 'authenticated has DELETE privilege on user_stats';
+  END IF;
 
   IF NOT has_column_privilege('authenticated', 'public.user_events', 'read_at', 'UPDATE') THEN
     RAISE EXCEPTION 'authenticated lacks UPDATE privilege on user_events.read_at';
