@@ -54,6 +54,11 @@ void main() {
       tester,
       DailyBonusClaimState(
         cachedNextEligibleAt: futureClaim,
+        lastResult: const DailyBonusGrantResult(
+          granted: false,
+          amount: 0,
+          reason: DailyBonusReason.alreadyClaimedToday,
+        ),
       ),
     );
 
@@ -62,10 +67,12 @@ void main() {
     expect(button.onPressed, isNull);
   });
 
-  testWidgets('disabled reason shows disabled text and CTA disabled', (tester) async {
+  testWidgets('disabled result with cached nextEligibleAt does not show claimed label', (tester) async {
+    final futureClaim = DateTime.now().toUtc().add(const Duration(hours: 1));
     await pumpTile(
       tester,
       DailyBonusClaimState(
+        cachedNextEligibleAt: futureClaim,
         lastResult: const DailyBonusGrantResult(
           granted: false,
           amount: 0,
@@ -75,6 +82,7 @@ void main() {
     );
 
     expect(find.text('Daily bonus is not active.'), findsOneWidget);
+    expect(find.text('Claimed'), findsNothing);
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     expect(button.onPressed, isNull);
   });

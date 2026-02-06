@@ -21,6 +21,12 @@ class DailyBonusClaimState {
     if (nextEligible == null) {
       return false;
     }
+    final lastReason = lastResult?.reason;
+    final hasClaimReason = lastReason == DailyBonusReason.granted ||
+        lastReason == DailyBonusReason.alreadyClaimedToday;
+    if (!hasClaimReason) {
+      return false;
+    }
     return nextEligible.toUtc().isAfter(DateTime.now().toUtc());
   }
 
@@ -53,9 +59,13 @@ class DailyBonusClaimNotifier extends StateNotifier<DailyBonusClaimState> {
 
     try {
       final result = await _rpcCaller();
+      final shouldCacheNextEligible = result.granted ||
+          result.reason == DailyBonusReason.alreadyClaimedToday;
       state = state.copyWith(
         lastResult: result,
-        cachedNextEligibleAt: result.nextEligibleAt ?? state.cachedNextEligibleAt,
+        cachedNextEligibleAt: shouldCacheNextEligible
+            ? (result.nextEligibleAt ?? state.cachedNextEligibleAt)
+            : state.cachedNextEligibleAt,
         isRunning: false,
       );
       return result;

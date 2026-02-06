@@ -1,0 +1,43 @@
+steps:
+  - name: "Preflight: a claimed bug reprodukálható okának rögzítése"
+    description: >
+      Ellenőrizd a daily bonus RPC-t: minden ágban ad-e next_eligible_at mezőt,
+      és nézd meg a kliens oldali claim provider cache logikáját.
+      Cél: a javítás minimális legyen és csak a claimed state gatinget érintse.
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_home_tile_claimed_state_fix.md"
+
+  - name: "Provider fix: nextEligibleAt cache csak valódi claimnél"
+    description: >
+      Módosítsd az app/lib/src/features/rewards/application/daily_bonus_claim_provider.dart fájlt:
+      - claim() csak akkor frissítse a cachedNextEligibleAt-ot,
+        ha result.granted==true vagy result.reason==DailyBonusReason.alreadyClaimedToday.
+      - isClaimedNow csak akkor legyen true, ha a cachedNextEligibleAt a jövőben van
+        ÉS a lastResult.reason granted vagy alreadyClaimedToday.
+    outputs:
+      - "app/lib/src/features/rewards/application/daily_bonus_claim_provider.dart"
+
+  - name: "Widget teszt frissítés + regresszió"
+    description: >
+      Frissítsd az app/test/widget/daily_bonus_tile_test.dart fájlt:
+      - claimed state teszt: lastResult.reason=alreadyClaimedToday + cachedNextEligibleAt a jövőben
+      - új teszt: lastResult.reason=disabled + cachedNextEligibleAt a jövőben ->
+        disabled szöveg látszik, CTA disabled, és nem jelenik meg a 'Claimed' label.
+    outputs:
+      - "app/test/widget/daily_bonus_tile_test.dart"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts checklistet és reportot ehhez a hotfixhez.
+      Checklist: provider gating + teszt frissítés + check.sh.
+      Report: módosított fájlok + check.sh PASS/FAIL + lényegi log.
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_home_tile_claimed_state_fix.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_home_tile_claimed_state_fix.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd és dokumentáld:
+      - ./scripts/check.sh
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_home_tile_claimed_state_fix.md"
