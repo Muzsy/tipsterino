@@ -1,0 +1,50 @@
+steps:
+  - name: "Preflight: releváns doksik és implementáció összegyűjtése"
+    description: >
+      Ellenőrizd a meglévő dokumentációt és a tényleges implementációt.
+      Kötelezően vedd figyelembe:
+      - docs/data_model/user_events_table_doc.md
+      - app/lib/src/features/events/presentation/screens/events_inbox_screen.dart
+      - app/lib/src/features/events/application/user_events_provider.dart
+      - app/lib/src/features/events/domain/events_filter.dart
+      - app/lib/src/features/events/domain/user_event.dart
+      A canvas alapján készíts egy rövid “mit dokumentálunk” vázlatot.
+    outputs:
+      - "canvases/events_inbox/events_inbox_ux_finomitasok_docs_sync.md"
+
+  - name: "Dokumentáció: Events Inbox screen doksi létrehozása"
+    description: >
+      Hozd létre (ha nincs) a docs/screens/ mappát, és készítsd el a
+      docs/screens/events_inbox_screen.md fájlt a canvas szerint.
+      Tartalmazza a filter/mark-all/polling + route guard + state/tesztek/DoD leírást.
+    outputs:
+      - "docs/screens/events_inbox_screen.md"
+
+  - name: "Docs index: docs/README.md frissítése"
+    description: >
+      A docs/README.md kapcsolódó anyagok részébe adj hozzá hivatkozást
+      az új docs/screens/events_inbox_screen.md doksira.
+    outputs:
+      - "docs/README.md"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts pipálható checklistet és reportot.
+      Checklist minimum:
+      - docs/screens létrehozva (ha hiányzott)
+      - events_inbox_screen.md elkészült a szükséges tartalommal
+      - docs/README.md frissítve
+      - ./scripts/check.sh lefuttatva (vagy dokumentált ok)
+      Report minimum:
+      - módosított/létrehozott fájlok listája
+      - futtatott parancsok + PASS/FAIL
+    outputs:
+      - "codex/codex_checklist/events_inbox/events_inbox_ux_finomitasok_docs_sync.md"
+      - "codex/reports/events_inbox/events_inbox_ux_finomitasok_docs_sync.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd: ./scripts/check.sh
+      Az eredményt írd bele a reportba.
+    outputs:
+      - "codex/reports/events_inbox/events_inbox_ux_finomitasok_docs_sync.md"

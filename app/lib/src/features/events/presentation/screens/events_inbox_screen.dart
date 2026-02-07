@@ -51,7 +51,11 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
     final extentAfter = _scrollController.position.extentAfter;
     final state = ref.read(userEventsProvider);
     if (extentAfter >= 300) return;
-    if (state.isNotConfigured || state.isLoading || state.isLoadingMore || !state.hasMore) {
+    if (state.isNotConfigured ||
+        state.isLoading ||
+        state.isLoadingMore ||
+        state.isMarkingAllRead ||
+        !state.hasMore) {
       return;
     }
     ref.read(userEventsProvider.notifier).loadMore();

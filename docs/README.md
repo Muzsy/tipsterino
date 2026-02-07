@@ -19,3 +19,4 @@ Mindegyik almappa alá érdemes README-t/README.md-et tenni, amely leírja a map
 - `documents/app_architecture.md` – részletes architektúra + környezet leírás.
 - `documents/supabase_configuration.md` – Supabase és `--dart-define` futtatási leírás.
 - `canvases/tipsterino_foundation_bootstrap.md` és `canvases/tipsterino_stability_run.md` – a Codex-vásznak a fejlesztési sprint alapjául.
+- `docs/screens/events_inbox_screen.md` – az Events Inbox UX filter/csatorna/guard logikáját, DoD-ját és a kapcsolódó teszteket összefoglaló dokumentum.
