@@ -5,6 +5,7 @@
 ## Mit módosítottunk?
 - Az AppBar refresh gombja `null`-ra állítja az `onPressed`-t, ha a `state.isMarkingAllRead` true, így a gomb inaktív marad a bulk feldolgozás alatt.
 - A `RefreshIndicator.onRefresh` azonnal visszatér, ha `isMarkingAllRead`, különben meghívja a notifier.refresh-et; így a pull-to-refresh nem indít új `fetchPage` hívást közben.
+- A `ListView` physics-e `NeverScrollableScrollPhysics`, amíg a bulk zajlik, ezért a scroll/indicator nem mozdul.
 - `events_inbox_mark_all_read_refresh_lock_test.dart` teszteli, hogy a markAllRead futása közben a refresh ikon le van tiltva, a pull-to-refresh nem növeli a `fetchOffsets` listát, majd a bulk vége után újra meghívható lesz.
 
 ## Módosított/létrehozott fájlok

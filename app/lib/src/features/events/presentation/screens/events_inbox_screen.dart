@@ -45,6 +45,7 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
     super.dispose();
   }
 
+
   void _handleScroll() {
     if (!_scrollController.hasClients) return;
     final extentAfter = _scrollController.position.extentAfter;
@@ -166,6 +167,9 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
     if (!mounted) {
       return;
     }
+    if (!_isRouteVisibleForPolling()) {
+      return;
+    }
     final state = ref.read(userEventsProvider);
     if (state.isNotConfigured ||
         state.isLoading ||
@@ -174,6 +178,21 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
       return;
     }
     ref.read(userEventsProvider.notifier).refresh();
+  }
+
+  bool _isRouteVisibleForPolling() {
+    if (!mounted) {
+      return false;
+    }
+    final tickerMode = TickerMode.of(context);
+    if (!tickerMode) {
+      return false;
+    }
+    final route = ModalRoute.of(context);
+    if (route != null && !route.isCurrent) {
+      return false;
+    }
+    return true;
   }
 
   Widget _buildOfflineState(AppLocalizations loc, TextStyle? titleStyle, TextStyle? bodyStyle) {
@@ -214,6 +233,9 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
     UserEventsNotifier notifier,
     bool isMarkingAllRead,
   ) {
+    final listPhysics = isMarkingAllRead
+        ? const NeverScrollableScrollPhysics()
+        : const AlwaysScrollableScrollPhysics();
     final theme = Theme.of(context);
     final hasItems = filteredItems.isNotEmpty;
     final loadingExtras = hasItems && state.isLoadingMore ? 1 : 0;
@@ -234,7 +256,7 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
             },
             child: ListView.separated(
               controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
+              physics: listPhysics,
               itemCount: itemCount,
               separatorBuilder: (context, index) => Divider(color: theme.dividerColor, height: 1),
               itemBuilder: (context, index) {

@@ -1,24 +1,28 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:tipsterino/l10n/app_localizations.dart';
 import 'package:tipsterino/src/app/app.dart';
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/auth_provider.dart';
 import 'package:tipsterino/src/features/events/application/user_events_provider.dart';
 import 'package:tipsterino/src/features/events/data/user_events_repository.dart';
 import 'package:tipsterino/src/features/events/domain/user_event.dart';
+import 'package:tipsterino/src/features/events/presentation/screens/events_inbox_screen.dart';
 
-class FakeMarkAllReadRefreshLockRepository implements UserEventsRepository {
-  FakeMarkAllReadRefreshLockRepository(this._events)
-      : _markReadCompleter = Completer<void>();
+class FakePollingRouteGuardRepository extends UserEventsRepository {
+  FakePollingRouteGuardRepository(this._events)
+      : super(
+          SupabaseClient(
+            'http://localhost',
+            'anon',
+            authOptions: const AuthClientOptions(autoRefreshToken: false),
+          ),
+        );
 
   final List<UserEvent> _events;
-  final Completer<void> _markReadCompleter;
   final List<int> fetchOffsets = [];
 
   @override
@@ -29,18 +33,12 @@ class FakeMarkAllReadRefreshLockRepository implements UserEventsRepository {
   }
 
   @override
-  Future<void> markRead({required String id}) {
-    return _markReadCompleter.future;
-  }
-
-  void completeMarkRead() {
-    if (!_markReadCompleter.isCompleted) {
-      _markReadCompleter.complete();
-    }
+  Future<void> markRead({required String id}) async {
+    await Future<void>.delayed(Duration.zero);
   }
 }
 
-Widget _buildTestApp(FakeMarkAllReadRefreshLockRepository repo) {
+Widget _buildTestApp(FakePollingRouteGuardRepository repo) {
   return ProviderScope(
     overrides: [
       authNotifierProvider.overrideWith(
@@ -68,7 +66,7 @@ Future<void> _openEvents(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-UserEvent _exampleEvent(String id) {
+UserEvent _buildEvent(String id) {
   final now = DateTime.now();
   return UserEvent(
     id: id,
@@ -82,30 +80,46 @@ UserEvent _exampleEvent(String id) {
 }
 
 void main() {
+  const pollingDuration = Duration(seconds: 45);
+
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('refresh controls disabled while markAllRead in progress', (tester) async {
-    final repo = FakeMarkAllReadRefreshLockRepository([_exampleEvent('event-1')]);
+  testWidgets('polling refresh stops when route hidden behind dialog', (tester) async {
+    final repo = FakePollingRouteGuardRepository([_buildEvent('event-1')]);
     await tester.pumpWidget(_buildTestApp(repo));
     await _openEvents(tester);
 
-    final loc = await AppLocalizations.delegate.load(const Locale('en'));
-    final markAllButton = find.byTooltip(loc.eventsMarkAllReadTooltip);
-    expect(markAllButton, findsOneWidget);
-
-    await tester.tap(markAllButton);
-    await tester.pump();
-
-    final refreshButtonFinder = find.widgetWithIcon(IconButton, Icons.refresh);
-    expect(refreshButtonFinder, findsOneWidget);
-    final refreshButton = tester.widget<IconButton>(refreshButtonFinder);
-    expect(refreshButton.onPressed, isNull);
-
-    await tester.drag(find.byType(ListView), const Offset(0, 200));
-    await tester.pump(const Duration(milliseconds: 500));
     expect(repo.fetchOffsets, equals([0]));
 
-    repo.completeMarkRead();
+    await tester.pump(pollingDuration);
+    expect(repo.fetchOffsets.length, greaterThanOrEqualTo(2));
+    final afterVisible = repo.fetchOffsets.length;
+
+    await tester.runAsync(() async {
+      showDialog<void>(
+        context: tester.element(find.byType(EventsInboxScreen)),
+        barrierDismissible: false,
+        useRootNavigator: false,
+        builder: (context) => AlertDialog(
+          content: const Text('modal'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        ),
+      );
+    });
     await tester.pumpAndSettle();
+
+    await tester.pump(pollingDuration);
+    expect(repo.fetchOffsets.length, equals(afterVisible));
+
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+
+    await tester.pump(pollingDuration);
+    expect(repo.fetchOffsets.length, greaterThan(afterVisible));
   });
 }

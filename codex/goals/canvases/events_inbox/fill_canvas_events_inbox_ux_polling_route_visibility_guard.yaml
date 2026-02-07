@@ -1,0 +1,57 @@
+steps:
+  - name: "Preflight: Polling és route-láthatóság pontok rögzítése"
+    description: >
+      Nyisd meg az EventsInboxScreen jelenlegi polling implementációját.
+      A canvasban rögzítsd röviden:
+      - hol fut a Timer.periodic és hol hív refresh-t
+      - milyen provider guardok vannak már
+      Döntés: ebben a taskban csak a refresh hívást guardoljuk route-láthatósággal
+      (TickerMode / ModalRoute.isCurrent), nem vezetünk be RouteObserver-es timer start/stop-ot.
+    outputs:
+      - "canvases/events_inbox/events_inbox_ux_polling_route_visibility_guard.md"
+
+  - name: "Implementáció: route-láthatóság guard a _pollRefresh-ben"
+    description: >
+      Az EventsInboxScreen-ben vezess be egy helper metódust (pl. _isRouteVisibleForPolling),
+      ami ellenőrzi:
+      - TickerMode.of(context) == true
+      - és ha ModalRoute.of(context) elérhető, akkor route.isCurrent == true
+      Az _pollRefresh() elején, még a provider state olvasása előtt térj vissza, ha nem látható a route.
+      A meglévő isNotConfigured/isLoading/isLoadingMore/isMarkingAllRead guardok maradjanak.
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"
+
+  - name: "Widget teszt: dialog alatt nincs polling refresh, visszatérés után van"
+    description: >
+      Készíts új widget tesztet:
+      - Fake repository számolja a fetchPage hívásokat (mint events_inbox_polling_refresh_test.dart)
+      - Nyisd meg /events route-ot (go_router.go)
+      - Pumpolj >=45s: fetch count nő
+      - showDialog az Events felett (AlertDialog elég), pumpAndSettle
+      - Pumpolj >=45s: fetch count nem nő (route guard)
+      - Popold a dialogot, pumpAndSettle
+      - Pumpolj >=45s: fetch count újra nő (route újra visible)
+    outputs:
+      - "app/test/widget/events_inbox_polling_route_visibility_guard_test.dart"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts pipálható checklistet és reportot.
+      Checklist minimum:
+      - route guard (TickerMode / ModalRoute.isCurrent) beépítve
+      - dialog alatt nincs refresh
+      - dialog bezárása után újra van refresh
+      - ./scripts/check.sh PASS
+      Report minimum:
+      - mi változott (fájlok)
+      - futtatott parancsok + PASS/FAIL
+    outputs:
+      - "codex/codex_checklist/events_inbox/events_inbox_ux_polling_route_visibility_guard.md"
+      - "codex/reports/events_inbox/events_inbox_ux_polling_route_visibility_guard.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd: ./scripts/check.sh
+      A PASS státuszt és rövid összegzést írd bele a reportba.
+    outputs:
+      - "codex/reports/events_inbox/events_inbox_ux_polling_route_visibility_guard.md"
