@@ -1,0 +1,24 @@
+steps:
+  - name: "Refresh kontrollok inaktiválása markAllRead alatt"
+    description: >
+      Add hozzá a `state.isMarkingAllRead` guardot az AppBar refresh gombjához
+      és a `RefreshIndicator.onRefresh`-éhez, hogy a gomb `onPressed`-e null legyen,
+      illetve a pull-to-refresh ne hívja meg a notifier.refresh-et, amíg a bulk művelet fut.
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"
+
+  - name: "Widget teszt: refresh kontrollok letiltva markAllRead alatt"
+    description: >
+      Írj widget tesztet, amely a `markAllRead` futása közben ellenőrzi, hogy a refresh ikon
+      `onPressed`-e null és a pull-to-refresh nem generál új fetchPage-hívást (fetch offset lista marad [0]),
+      majd oldd fel a markRead várakozását, hogy a teszt ne akadjon el.
+    outputs:
+      - "app/test/widget/events_inbox_mark_all_read_refresh_lock_test.dart"
+
+  - name: "Checklist + report + teszt"
+    description: >
+      Frissíts checklistet és reportot a Task eredményeivel, majd futtasd a ./scripts/check.sh-t.
+      Az eredményt és a teszt lefedettséget jegyezd fel a reportban.
+    outputs:
+      - "codex/codex_checklist/events_inbox/events_inbox_ux_mark_all_read_refresh_lock.md"
+      - "codex/reports/events_inbox/events_inbox_ux_mark_all_read_refresh_lock.md"

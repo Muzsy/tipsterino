@@ -1,0 +1,55 @@
+steps:
+  - name: "Preflight: Events Inbox jelenlegi életciklus és refresh flow felderítése"
+    description: >
+      Nyisd meg az EventsInboxScreen-t és rögzítsd a canvasban:
+      - a screen jelenlegi widget típusa (ConsumerWidget vs stateful),
+      - hol történik az initial load (provider init / build),
+      - refresh/loadMore guardok a notifierben.
+      Cél: a polling ne törje el a meglévő refresh/load-more logikát és ne hozzon létre timer leak-et.
+    outputs:
+      - "canvases/events_inbox/events_inbox_ux_polling_refresh.md"
+
+  - name: "UI lifecycle: Polling timer bevezetése az EventsInboxScreen-ben"
+    description: >
+      Alakítsd át az EventsInboxScreen-t ConsumerStatefulWidget-té, és vezesd be a pollingot:
+      - Timer.periodic (45s)
+      - tick előtt olvasd a userEventsProvider state-et, és skip-elj, ha:
+        isNotConfigured / isLoading / isLoadingMore / isMarkingAllRead igaz.
+      - különben hívd: ref.read(userEventsProvider.notifier).refresh()
+      - add hozzá a WidgetsBindingObserver-t, paused/inactive esetben cancel, resumed esetben indítsd újra.
+      - dispose-ban mindig cancel + removeObserver.
+      A meglévő UI (filter bar, mark all read, list) nem sérülhet.
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"
+
+  - name: "Widget teszt: polling trigger + dispose cancel"
+    description: >
+      Készíts új widget tesztet:
+      - Fake repository számolja a fetchPage hívásokat (initial + refresh).
+      - Nyisd meg a /events route-ot TipsterinoApp alatt (a meglévő events_inbox_* tesztek mintájára).
+      - Ellenőrizd: initial fetchPageCount == 1.
+      - Pumpolj időt >= 45s (virtuális idő), majd ellenőrizd: fetchPageCount nőtt (>=2).
+      - Navigálj el /home-ra, majd pumpolj újra időt >= 45s.
+      - Ellenőrizd: fetchPageCount nem nő tovább (timer cancel működik).
+      Kerüld a pumpAndSettle-t, ha a periodikus timer miatt flakey lenne.
+    outputs:
+      - "app/test/widget/events_inbox_polling_refresh_test.dart"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts pipálható checklistet és reportot az elvégzett munkáról.
+      A report tartalmazza:
+      - módosított/létrehozott fájlok listáját
+      - futtatott parancsot és PASS/FAIL összegzést
+      Kötelező futtatás: ./scripts/check.sh
+    outputs:
+      - "codex/codex_checklist/events_inbox/events_inbox_ux_polling_refresh.md"
+      - "codex/reports/events_inbox/events_inbox_ux_polling_refresh.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd és dokumentáld a standard ellenőrzést:
+      - ./scripts/check.sh
+      Az eredményt írd bele a reportba.
+    outputs:
+      - "codex/reports/events_inbox/events_inbox_ux_polling_refresh.md"

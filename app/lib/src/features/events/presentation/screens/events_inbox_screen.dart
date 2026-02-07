@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,12 +16,19 @@ class EventsInboxScreen extends ConsumerStatefulWidget {
   ConsumerState<EventsInboxScreen> createState() => _EventsInboxScreenState();
 }
 
-class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
+class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
+  Timer? _pollingTimer;
+  bool _isAppResumed = true;
+  static const _pollingInterval = Duration(seconds: 45);
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    final lifecycleState = WidgetsBinding.instance.lifecycleState;
+    _isAppResumed = lifecycleState == null || lifecycleState == AppLifecycleState.resumed;
+    _startPollingTimer();
     _scrollController.addListener(_handleScroll);
     Future.microtask(() {
       if (!mounted) return;
@@ -31,6 +40,8 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
   void dispose() {
     _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
+    _stopPollingTimer();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -57,6 +68,7 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
     final hasUnreadInView = filteredItems.any((event) => event.isUnread);
     final canMarkAll =
         !state.isNotConfigured && !state.isMarkingAllRead && hasUnreadInView;
+    final canRefresh = !state.isNotConfigured && !state.isMarkingAllRead;
 
     Widget content;
     if (state.isNotConfigured) {
@@ -68,7 +80,14 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
     } else if (state.items.isEmpty) {
       content = _buildEmptyState(loc, titleStyle, bodyStyle);
     } else {
-      content = _buildList(context, state, filteredItems, loc, notifier);
+      content = _buildList(
+        context,
+        state,
+        filteredItems,
+        loc,
+        notifier,
+        state.isMarkingAllRead,
+      );
     }
 
     return Scaffold(
@@ -77,7 +96,7 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: state.isNotConfigured ? null : notifier.refresh,
+            onPressed: canRefresh ? notifier.refresh : null,
           ),
           IconButton(
             icon: const Icon(Icons.done_all),
@@ -112,6 +131,49 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
         child: content,
       ),
     );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      _isAppResumed = true;
+      _startPollingTimer();
+    } else if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _isAppResumed = false;
+      _stopPollingTimer();
+    }
+  }
+
+  void _startPollingTimer() {
+    if (!_isAppResumed) {
+      return;
+    }
+    if (_pollingTimer != null) {
+      return;
+    }
+    _pollingTimer = Timer.periodic(_pollingInterval, (_) => _pollRefresh());
+  }
+
+  void _stopPollingTimer() {
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+  }
+
+  void _pollRefresh() {
+    if (!mounted) {
+      return;
+    }
+    final state = ref.read(userEventsProvider);
+    if (state.isNotConfigured ||
+        state.isLoading ||
+        state.isLoadingMore ||
+        state.isMarkingAllRead) {
+      return;
+    }
+    ref.read(userEventsProvider.notifier).refresh();
   }
 
   Widget _buildOfflineState(AppLocalizations loc, TextStyle? titleStyle, TextStyle? bodyStyle) {
@@ -150,6 +212,7 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
     List<UserEvent> filteredItems,
     AppLocalizations loc,
     UserEventsNotifier notifier,
+    bool isMarkingAllRead,
   ) {
     final theme = Theme.of(context);
     final hasItems = filteredItems.isNotEmpty;
@@ -163,7 +226,12 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
         const SizedBox(height: 12),
         Expanded(
           child: RefreshIndicator(
-            onRefresh: notifier.refresh,
+            onRefresh: () async {
+              if (isMarkingAllRead) {
+                return;
+              }
+              await notifier.refresh();
+            },
             child: ListView.separated(
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
