@@ -593,6 +593,24 @@ abstract class AppLocalizations {
   /// **'System'**
   String get eventsFilterSystem;
 
+  /// No description provided for @eventsMarkAllReadTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get eventsMarkAllReadTooltip;
+
+  /// No description provided for @eventsMarkAllReadSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'All marked as read'**
+  String get eventsMarkAllReadSuccess;
+
+  /// No description provided for @eventsMarkAllReadPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked {succeeded}, failed {failed}'**
+  String eventsMarkAllReadPartial(Object succeeded, Object failed);
+
   /// No description provided for @eventSignupBonusTitle.
   ///
   /// In en, this message translates to:

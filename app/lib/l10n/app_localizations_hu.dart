@@ -264,6 +264,17 @@ class AppLocalizationsHu extends AppLocalizations {
   String get eventsFilterSystem => 'Rendszer';
 
   @override
+  String get eventsMarkAllReadTooltip => 'Mindet olvasottként jelöl';
+
+  @override
+  String get eventsMarkAllReadSuccess => 'Minden olvasottként jelölve';
+
+  @override
+  String eventsMarkAllReadPartial(Object succeeded, Object failed) {
+    return '$succeeded olvasott, $failed sikertelen';
+  }
+
+  @override
   String get eventSignupBonusTitle => 'Regisztrációs bónusz';
 
   @override

@@ -264,6 +264,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsFilterSystem => 'System';
 
   @override
+  String get eventsMarkAllReadTooltip => 'Mark all as read';
+
+  @override
+  String get eventsMarkAllReadSuccess => 'All marked as read';
+
+  @override
+  String eventsMarkAllReadPartial(Object succeeded, Object failed) {
+    return 'Marked $succeeded, failed $failed';
+  }
+
+  @override
   String get eventSignupBonusTitle => 'Signup bonus';
 
   @override

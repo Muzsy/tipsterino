@@ -1,0 +1,101 @@
+steps:
+  - name: "Preflight: mark all read beépítési pontok rögzítése"
+    description: >
+      Nyisd meg és ellenőrizd a valós belépési pontokat:
+      - UserEventsNotifier.markRead() jelenlegi viselkedése (read_at contract)
+      - EventsInboxScreen AppBar actions és filteredItems logika
+      A canvasban rögzítsd röviden a döntést: a mark all read az aktuális filterre (state.filteredItems) vonatkozik.
+    outputs:
+      - "canvases/events_inbox/events_inbox_ux_mark_all_read.md"
+
+  - name: "Provider: markAllRead + isMarkingAllRead state + rollback"
+    description: >
+      A user events providerben vezesd be a „mark all read” műveletet.
+      Követelmények:
+      - UserEventsState kapjon isMarkingAllRead: bool mezőt (default false)
+      - UserEventsNotifier kapjon Future eredményt adó markAllRead() metódust
+      - célzott elemek: state.items ahol state.filter.matches(e) && e.isUnread
+      - optimista UI: ezek readAt-ja álljon nowUtc-ra lokálisan
+      - remote: _repository.markRead(id) client loop
+      - hiba esetén: a sikertelen id-k readAt-ja rollback null-ra
+      - a metódus eredményéből a UI tudja eldönteni: success vs partial (succeeded/failed).
+    outputs:
+      - "app/lib/src/features/events/application/user_events_provider.dart"
+
+  - name: "UI: AppBar done_all action + enabled logika + snackbar"
+    description: >
+      Az EventsInboxScreen AppBar-jába tegyél új IconButton-t (Icons.done_all).
+      Enabled szabály:
+      - disabled, ha state.isNotConfigured
+      - disabled, ha state.isMarkingAllRead
+      - disabled, ha state.filteredItems-ben nincs unread
+      Tap után:
+      - await notifier.markAllRead()
+      - snackbar:
+        * teljes success -> loc.eventsMarkAllReadSuccess
+        * partial -> loc.eventsMarkAllReadPartial(succeeded, failed)
+      A refresh gomb maradjon működőképes, a listázás/markRead/onTap viselkedés nem sérülhet.
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"
+
+  - name: "L10n: ARB kulcsok (EN/HU) hozzáadása"
+    description: >
+      Add hozzá az új events inbox mark-all kulcsokat mindkét ARB fájlhoz:
+      - eventsMarkAllReadTooltip
+      - eventsMarkAllReadSuccess
+      - eventsMarkAllReadPartial (használjon {succeeded} és {failed} placeholdert)
+      Ügyelj rá, hogy a szövegek rövidek legyenek és UI-ban jól mutassanak.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+
+  - name: "L10n: generated AppLocalizations frissítése"
+    description: >
+      Frissítsd a commitolt generált lokalizációs dart fájlokat úgy, hogy az új kulcsok elérhetőek legyenek:
+      - eventsMarkAllReadTooltip
+      - eventsMarkAllReadSuccess
+      - eventsMarkAllReadPartial(succeeded, failed)
+    outputs:
+      - "app/lib/l10n/app_localizations.dart"
+      - "app/lib/l10n/app_localizations_en.dart"
+      - "app/lib/l10n/app_localizations_hu.dart"
+
+  - name: "Widget teszt: mark all read filter-aware működés"
+    description: >
+      Készíts új widget tesztet:
+      - FakeUserEventsRepository trackelje a markReadIds/callCount-ot (mint a többi events_inbox_* tesztben)
+      - Adat:
+        * e1: type=tippcoin_credit, unread
+        * e2: type=message (vagy bármi nem-credit), unread
+      - Lépések:
+        1) nyisd meg /events route-ot
+        2) válts Credits filterre (loc.eventsFilterCredits), tap done_all -> csak e1 id menjen markRead-ra
+        3) válts All filterre, tap done_all -> e2 is menjen markRead-ra
+        4) ellenőrizd success snackbar szöveget (EN locale)
+    outputs:
+      - "app/test/widget/events_inbox_mark_all_read_test.dart"
+
+  - name: "Codex checklist + report"
+    description: >
+      Készíts pipálható checklistet és reportot.
+      Checklist minimum:
+      - markAllRead filter-aware (csak a látható/aktuális filterbe eső)
+      - optimista UI + rollback hiba esetén
+      - AppBar action enabled szabályok
+      - snackbar l10n kulcsok
+      - widget teszt lefut
+      - ./scripts/check.sh PASS
+      Report minimum:
+      - mi változott (provider+UI+l10n+teszt)
+      - érintett fájlok listája
+      - futtatott parancsok + PASS/FAIL
+    outputs:
+      - "codex/codex_checklist/events_inbox/events_inbox_ux_mark_all_read.md"
+      - "codex/reports/events_inbox/events_inbox_ux_mark_all_read.md"
+
+  - name: "Repo gate"
+    description: >
+      Futtasd: ./scripts/check.sh
+      A PASS státuszt és rövid összegzést írd bele a reportba.
+    outputs:
+      - "codex/reports/events_inbox/events_inbox_ux_mark_all_read.md"

@@ -53,6 +53,10 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
     final theme = Theme.of(context);
     final titleStyle = theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
     final bodyStyle = theme.textTheme.bodyMedium;
+    final filteredItems = state.filteredItems;
+    final hasUnreadInView = filteredItems.any((event) => event.isUnread);
+    final canMarkAll =
+        !state.isNotConfigured && !state.isMarkingAllRead && hasUnreadInView;
 
     Widget content;
     if (state.isNotConfigured) {
@@ -64,7 +68,7 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
     } else if (state.items.isEmpty) {
       content = _buildEmptyState(loc, titleStyle, bodyStyle);
     } else {
-      content = _buildList(context, state, loc, notifier);
+      content = _buildList(context, state, filteredItems, loc, notifier);
     }
 
     return Scaffold(
@@ -74,6 +78,32 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: state.isNotConfigured ? null : notifier.refresh,
+          ),
+          IconButton(
+            icon: const Icon(Icons.done_all),
+            tooltip: loc.eventsMarkAllReadTooltip,
+            onPressed: canMarkAll
+                ? () async {
+                    final result = await notifier.markAllRead();
+                    if (!context.mounted) {
+                      return;
+                    }
+                    final messenger = ScaffoldMessenger.of(context);
+                    if (result.failed == 0) {
+                      messenger.showSnackBar(
+                        SnackBar(content: Text(loc.eventsMarkAllReadSuccess)),
+                      );
+                    } else {
+                      messenger.showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            loc.eventsMarkAllReadPartial(result.succeeded, result.failed),
+                          ),
+                        ),
+                      );
+                    }
+                  }
+                : null,
           ),
         ],
       ),
@@ -117,11 +147,11 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> {
   Widget _buildList(
     BuildContext context,
     UserEventsState state,
+    List<UserEvent> filteredItems,
     AppLocalizations loc,
     UserEventsNotifier notifier,
   ) {
     final theme = Theme.of(context);
-    final filteredItems = state.filteredItems;
     final hasItems = filteredItems.isNotEmpty;
     final loadingExtras = hasItems && state.isLoadingMore ? 1 : 0;
     final itemCount = hasItems ? filteredItems.length + loadingExtras : 1;

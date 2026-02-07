@@ -15,6 +15,7 @@ class UserEventsState {
     this.isLoadingMore = false,
     this.hasMore = true,
     this.errorMessage,
+    this.isMarkingAllRead = false,
   });
 
   final List<UserEvent> items;
@@ -24,6 +25,7 @@ class UserEventsState {
   final bool isLoadingMore;
   final bool hasMore;
   final String? errorMessage;
+  final bool isMarkingAllRead;
 
   static const Object _undefined = Object();
 
@@ -35,6 +37,7 @@ class UserEventsState {
     bool? isLoadingMore,
     bool? hasMore,
     Object? errorMessage = _undefined,
+    bool? isMarkingAllRead,
   }) {
     return UserEventsState(
       items: items ?? this.items,
@@ -45,6 +48,7 @@ class UserEventsState {
       hasMore: hasMore ?? this.hasMore,
       errorMessage:
           identical(errorMessage, _undefined) ? this.errorMessage : errorMessage as String?,
+      isMarkingAllRead: isMarkingAllRead ?? this.isMarkingAllRead,
     );
   }
 
@@ -163,6 +167,7 @@ class UserEventsNotifier extends StateNotifier<UserEventsState> {
       isLoading: false,
       isLoadingMore: false,
       errorMessage: null,
+      isMarkingAllRead: false,
     );
   }
 
@@ -172,6 +177,53 @@ class UserEventsNotifier extends StateNotifier<UserEventsState> {
     }
     state = state.copyWith(filter: value);
   }
+
+  Future<MarkAllReadResult> markAllRead() async {
+    final repository = _repository;
+    if (repository == null || state.isMarkingAllRead) {
+      return const MarkAllReadResult();
+    }
+
+    final targets = state.filteredItems.where((event) => event.isUnread).toList();
+    if (targets.isEmpty) {
+      return const MarkAllReadResult();
+    }
+
+    final nowUtc = DateTime.now().toUtc();
+    final optimisticItems = state.items
+        .map((event) => targets.any((target) => target.id == event.id) ? event.copyWith(readAt: nowUtc) : event)
+        .toList();
+
+    state = state.copyWith(items: optimisticItems, isMarkingAllRead: true);
+    final succeeded = <String>[];
+    final failed = <String>[];
+    for (final event in targets) {
+      try {
+        await repository.markRead(id: event.id);
+        succeeded.add(event.id);
+      } catch (_) {
+        failed.add(event.id);
+      }
+    }
+
+    final finalItems = state.items.map((event) {
+      if (failed.contains(event.id)) {
+        return event.copyWith(readAt: null);
+      }
+      return event;
+    }).toList();
+
+    state = state.copyWith(items: finalItems, isMarkingAllRead: false);
+
+    return MarkAllReadResult(succeeded: succeeded.length, failed: failed.length);
+  }
+}
+
+class MarkAllReadResult {
+  const MarkAllReadResult({this.succeeded = 0, this.failed = 0});
+
+  final int succeeded;
+  final int failed;
 }
 
 final userEventsProvider = StateNotifierProvider<UserEventsNotifier, UserEventsState>(
