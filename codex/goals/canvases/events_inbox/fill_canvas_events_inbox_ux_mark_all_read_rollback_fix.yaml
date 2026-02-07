@@ -1,0 +1,34 @@
+steps:
+  - name: "UserEvent.copyWith javítása: readAt explicit null támogatás"
+    description: >
+      A user_event.dart copyWith implementációját módosítsd úgy, hogy
+      event.copyWith(readAt: null) ténylegesen nullára állítsa a readAt mezőt.
+      Használj sentinel mintát (Object _undefined), hogy a 'nem megadott' és az 'explicit null' külön kezelhető legyen.
+    outputs:
+      - "app/lib/src/features/events/domain/user_event.dart"
+
+  - name: "Provider: markAllRead stabilizálás (ajánlott)"
+    description: >
+      (Ajánlott) A markAllRead-ban használd Set-eket a cél-ID-kra és a failed ID-kra, és
+      biztosítsd, hogy isMarkingAllRead mindig false-ra kerüljön (try/finally).
+      A működés maradjon filter-aware, és a rollback most már tényleg működjön.
+    outputs:
+      - "app/lib/src/features/events/application/user_events_provider.dart"
+
+  - name: "Widget teszt: partial failure esetén rollback látszik"
+    description: >
+      Készíts új widget tesztet:
+      - Fake repository: 2 event, mind unread
+      - markRead az egyik ID-ra dobjon hibát, a másikra siker
+      - tap done_all -> snackbar partial megjelenik
+      - sikertelen event továbbra is unread legyen (pl. a ListTile onTap-ja nem-null)
+    outputs:
+      - "app/test/widget/events_inbox_mark_all_read_partial_failure_test.dart"
+
+  - name: "Codex checklist + report + repo gate"
+    description: >
+      Készíts checklistet + reportot, majd futtasd ./scripts/check.sh-t.
+      A reportban legyen benne a fix lényege és a teszt bizonyítéka.
+    outputs:
+      - "codex/codex_checklist/events_inbox/events_inbox_ux_mark_all_read_rollback_fix.md"
+      - "codex/reports/events_inbox/events_inbox_ux_mark_all_read_rollback_fix.md"

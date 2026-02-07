@@ -190,30 +190,33 @@ class UserEventsNotifier extends StateNotifier<UserEventsState> {
     }
 
     final nowUtc = DateTime.now().toUtc();
+    final targetIds = targets.map((event) => event.id).toSet();
     final optimisticItems = state.items
-        .map((event) => targets.any((target) => target.id == event.id) ? event.copyWith(readAt: nowUtc) : event)
+        .map((event) => targetIds.contains(event.id) ? event.copyWith(readAt: nowUtc) : event)
         .toList();
 
     state = state.copyWith(items: optimisticItems, isMarkingAllRead: true);
-    final succeeded = <String>[];
-    final failed = <String>[];
-    for (final event in targets) {
-      try {
-        await repository.markRead(id: event.id);
-        succeeded.add(event.id);
-      } catch (_) {
-        failed.add(event.id);
+    final succeeded = <String>{};
+    final failed = <String>{};
+    try {
+      for (final event in targets) {
+        try {
+          await repository.markRead(id: event.id);
+          succeeded.add(event.id);
+        } catch (_) {
+          failed.add(event.id);
+        }
       }
+    } finally {
+      final finalItems = state.items.map((event) {
+        if (failed.contains(event.id)) {
+          return event.copyWith(readAt: null);
+        }
+        return event;
+      }).toList();
+
+      state = state.copyWith(items: finalItems, isMarkingAllRead: false);
     }
-
-    final finalItems = state.items.map((event) {
-      if (failed.contains(event.id)) {
-        return event.copyWith(readAt: null);
-      }
-      return event;
-    }).toList();
-
-    state = state.copyWith(items: finalItems, isMarkingAllRead: false);
 
     return MarkAllReadResult(succeeded: succeeded.length, failed: failed.length);
   }

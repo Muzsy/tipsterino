@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+const Object _readAtNotProvided = Object();
+
 @immutable
 class UserEvent {
   const UserEvent({
@@ -62,8 +64,11 @@ class UserEvent {
     int? amount,
     Map<String, dynamic>? payload,
     DateTime? createdAt,
-    DateTime? readAt,
+    Object? readAt = _readAtNotProvided,
   }) {
+    final DateTime? readAtValue = identical(readAt, _readAtNotProvided)
+        ? this.readAt
+        : readAt as DateTime?;
     return UserEvent(
       id: id ?? this.id,
       type: type ?? this.type,
@@ -71,7 +76,7 @@ class UserEvent {
       amount: amount ?? this.amount,
       payload: payload ?? this.payload,
       createdAt: createdAt ?? this.createdAt,
-      readAt: readAt ?? this.readAt,
+      readAt: readAtValue,
     );
   }
 
