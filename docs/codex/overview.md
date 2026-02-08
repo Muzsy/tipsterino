@@ -38,6 +38,7 @@ A `TASK_SLUG` alapján mindig készüljön:
 4. **Codex report (futtatások + eredmények):**
 
    * `codex/reports/<TASK_SLUG>.md`
+   * `codex/reports/<TASK_SLUG>.verify.log`
 
 > **Report szabvány:** a reportot kötelezően a `docs/codex/report_standard.md` (Report Standard v2) szerint kell kitölteni (DoD→Evidence + Advisory).
 
@@ -70,7 +71,8 @@ Szabályok:
 
 * Minden lépés legyen kicsi és ellenőrizhető (1–4 fájl ideális).
 * **Csak** olyan fájlt szabad módosítani, ami szerepel az adott lépés `outputs` listájában.
-* A lépések végén legyen legalább egy „ellenőrzés” jellegű lépés (analyze/test/run).
+* A YAML **legutolsó** stepje kötelezően a **"Repo gate (automatikus verify)"**, ami futtatja: `./scripts/verify.sh --report codex/reports/<TASK_SLUG>.md`.
+* A Repo gate step `outputs` listája tartalmazza a reportot **és** a hozzá tartozó logot: `codex/reports/<TASK_SLUG>.verify.log`.
 
 ### 5) Repó fókusz és modulhatárok
 
@@ -104,8 +106,8 @@ Szabályok:
 2. **Canvas elkészítése:** specifikáció és checklist alap.
 3. **Goal YAML elkészítése:** lépések + outputs.
 4. **Implementáció:** lépésről lépésre, a YAML szerint.
-5. **Teszt/ellenőrzés futtatása:** wrapper scriptekkel.
-6. **Checklist + report kitöltése:** auditálható végeredmény.
+5. **Repo gate futtatása:** `./scripts/verify.sh --report codex/reports/<TASK_SLUG>.md` (ez futtatja a standard ellenőrzést és automatikusan frissíti a reportot).
+6. **Checklist + report lezárása:** checklist kipipálása + a reportban az esetleges **Advisory notes** kiegészítése (ha szükséges).
 
 ### 8) Definition of Done (DoD)
 
@@ -114,9 +116,10 @@ Egy feladat akkor tekinthető késznek, ha:
 * [ ] Canvas és goal YAML létre van hozva, helyes könyvtárban
 * [ ] Implementáció a YAML steps alapján elkészült
 * [ ] Lokalizáció/route/theme szabályok teljesülnek (ha érintett)
-* [ ] Tesztek és analyze lefutottak (vagy dokumentált okból nem)
+* [ ] Repo gate lefutott (`./scripts/verify.sh`), eredmény rögzítve a reportban
+* [ ] `codex/reports/<TASK_SLUG>.verify.log` létrejött és a report hivatkozik rá
 * [ ] Checklist kipipálva
-* [ ] Report tartalmazza: futtatott parancsok, eredmény, módosított fájlok listája
+* [ ] Report tartalmazza: futtatott parancsok, eredmény, módosított fájlok listája, és a **Verification** blokkot (automatikusan frissítve)
 
 ---
 
@@ -124,14 +127,11 @@ Egy feladat akkor tekinthető késznek, ha:
 
 ### Kötelező minimum ellenőrzések
 
-A repóban rögzített standard wrapper parancsokat kell használni (ha vannak), tipikusan:
+A standard minőségi kapu futtatása kötelező a wrapperen keresztül:
 
-* `flutter analyze`
-* `flutter test`
+* `./scripts/verify.sh --report codex/reports/<TASK_SLUG>.md`
 
-Ha a repó biztosít wrapper scripteket (ajánlott):
-
-* `./scripts/check.sh`
+A `verify.sh` a repóban definiált ellenőrzést futtatja (tipikusan `./scripts/check.sh`, ami `flutter analyze` + `flutter test`), és elmenti a futási logot a report mellé (`codex/reports/<TASK_SLUG>.verify.log`).
 
 ### Mikor kell plusz teszt?
 
@@ -147,6 +147,7 @@ Minimum tartalom:
 
 * státusz: **PASS / FAIL / PASS_WITH_NOTES** (a report elején)
 * futtatott parancsok (pontos) + eredmények röviden
+* `verify` log hivatkozás: `codex/reports/<TASK_SLUG>.verify.log` (FAIL esetén kötelezően legyen log részlet is)
 * változások összefoglalója (módosított/létrehozott fájlok listája, csoportosítva)
 * **DoD → Evidence Matrix** (minden DoD ponthoz: path + sorsáv + rövid magyarázat)
 * hiba esetén: log részlet + javítási javaslat

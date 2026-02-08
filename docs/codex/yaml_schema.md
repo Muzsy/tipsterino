@@ -56,13 +56,13 @@ steps:
       - "app/lib/l10n/app_en.arb"
       - "app/lib/l10n/app_hu.arb"
 
-  - name: "Teszt futtatás"
+  - name: "Repo gate (automatikus verify)"
     description: >
-      Futtasd a repo standard ellenőrzését: ./scripts/check.sh
-      Ha ez nem létezik, futtasd: flutter analyze, flutter test.
-      Az eredményt írd a report fájlba.
+      Futtasd a standard ellenőrzést és frissítsd automatikusan a reportot.
+      Parancs: ./scripts/verify.sh --report codex/reports/example_task.md
     outputs:
       - "codex/reports/example_task.md"
+      - "codex/reports/example_task.verify.log"
 ```
 
 ---
@@ -128,23 +128,31 @@ A leírásnak végrehajthatónak kell lennie.
 
 ### 3.6 Teszt / Minőségkapu
 
-**Cél:** minimum analyze+test, és report.
+**Cél:** a repo standard minőségi kapujának futtatása és az eredmény *automatikus* rögzítése a reportban.
 
-* outputs: report fájl, esetleg tesztfájlok frissítése.
+* Ajánlott parancs: `./scripts/verify.sh --report <report_path>`
+* outputs: report fájl + a verify log (a report mellett).
 
 ---
 
 ## 4) Kötelező ellenőrző lépések (minőségi gate)
 
-Minden feladat YAML-jában legyen legalább egy step, ami:
+Minden feladat YAML-jának **legutolsó** stepje legyen egy minőségi kapu, ami:
 
-* futtatja a standard ellenőrzést (wrapperrel, ha van)
-* az eredményt dokumentálja a reportban
+* lefuttatja a standard ellenőrzést a wrapperen keresztül
+* a **reportot automatikusan frissíti** (PASS/FAIL + log hivatkozás)
+* a logot elmenti a report mellé
 
-Ajánlott leírás:
+**Standard parancs:**
 
-* `./scripts/check.sh`
-* fallback: `flutter analyze` + `flutter test`
+* `./scripts/verify.sh --report codex/reports/<feature>/<name>.md`
+
+**Standard outputs (kötelező):**
+
+* `codex/reports/<feature>/<name>.md`
+* `codex/reports/<feature>/<name>.verify.log`
+
+Ajánlott step name: **"Repo gate (automatikus verify)"**
 
 ---
 
@@ -176,12 +184,12 @@ Példa:
 
 ### Kötelező minimum
 
-* Minden YAML végén legyen teszt step.
-* UI változás esetén legyen tesztfájl outputsban is (új vagy frissített).
+* Minden YAML **legutolsó** stepje legyen a minőségi kapu (`./scripts/verify.sh`).
+ * UI változás esetén legyen tesztfájl outputsban is (új vagy frissített).
 
 ### Report kötelező
 
-* A teszt step outputs listája tartalmazza a report fájlt.
+* A minőségi kapu outputs listája tartalmazza a report fájlt **és** a `.verify.log` fájlt.
 
 ---
 
