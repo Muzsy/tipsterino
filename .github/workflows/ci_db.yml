@@ -26,6 +26,17 @@ jobs:
         uses: supabase/setup-cli@v1
         with:
           version: latest
+        continue-on-error: true
+
+      - name: Ensure Supabase CLI available
+        run: |
+          if ! command -v supabase >/dev/null 2>&1; then
+            echo "Supabase CLI missing after setup action, dowloading latest release directly."
+            curl -L https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz -o /tmp/supabase.tar.gz
+            tar -xzf /tmp/supabase.tar.gz -C /tmp
+            sudo mv /tmp/supabase /usr/local/bin/supabase
+          fi
+          supabase --version
 
       - name: Install psql client
         run: |
