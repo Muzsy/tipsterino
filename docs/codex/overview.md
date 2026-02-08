@@ -39,6 +39,8 @@ A `TASK_SLUG` alapján mindig készüljön:
 
    * `codex/reports/<TASK_SLUG>.md`
 
+> **Report szabvány:** a reportot kötelezően a `docs/codex/report_standard.md` (Report Standard v2) szerint kell kitölteni (DoD→Evidence + Advisory).
+
 > A pontos könyvtárnevek a repóban rögzített struktúrát követik. Ha egy projektben eltér, azt először dokumentálni kell, és csak utána átállni.
 
 ### 3) Canvas kötelező tartalma
@@ -139,12 +141,16 @@ Ha a repó biztosít wrapper scripteket (ajánlott):
 
 ### Report kötelező mezők
 
-A `codex/reports/<TASK_SLUG>.md` tartalmazza:
+A `codex/reports/<TASK_SLUG>.md` **kötelezően** a `docs/codex/report_standard.md` szerint készül.
 
-* futtatott parancsok (pontos)
-* kimenet rövid összefoglaló
+Minimum tartalom:
+
+* státusz: **PASS / FAIL / PASS_WITH_NOTES** (a report elején)
+* futtatott parancsok (pontos) + eredmények röviden
+* változások összefoglalója (módosított/létrehozott fájlok listája, csoportosítva)
+* **DoD → Evidence Matrix** (minden DoD ponthoz: path + sorsáv + rövid magyarázat)
 * hiba esetén: log részlet + javítási javaslat
-* módosított/létrehozott fájlok listája
+* nem-blokkoló UX/termék észrevételek kizárólag az **Advisory notes** szekcióban
 
 ---
 
@@ -173,6 +179,7 @@ A `codex/reports/<TASK_SLUG>.md` tartalmazza:
 
 * `docs/codex/prompt_template.md` – egységes Codex prompt szabvány
 * `docs/codex/yaml_schema.md` – steps-séma + példák
+* `docs/codex/report_standard.md` – egységes report szabvány (DoD→Evidence + Advisory)
 * `docs/qa/testing_guidelines.md` – tesztelési minimum és parancsok
 * `docs/architect/routing_integrity.md` – routing szabályok
 * `docs/architect/theme_rules.md` – theme/design szabályok

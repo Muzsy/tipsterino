@@ -117,10 +117,14 @@ Szabály:
 - legyen külön step a teszt/ellenőrzés futtatására
 
 ### 6.4 Codex checklist + report
-- Hozd létre/frissítsd: codex/codex_checklist/<TASK_SLUG>.md
+- Hozd létre/frissítsd: `codex/codex_checklist/<TASK_SLUG>.md`
   - legyen benne pipálható DoD lista és feladat-specifikus pontok
-- Hozd létre/frissítsd: codex/reports/<TASK_SLUG>.md
-  - ide kerül a futtatások eredménye és a változások összefoglalója
+- Hozd létre/frissítsd: `codex/reports/<TASK_SLUG>.md`
+  - **kötelezően** a `docs/codex/report_standard.md` szerkezete szerint
+  - tartalmazza a verifikáció (parancsok + eredmények) és a változások összefoglalóját
+  - tartalmazza a **DoD → Evidence Matrix** részt (útvonal + sorsáv), evidence nélkül nincs PASS
+  - a nem-blokkoló UX/termék jellegű megjegyzések kizárólag az **Advisory notes** szekcióba kerülhetnek
+  - használható státuszok: **PASS**, **FAIL**, **PASS_WITH_NOTES**
 
 ### 6.5 Implementáció
 - Hajtsd végre a YAML steps lépéseit sorrendben.
@@ -135,11 +139,14 @@ Szabály:
 
 ### 6.7 Zárás
 - Töltsd ki a checklistet (pipáld ami kész).
-- A report tartalmazza:
-  - futtatott parancsok
-  - kimenet rövid összefoglaló
-  - módosított/létrehozott fájlok listája
-  - hiba esetén log + fix javaslat
+- Töltsd ki a reportot **a `docs/codex/report_standard.md` szerint**.
+- A reportban kötelező:
+  - **PASS/FAIL/PASS_WITH_NOTES** státusz (a report elején)
+  - futtatott parancsok + kimenet rövid összefoglaló
+  - módosított/létrehozott fájlok listája (csoportosítva: UI/State/DB/Docs)
+  - **DoD → Evidence Matrix** (path + line range + 1–3 mondat / DoD pont)
+  - hiba esetén log kivonat + fix javaslat
+- A nem-blokkoló UX/termék jellegű észrevételek kizárólag az **Advisory notes** szekcióba mehetnek.
 
 ## 7) Feladat-specifikus részletek
 <SCOPE>

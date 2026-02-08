@@ -30,6 +30,7 @@ A Codex workflow és szabályrendszer a `docs/` alatt van rögzítve.
 * `docs/codex/overview.md` – teljes workflow + DoD
 * `docs/codex/prompt_template.md` – egységes Codex prompt sablon
 * `docs/codex/yaml_schema.md` – az egyetlen elfogadott goal YAML séma
+* `docs/codex/report_standard.md` – Report Standard v2 (DoD→Evidence + Advisory)
 
 ### QA / teszt
 
@@ -78,6 +79,10 @@ Kötelező sorrend:
 5. Teszt/ellenőrzés futtatása (wrapper)
 6. Checklist + report kitöltése
 
+   * A reportot kötelezően a `docs/codex/report_standard.md` szerkezete szerint kell kitölteni.
+   * A nem-blokkoló UX/termék észrevételek kizárólag az **Advisory notes** szekcióba kerülhetnek; ezek nem lehetnek FAIL okai önmagukban.
+   * Használható státuszok: **PASS**, **FAIL**, **PASS_WITH_NOTES**.
+  
 Részletek: `docs/codex/overview.md`
 
 ---

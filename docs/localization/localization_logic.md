@@ -173,11 +173,19 @@ Ha UI szöveg változik:
 
 ### 7.2 Kötelező report tartalom
 
-A reportban szerepeljen:
+A reportot **kötelezően** a `docs/codex/report_standard.md` szerint kell kitölteni.
 
-* milyen kulcsok kerültek hozzáadásra
-* mely UI elemek használják őket
-* futtatott parancsok (analyze/test)
+A reportban a lokalizációs részben kötelezően szerepeljen:
+
+* milyen kulcsok kerültek hozzáadásra / módosításra
+* mely UI elemek használják őket (konkrét file path alapján)
+* futtatott parancsok és eredmények (analyze/test vagy `./scripts/check.sh`)
+
+Ajánlott formátum (táblázat):
+
+| key | hu | en | used_in |
+|---|---|---|---|
+| `...` | `...` | `...` | `app/lib/...` |
 
 ---
 

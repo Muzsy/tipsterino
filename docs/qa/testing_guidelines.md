@@ -203,10 +203,14 @@ Golden tesztet csak akkor használj, ha:
 
 ### 10.2 Report tartalma (minimum)
 
-* futtatott parancsok (pontos)
-* rövid eredmény
-* hibák esetén log részlet + javítási javaslat
-* módosított/létrehozott fájlok listája
+A reportot **kötelezően** a `docs/codex/report_standard.md` szerint kell kitölteni (DoD→Evidence + Advisory).
+
+* státusz: **PASS / FAIL / PASS_WITH_NOTES** (a report elején)
+* futtatott parancsok (pontos) + rövid eredmény (PASS/FAIL)
+* változások összefoglalója (módosított/létrehozott fájlok listája, csoportosítva: UI/State/DB/Docs)
+* **DoD → Evidence Matrix**: minden DoD ponthoz bizonyíték (path + sorsáv) + 1–3 mondat
+* hibák esetén: log kivonat + javítási javaslat
+* nem-blokkoló UX/termék jellegű észrevételek kizárólag az **Advisory notes** blokkban (max 5 bullet)
 
 ---
 
