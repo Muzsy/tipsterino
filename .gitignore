@@ -8,6 +8,7 @@
 **/.flutter-plugins
 **/.flutter-plugins-dependencies
 **/.metadata
+documents/tmp/
 
 # Platform / IDE cache
 **/android/.gradle/
