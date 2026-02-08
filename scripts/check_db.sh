@@ -28,23 +28,28 @@ fi
 # Best-effort DB URL discovery
 DB_URL=""
 
-# Try JSON output if available
+# Try JSON output if available.
+# Avoid a direct pipe under `set -o pipefail` to prevent SIGPIPE/141 edge cases.
 if supabase status --output json >/dev/null 2>&1; then
-  DB_URL="$(supabase status --output json | python3 - <<'PY'
-import sys, json
+  STATUS_JSON="$(supabase status --output json 2>/dev/null || true)"
+  DB_URL="$(python3 -c '
+import json
+import sys
+
+raw = sys.stdin.read()
 try:
-    data = json.load(sys.stdin)
+    data = json.loads(raw) if raw.strip() else {}
 except Exception:
     print("")
     raise SystemExit(0)
 
-for k in ["DB_URL", "db_url", "database_url", "DATABASE_URL"]:
-    if k in data and isinstance(data[k], str) and data[k].strip():
-        print(data[k].strip())
+for key in ("DB_URL", "db_url", "database_url", "DATABASE_URL"):
+    value = data.get(key, "")
+    if isinstance(value, str) and value.strip():
+        print(value.strip())
         raise SystemExit(0)
 print("")
-PY
-)"
+' <<<"$STATUS_JSON")"
 fi
 
 # Fallback: parse text output
