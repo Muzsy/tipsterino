@@ -11,4 +11,4 @@
 ## P2 – DB log + report
 - [x] `supabase start` + `supabase db reset --local --no-seed` lefutott CI-ben, majd a `./scripts/check_db.sh` sikeresen lefutott; bizonyitek: `documents/tmp/ci_db_log.txt` (`DB contract checks: PASS`).
 - [x] `./scripts/verify.sh --report codex/reports/ci/ci_db_contract_checks_pipeline.md` lefutott, a reportban az AUTO_VERIFY blokk frissült, és készült `codex/reports/ci/ci_db_contract_checks_pipeline.verify.log`.
-- [ ] (Kézi) GitHub branch protection: `CI - DB / DB contract checks (sql_checks)` required status check.
+- [x] (Kézi) GitHub branch protection: `CI - DB / DB contract checks (sql_checks)` required status check.
