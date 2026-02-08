@@ -26,7 +26,7 @@ A feltöltött zip alapján jelenleg ez látszik a repo gyökérben:
 - `canvases/` – Codex vásznak (sprint/task alap)
 - `codex/` – Codex célok / checklist / reportok
 - `docs/` – dokumentációs „témák” (strukturált doksi gyűjtő)
-- `documents/` – hosszabb, összefüggő dokumentumok (pl. architektúra, supabase konfiguráció)
+- `documents/` – deprecated/archív dokumentumok és átirányító stubok
 - `scripts/` – segédscript-ek
 
 **Szabály:** új top-level könyvtárat csak indokolt esetben (pl. `tools/`, `legacy/`) hozunk létre. A Codex ne találjon ki új gyökérmappákat.
@@ -177,8 +177,8 @@ Struktúra-váltás / új fájlok hozzáadása után kötelező minimum:
 ## 📎 Kapcsolódások
 
 - `docs/README.md` – a dokumentációs témák struktúrája (tartalmazza az `architect/` kategóriát)
-- `documents/app_architecture.md` – a jelenlegi architektúra leírás (router, auth, supabase konfig, stb.)
-- `documents/supabase_configuration.md` – `--dart-define` futtatási leírás
+- `docs/architect/app_architecture.md` – a jelenlegi architektúra leírás (router, auth, supabase konfig, stb.)
+- `docs/setup/supabase_configuration.md` – `--dart-define` futtatási leírás
 - `canvases/tipsterino_foundation_bootstrap.md` – kiinduló Codex vászon
 
 ---
@@ -190,4 +190,3 @@ Struktúra-váltás / új fájlok hozzáadása után kötelező minimum:
 - [ ] Nincs új fájl a régi `src/screens|providers|router|theme` gyűjtők alatt.
 - [ ] Más feature belsejére nincs deep import (barrel/public API vagy shared).
 - [ ] `flutter analyze` + `flutter test` zöld.
-

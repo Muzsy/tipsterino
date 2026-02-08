@@ -54,8 +54,8 @@ A Codex workflow és szabályrendszer a `docs/` alatt van rögzítve.
 
 * `app/` – Flutter app (minden implementáció ide kerül)
 * `scripts/` – futtatási/ellenőrzési belépési pontok
-* `docs/` – szabályok, architektúra, Codex workflow (source of truth)
-* `documents/` – specifikációk, döntések, üzleti leírások
+* `docs/` – szabályok, architektúra, Codex workflow (source of truth, canonical)
+* `documents/` – deprecated/archív specifikációk, átirányító stubok
 * `canvases/` – feladat specifikációk (canvasok)
 * `codex/` – goal YAML-ek + checklistek + riportok
 
@@ -171,8 +171,8 @@ Tesztelési minimum: `docs/qa/testing_guidelines.md`
 ## Forrás-igazság (prioritás, ha ellentmondás van)
 
 1. `AGENTS.md`
-2. `documents/` specifikációk (ha vannak az adott témára)
-3. `docs/` szabályok (Codex/QA/Architect/Localization)
+2. `docs/` szabályok (Codex/QA/Architect/Localization)
+3. `documents/` deprecated/archív specifikációk (csak ha nincs frissebb `docs/` megfelelő)
 4. `app/` aktuális implementáció + tesztek
 5. `canvases/` és `codex/` futási artefaktok (feladat-specifikusak)
 6. `legacy/` csak referencia (nem mérvadó)

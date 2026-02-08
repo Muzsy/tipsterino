@@ -78,7 +78,7 @@ Bármely jövőbeli bónusz (pl. daily bonus, challenge reward) ugyanazt a sém�
 
 ### Daily bonus (spec link)
 
-- Részletes specifikáció a `documents/bonus_system/daily_bonus.md` fájlban található; minden új szabályt ott kell átvezetni.
+- Részletes specifikáció a `docs/core_logic/daily_bonus.md` fájlban található; minden új szabályt ott kell átvezetni.
 - A daily bonus a standard grant pipeline-t használja, napi (UTC) idempotencia mellett.
 - Az implementáció (reward definition, migráció, RPC, UI) külön járatokban készül; jelen dokumentáció csak a szerződést dokumentálja, nem feltételez kész állapotot.
 

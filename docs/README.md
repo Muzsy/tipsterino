@@ -16,7 +16,9 @@ Ez a könyvtár az OutshotCoach mintájára rendezett képernyő- és architekt�
 Mindegyik almappa alá érdemes README-t/README.md-et tenni, amely leírja a mappában lévő fájlok látogatási célt és a kapcsolódó sablonokat.
 
 ## 🔗 Kapcsolódó anyagok
-- `documents/app_architecture.md` – részletes architektúra + környezet leírás.
-- `documents/supabase_configuration.md` – Supabase és `--dart-define` futtatási leírás.
+- `docs/architect/app_architecture.md` – részletes architektúra + környezet leírás.
+- `docs/setup/supabase_configuration.md` – Supabase és `--dart-define` futtatási leírás.
 - `canvases/tipsterino_foundation_bootstrap.md` és `canvases/tipsterino_stability_run.md` – a Codex-vásznak a fejlesztési sprint alapjául.
 - `docs/screens/events_inbox_screen.md` – az Events Inbox UX filter/csatorna/guard logikáját, DoD-ját és a kapcsolódó teszteket összefoglaló dokumentum.
+
+Megjegyzés: a `documents/` mappa deprecated/archív; új vagy naprakész tartalom csak a `docs/` fa alatt legyen karbantartva.

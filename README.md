@@ -4,7 +4,8 @@ Struktúra:
 - `app/` – az új Flutter alkalmazás (EZ a fejlesztési célpont)
 - `legacy/` – a régi alkalmazás (csak referencia; alapból nem verziózott)
 - `canvases/` + `codex/` – Codex workflow (canvases + goals + reports)
-- `documents/` – specifikációk, háttéranyagok
+- `docs/` – canonical fejlesztői dokumentáció (single source of truth)
+- `documents/` – deprecated/archív dokumentumok és átirányító stubok
 - `scripts/` – bootstrap + wrapper script-ek
 - `tool/` – segédprogramok/validátorok (ha lesz)
 
