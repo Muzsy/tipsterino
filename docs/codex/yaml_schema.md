@@ -139,7 +139,7 @@ A leírásnak végrehajthatónak kell lennie.
 
 Minden feladat YAML-jának **legutolsó** stepje legyen egy minőségi kapu, ami:
 
-* lefuttatja a standard ellenőrzést a wrapperen keresztül
+* lefuttatja a standard ellenőrzést a `./scripts/verify.sh` wrapperen keresztül
 * a **reportot automatikusan frissíti** (PASS/FAIL + log hivatkozás)
 * a logot elmenti a report mellé
 
@@ -209,6 +209,7 @@ Példa:
 
 * `docs/codex/overview.md` – workflow és DoD
 * `docs/codex/prompt_template.md` – egységes prompt
+* docs/codex/report_standard.md` – report struktúra + AUTO_VERIFY blokk (verify.sh frissíti)
 * `docs/qa/testing_guidelines.md` – tesztelvek és parancsok
 * `canvases/` – feladat specifikáció
 * `codex/goals/canvases/` – goal YAML-ek
