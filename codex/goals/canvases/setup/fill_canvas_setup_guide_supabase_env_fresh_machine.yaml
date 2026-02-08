@@ -1,0 +1,105 @@
+# FILE: codex/goals/canvases/setup/fill_canvas_setup_guide_supabase_env_fresh_machine.yaml
+
+steps:
+  - name: "Canvas létrehozása (P1-2 specifikáció)"
+    description: >
+      Hozd létre a P1-2 feladathoz tartozó canvas-t a repó szabvány szerint.
+      Kötelező szekciók: 🎯 Funkció, 🧠 Fejlesztési részletek, 🧪 Tesztállapot, 🌍 Lokalizáció, 📎 Kapcsolódások.
+      Rögzítsd benne a valós forrás-igazságot a scriptek alapján:
+      - scripts/flutter.sh, scripts/check.sh, scripts/verify.sh
+      - scripts/supabase.sh, scripts/check_db.sh
+      - docs/qa/db_checks.md, AGENTS.md, .gitignore
+    outputs:
+      - "canvases/setup/setup_guide_supabase_env_fresh_machine.md"
+
+  - name: "Setup guide mappa és dokumentumok létrehozása (docs/setup)"
+    description: >
+      Hozd létre a docs/setup könyvtárat és készítsd el a két kanonikus setup guide-ot:
+
+      1) docs/setup/dev_setup.md
+         Tartalom (tömör, végrehajtható):
+         - Friss gép minimum: repo klónozás + Flutter telepítés után futtasd:
+           ./scripts/flutter.sh doctor
+           ./scripts/check.sh
+         - App futtatás offline módban (kulcsok nélkül) és Supabase-szal:
+           - rögzítsd, hogy a Supabase értékek compile-time --dart-define-on jönnek
+           - rögzítsd, hogy a wrapper (scripts/flutter.sh) a gitignored app/.env alapján adja át a define-okat
+           - mutasd a futtatást wrapperrel: ./scripts/flutter.sh run
+         - Tesztek wrapperrel: ./scripts/flutter.sh test (és jelezd, hogy task zárás a verify.sh)
+         - Task zárás: ./scripts/verify.sh --report <report_path>
+
+      2) docs/setup/supabase_setup.md
+         Tartalom (tömör, végrehajtható):
+         - Előfeltételek: Docker fut, Supabase CLI elérhető, psql kliens telepítve
+         - Local stack indítás és migrációk alkalmazása (CI-vel konzisztensen):
+           ./scripts/supabase.sh start
+           ./scripts/supabase.sh db reset --local --no-seed
+         - DB contract check futtatás:
+           ./scripts/check_db.sh
+         - App/.env kitöltés local Supabase-hoz:
+           - hivatkozz a supabase/config.toml api.port=54321 értékére
+           - írd le, hogy a konkrét API URL-t és anon key-t a `supabase status` is kiírja
+         - Rövid troubleshooting (Docker, supabase CLI, psql, portok)
+
+      Fontos:
+      - Ne tegyél be semmilyen kulcsot/példa “valós” értéket.
+      - A guide-ban minden parancs wrapperrel menjen (ne `flutter ...` közvetlenül).
+    outputs:
+      - "docs/setup/dev_setup.md"
+      - "docs/setup/supabase_setup.md"
+
+  - name: "Belépési pontok frissítése (README + docs index + deprecate régi supabase doc)"
+    description: >
+      Tedd megtalálhatóvá az új setup guide-ot:
+
+      1) README.md
+         - Adj hozzá egy rövid “Setup” szekciót, ami linkeli:
+           docs/setup/dev_setup.md
+           docs/setup/supabase_setup.md
+
+      2) docs/README.md
+         - Vedd fel a `setup/` mappát a strukturált témák közé,
+           és linkeld a két új setup doksit.
+
+      3) documents/supabase_configuration.md
+         - A fájl tetejére tegyél egy rövid deprecate/átirányítás blokkot:
+           “A kanonikus setup guide a docs/setup alatt van; a repo-ban a Flutter parancsok wrapperen futnak.”
+         - A meglévő tartalmat ne dobd ki, csak egyértelműen jelöld, hogy a wrapper parancsok az elsődlegesek.
+    outputs:
+      - "README.md"
+      - "docs/README.md"
+      - "documents/supabase_configuration.md"
+
+  - name: "Codex checklist + report váz létrehozása"
+    description: >
+      Hozd létre a feladathoz a checklistet és a report vázat a szabvány szerint.
+
+      1) Checklist: pipálható DoD lista (a canvas DoD pontjai 1:1-ben).
+         File: codex/codex_checklist/setup/setup_guide_supabase_env_fresh_machine.md
+
+      2) Report váz: kövesd a docs/codex/report_standard.md szerkezetét (Report Standard v2).
+         A report elején státusz legyen (kezdetben FAIL, amíg nincs verify futás).
+         Legyen benne placeholder AUTO_VERIFY blokk (a verify.sh frissíti).
+         File: codex/reports/setup/setup_guide_supabase_env_fresh_machine.md
+    outputs:
+      - "codex/codex_checklist/setup/setup_guide_supabase_env_fresh_machine.md"
+      - "codex/reports/setup/setup_guide_supabase_env_fresh_machine.md"
+
+  - name: "Repo gate (automatikus verify) + report/checklist zárás"
+    description: >
+      Futtasd a standard repo ellenőrzést (wrapperrel), és rögzítsd reportban:
+
+      Parancs:
+      ./scripts/verify.sh --report codex/reports/setup/setup_guide_supabase_env_fresh_machine.md
+
+      Elvárt:
+      - létrejön/frissül a log: codex/reports/setup/setup_guide_supabase_env_fresh_machine.verify.log
+      - a report AUTO_VERIFY blokkja frissül
+      - PASS esetén a report státusz PASS, és kitöltöd röviden a Change summary-t + DoD→Evidence Matrixot
+      - checklistben csak a valós, bizonyított pontokat pipálod
+
+      Fontos: ne futtass közvetlen `flutter ...` parancsokat; csak a wrapperen keresztül menjen a gate.
+    outputs:
+      - "codex/reports/setup/setup_guide_supabase_env_fresh_machine.md"
+      - "codex/reports/setup/setup_guide_supabase_env_fresh_machine.verify.log"
+      - "codex/codex_checklist/setup/setup_guide_supabase_env_fresh_machine.md"
