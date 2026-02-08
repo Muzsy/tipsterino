@@ -69,10 +69,13 @@ Ha bármelyik fájl nem létezik: állj meg, és írd le pontosan mit kerestél,
 <NEM CÉL>
 
 ## 4) Kötelező kimenetek (hozd létre / frissítsd)
-1) canvases/<TASK_SLUG>.md
-2) codex/goals/canvases/fill_canvas_<TASK_SLUG>.yaml
-3) codex/codex_checklist/<TASK_SLUG>.md
-4) codex/reports/<TASK_SLUG>.md
+> `<AREA>/` opcionális domain mappa (pl. `bonus_system/`, `events_inbox/`). Ha nincs ilyen, maradhat a gyökérben.
+
+1) canvases/[<AREA>/]<TASK_SLUG>.md  
+2) codex/goals/canvases/[<AREA>/]fill_canvas_<TASK_SLUG>.yaml  
+3) codex/codex_checklist/[<AREA>/]<TASK_SLUG>.md  
+4) codex/reports/[<AREA>/]<TASK_SLUG>.md
+5) codex/reports/[<AREA>/]<TASK_SLUG>.verify.log  (auto)
 
 ## 5) Munkaszabályok (nem alkuképes)
 - Valós repó elv: nem találhatsz ki fájlokat, osztályokat, route-okat, kulcsokat.
@@ -132,7 +135,7 @@ Szabály:
 
 ### 6.6 Teszt és ellenőrzés
 - Futtasd a repó standard ellenőrzését wrapperrel (ha van):
-  - ./scripts/check.sh
+  - ./scripts/verify.sh --report codex/reports/[<AREA>/]<TASK_SLUG>.md  (kötelező; menti a .verify.log-ot és frissíti a reportot)
 - Ha nincs wrapper, futtasd legalább:
   - flutter analyze
   - flutter test

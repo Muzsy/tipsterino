@@ -51,5 +51,5 @@ Az állapotokról a kódban `loadInitial()`, `loadMore()` és `markAllRead()` go
 - [x] Filter logika és `EventsFilter` legfontosabb mappingjai le vannak írva.
 - [x] Mark all read (optimista, rollback, snack bar) és a `isMarkingAllRead` guardok leírva.
 - [x] Polling + lifecycle + route visibility guardok, state machine és Supabase kontextus dokumentálva.
-- [x] Kapcsolódó widget tesztek felsorolva, `./scripts/check.sh` szerepel a tesztállományban.
+- [x] Kapcsolódó widget tesztek felsorolva, `./scripts/verify.sh --report …` szerepel a tesztállományban.
 - [x] Lokalizációs kulcsok felsorolva.

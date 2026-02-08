@@ -179,7 +179,7 @@ A reportban a lokalizációs részben kötelezően szerepeljen:
 
 * milyen kulcsok kerültek hozzáadásra / módosításra
 * mely UI elemek használják őket (konkrét file path alapján)
-* futtatott parancsok és eredmények (analyze/test vagy `./scripts/check.sh`)
+* futtatott parancsok és eredmények (analyze/test vagy `./scripts/check.sh` / `./scripts/verify.sh --report codex/reports/[<AREA>/]<TASK_SLUG>.md`)
 
 Ajánlott formátum (táblázat):
 
@@ -197,7 +197,7 @@ Ajánlott formátum (táblázat):
 * [ ] Új kulcs mindkét ARB-ben szerepel
 * [ ] Generált lokalizáció elérhető build/test után
 * [ ] Van legalább 1 releváns widget teszt (ha UI-t érint)
-* [ ] `flutter analyze` + `flutter test` lefut (vagy dokumentált ok)
+* [ ] `./scripts/verify.sh --report codex/reports/[<AREA>/]<TASK_SLUG>.md` lefut (vagy dokumentált ok; fallback: `flutter analyze` + `flutter test`)
 
 ---
 

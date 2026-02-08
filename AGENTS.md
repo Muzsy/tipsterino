@@ -65,10 +65,11 @@ A Codex workflow és szabályrendszer a `docs/` alatt van rögzítve.
 
 Minden feladat egy `TASK_SLUG` köré szerveződik, és a következő artefaktokat hozza létre/frissíti:
 
-* `canvases/<TASK_SLUG>.md`
-* `codex/goals/canvases/fill_canvas_<TASK_SLUG>.yaml`
-* `codex/codex_checklist/<TASK_SLUG>.md`
-* `codex/reports/<TASK_SLUG>.md`
+* `canvases/[<AREA>/]<TASK_SLUG>.md`
+* `codex/goals/canvases/[<AREA>/]fill_canvas_<TASK_SLUG>.yaml`
+* `codex/codex_checklist/[<AREA>/]<TASK_SLUG>.md`
+* `codex/reports/[<AREA>/]<TASK_SLUG>.md`
+* `codex/reports/[<AREA>/]<TASK_SLUG>.verify.log` *(automatikus, a `verify.sh` írja)*
 
 Kötelező sorrend:
 
@@ -76,7 +77,9 @@ Kötelező sorrend:
 2. Canvas megírása
 3. Goal YAML (steps + outputs)
 4. Implementáció a YAML szerint
-5. Teszt/ellenőrzés futtatása (wrapper)
+5. Repo gate futtatása (automatikus verify + log + report frissítés)
+
+   * Kötelező parancs: `./scripts/verify.sh --report codex/reports/[<AREA>/]<TASK_SLUG>.md`
 6. Checklist + report kitöltése
 
    * A reportot kötelezően a `docs/codex/report_standard.md` szerkezete szerint kell kitölteni.
@@ -130,7 +133,8 @@ Ha a feladat **Supabase adatbázist / sémát / RLS-t / migrációt / RPC-ket / 
 A Flutter parancsokat **nem közvetlenül** kell futtatni, hanem a wrapper scripteken keresztül:
 
 * **Minden Flutter parancs:** `./scripts/flutter.sh <cmd>`
-* **Standard ellenőrzés:** `./scripts/check.sh`
+* **Standard ellenőrzés (lokál):** `./scripts/check.sh`
+* **Standard ellenőrzés (Codex / report + log):** `./scripts/verify.sh --report codex/reports/[<AREA>/]<TASK_SLUG>.md`
 
 Indok:
 

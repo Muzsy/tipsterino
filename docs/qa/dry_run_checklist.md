@@ -100,8 +100,8 @@ Ebben a fájlban a DoD checklist mellett legyen benne ez a dry run rész is (vag
 * [ ] A tesztfájl(ok) szerepel(nek) a YAML outputs listában
 * [ ] A futtatási parancs rögzítve:
 
-  * [ ] `./scripts/check.sh` (ha létezik)
-  * [ ] fallback: `flutter analyze` + `flutter test`
+  * [ ] `./scripts/verify.sh --report codex/reports/[<AREA>/]<TASK_SLUG>.md` (Codex/report; ha létezik)
+  * [ ] `./scripts/check.sh` (lokál gyors kapu; ha létezik)
 
 ### 10) Dokumentálás (report)
 

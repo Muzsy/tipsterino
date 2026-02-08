@@ -32,7 +32,8 @@ A Codex akkor dolgozik jól, ha **előbb unit + widget**, és csak a valódi flo
 
 Ha a repó biztosít wrapper scripteket, az az elsődleges út:
 
-* `./scripts/check.sh`
+* (Codex / report) `./scripts/verify.sh --report codex/reports/[<AREA>/]<TASK_SLUG>.md` *(a `check.sh`-t futtatja, logot ment és frissíti a reportot)*
+* (lokál gyors) `./scripts/check.sh`
 
 ### 2.2 Fallback (ha nincs wrapper)
 

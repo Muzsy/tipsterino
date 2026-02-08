@@ -73,11 +73,9 @@ Példa:
 
 ## 4) Verifikáció (How tested)
 
-### 4.1 Kötelező parancsok
+### 4.1 Kötelező parancs
 
-**Kötelező:** minden futtatott parancsot listázz, és írd oda a kimenetet röviden.
-
-* `./scripts/check.sh` → `PASS|FAIL` + 1 sor összegzés
+* `./scripts/verify.sh --report codex/reports/[<AREA>/]<TASK_SLUG>.md` → `PASS|FAIL` (a `check.sh`-t futtatja, logot ment és frissíti a reportot)
 
 ### 4.2 Opcionális, feladatfüggő parancsok
 
@@ -101,6 +99,18 @@ Ha bármely kötelező/elfogadott ellenőrzés nem futott:
 * miért maradt ki,
 * milyen kockázat,
 * mi az elvárt pótlólagos ellenőrzés.
+
+### 4.4 Automatikus blokk
+
+Győződj meg róla, hogy a report tartalmazza a `verify.sh` által frissített blokkot, például:
+
+```md
+<!-- AUTO_VERIFY_START -->
+... (ezt a részt a script generálja) ...
+<!-- AUTO_VERIFY_END -->
+```
+
+Ennek a résznek a kézi szerkesztése tilos; a script mindig felülírja.
 
 ---
 

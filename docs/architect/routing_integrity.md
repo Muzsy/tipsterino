@@ -146,7 +146,7 @@ Routing érintése esetén a YAML tartalmazzon külön lépést:
 * és külön lépést:
 
   * widget smoke teszt hozzáadására/frissítésére
-  * minőségkapu futtatására (check.sh/analyze/test)
+  * minőségkapu futtatására (`./scripts/verify.sh` vagy `./scripts/check.sh`; fallback: `flutter analyze` + `flutter test`)
 
 ### 8.2 Kötelező outputs
 
