@@ -33,10 +33,23 @@ jobs:
           sudo apt-get install -y postgresql-client
 
       - name: Start Supabase local stack
-        run: supabase start
+        run: |
+          supabase start --no-attach
+          # wait for stack to be healthy
+          for i in {1..20}; do
+            supabase status >/dev/null 2>&1 && break
+            sleep 3
+          done
+          supabase status
 
       - name: Reset local DB (apply migrations; no seed)
-        run: supabase db reset --local --no-seed
+        run: |
+          supabase db reset --local --no-seed
+          sleep 5
 
       - name: Run DB contract checks (sql_checks)
-        run: ./scripts/check_db.sh
+        run: |
+          ./scripts/check_db.sh
+      - name: Stop Supabase local stack
+        if: always()
+        run: supabase stop
