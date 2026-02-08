@@ -1,0 +1,211 @@
+steps:
+  - name: "Canvas létrehozása (P0-2 specifikáció)"
+    description: >
+      Hozd létre a P0-2 feladathoz tartozó canvas-t a repo szabvány szerint.
+      Töltsd ki a cél/nem-cél, érintett fájlok, DoD, kockázat/rollback, teszt terv részeket.
+      Kötelező szekciók: 🎯 Funkció, 🧠 Fejlesztési részletek, 🧪 Tesztállapot, 🌍 Lokalizáció, 📎 Kapcsolódások.
+    outputs:
+      - "canvases/ci/ci_db_contract_checks_pipeline.md"
+
+  - name: "DB check script létrehozása (lokális Supabase + sql_checks futtatás)"
+    description: >
+      Hozd létre a `scripts/check_db.sh` fájlt és tedd futtathatóvá (chmod +x).
+      A script célja: a lokális Supabase DB ellen (supabase start után) lefuttatni a `supabase/sql_checks/*.sql` fájlokat.
+      A script NEM indítson supabase-t automatikusan, csak ellenőrizze hogy fut-e, és adjon hasznos hibát ha nem.
+
+      A fájl teljes tartalma legyen pontosan ez:
+
+      ```bash
+      #!/usr/bin/env bash
+      set -euo pipefail
+
+      ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+      cd "$ROOT_DIR"
+
+      if ! command -v supabase >/dev/null 2>&1; then
+        echo "ERROR: supabase CLI not found in PATH"
+        exit 1
+      fi
+
+      if ! command -v psql >/dev/null 2>&1; then
+        echo "ERROR: psql not found (install postgresql-client)"
+        exit 1
+      fi
+
+      if [ ! -d "supabase/sql_checks" ]; then
+        echo "ERROR: supabase/sql_checks directory not found"
+        exit 1
+      fi
+
+      # Ensure local stack is running
+      if ! supabase status >/dev/null 2>&1; then
+        echo "ERROR: supabase status failed. Is local stack running? Run: supabase start"
+        exit 1
+      fi
+
+      # Best-effort DB URL discovery
+      DB_URL=""
+
+      # Try JSON output if available
+      if supabase status --output json >/dev/null 2>&1; then
+        DB_URL="$(supabase status --output json | python3 - <<'PY'
+      import sys, json
+      try:
+          data = json.load(sys.stdin)
+      except Exception:
+          print("")
+          raise SystemExit(0)
+
+      for k in ["DB_URL", "db_url", "database_url", "DATABASE_URL"]:
+          if k in data and isinstance(data[k], str) and data[k].strip():
+              print(data[k].strip())
+              raise SystemExit(0)
+      print("")
+      PY
+      )"
+      fi
+
+      # Fallback: parse text output
+      if [ -z "$DB_URL" ]; then
+        LINE="$(supabase status 2>/dev/null | grep -E 'DB URL:' | head -n 1 || true)"
+        if [ -n "$LINE" ]; then
+          DB_URL="${LINE#*DB URL: }"
+        fi
+      fi
+
+      # Final fallback (default supabase local port)
+      if [ -z "$DB_URL" ]; then
+        DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+      fi
+
+      export DATABASE_URL="$DB_URL"
+
+      shopt -s nullglob
+      SQL_FILES=(supabase/sql_checks/*.sql)
+      if [ "${#SQL_FILES[@]}" -eq 0 ]; then
+        echo "ERROR: no SQL check files found in supabase/sql_checks/*.sql"
+        exit 1
+      fi
+
+      echo "Using DATABASE_URL=$DATABASE_URL"
+      for f in "${SQL_FILES[@]}"; do
+        echo "Running SQL check: $f"
+        psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"
+      done
+
+      echo "DB contract checks: PASS"
+      ```
+
+      Ezután állítsd futtathatóvá:
+      `chmod +x scripts/check_db.sh`
+    outputs:
+      - "scripts/check_db.sh"
+
+  - name: "GitHub Actions workflow létrehozása (CI - DB)"
+    description: >
+      Hozd létre a `.github/workflows/ci_db.yml` workflow-t, ami PR/push esetén fut, és lokális Supabase DB-n futtatja
+      a SQL checkeket. Ne használj semmilyen secretet.
+
+      A fájl teljes tartalma legyen pontosan ez:
+
+      ```yaml
+      name: CI - DB
+
+      on:
+        pull_request:
+        push:
+        workflow_dispatch:
+
+      concurrency:
+        group: ci-db-${{ github.ref }}
+        cancel-in-progress: true
+
+      permissions:
+        contents: read
+
+      jobs:
+        db_contract_checks:
+          name: DB contract checks (sql_checks)
+          runs-on: ubuntu-latest
+          timeout-minutes: 25
+
+          steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+
+            - name: Setup Supabase CLI
+              uses: supabase/setup-cli@v1
+              with:
+                version: latest
+
+            - name: Install psql client
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y postgresql-client
+
+            - name: Start Supabase local stack
+              run: supabase start
+
+            - name: Reset local DB (apply migrations; no seed)
+              run: supabase db reset --local --no-seed
+
+            - name: Run DB contract checks (sql_checks)
+              run: ./scripts/check_db.sh
+      ```
+    outputs:
+      - ".github/workflows/ci_db.yml"
+
+  - name: "DB checks dokumentáció (lokál + CI)"
+    description: >
+      Hozd létre a `docs/qa/db_checks.md` fájlt rövid, végrehajtható leírással:
+      - előfeltételek (Docker, Supabase CLI, psql)
+      - lokál futtatás parancsok
+      - CI mit csinál és hol van a workflow
+      - hibaelhárítás (supabase start / port / psql hiány)
+
+      Legyen tömör, parancscentrikus.
+    outputs:
+      - "docs/qa/db_checks.md"
+
+  - name: "Codex checklist + report váz létrehozása"
+    description: >
+      Hozd létre a checklistet és a report vázat a szabvány szerint.
+
+      1) Checklist: legyen pipálható DoD lista (a canvas DoD pontjai 1:1-ben).
+         File: codex/codex_checklist/ci/ci_db_contract_checks_pipeline.md
+
+      2) Report váz: kövesd a `docs/codex/report_standard.md` szerkezetét (Report Standard v2).
+         A report elején státusz (kezdetben FAIL), és legyen hely DB-check log hivatkozásnak.
+         File: codex/reports/ci/ci_db_contract_checks_pipeline.md
+    outputs:
+      - "codex/codex_checklist/ci/ci_db_contract_checks_pipeline.md"
+      - "codex/reports/ci/ci_db_contract_checks_pipeline.md"
+
+  - name: "DB check futtatás + log mentése"
+    description: >
+      Indítsd el lokál a Supabase-t (ha még nem fut): `supabase start`
+      Alkalmazd a migrációkat seed nélkül: `supabase db reset --local --no-seed`
+      Majd futtasd a DB checket és ments logot:
+      `./scripts/check_db.sh | tee codex/reports/ci/ci_db_contract_checks_pipeline.db_checks.log`
+
+      A reportban (Verifikáció szekció) rögzítsd, hogy ez PASS/FAIL lett, és hivatkozz a log fájlra.
+    outputs:
+      - "codex/reports/ci/ci_db_contract_checks_pipeline.db_checks.log"
+      - "codex/reports/ci/ci_db_contract_checks_pipeline.md"
+
+  - name: "Repo gate (automatikus verify) + report/checklist zárás"
+    description: >
+      Futtasd a standard ellenőrzést:
+      `./scripts/verify.sh --report codex/reports/ci/ci_db_contract_checks_pipeline.md`
+
+      Ez létrehozza:
+      `codex/reports/ci/ci_db_contract_checks_pipeline.verify.log`
+
+      Ezután a reportban:
+      - állítsd PASS-ra, ha a verify PASS és a DB checks is PASS
+      - töltsd ki a Change summary-t és a DoD → Evidence Matrix táblát
+      - a checklistben pipáld ki csak a ténylegesen teljesült pontokat
+    outputs:
+      - "codex/reports/ci/ci_db_contract_checks_pipeline.md"
+      - "codex/reports/ci/ci_db_contract_checks_pipeline.verify.log"
+      - "codex/codex_checklist/ci/ci_db_contract_checks_pipeline.md"

@@ -1,0 +1,42 @@
+name: CI - DB
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-db-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  db_contract_checks:
+    name: DB contract checks (sql_checks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Install psql client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client
+
+      - name: Start Supabase local stack
+        run: supabase start
+
+      - name: Reset local DB (apply migrations; no seed)
+        run: supabase db reset --local --no-seed
+
+      - name: Run DB contract checks (sql_checks)
+        run: ./scripts/check_db.sh
