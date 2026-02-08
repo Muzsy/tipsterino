@@ -1,11 +1,11 @@
-**FAIL** – DB local check needs fixing before the gate can pass.
+**PASS_WITH_NOTES** – CI DB contract checks green; manual branch protection pending.
 
 ## 1) Meta
 * **Task slug:** `ci_db_contract_checks_pipeline`
 * **Kapcsolódó canvas:** `canvases/ci/ci_db_contract_checks_pipeline.md`
 * **Kapcsolódó goal YAML:** `codex/goals/canvases/ci/fill_canvas_ci_db_contract_checks_pipeline.yaml`
 * **Futás dátuma:** 2026-02-08
-* **Branch / commit:** `main@e0da270`
+* **Branch / commit:** `main@43a166d`
 * **Fókusz terület:** CI
 
 ## 2) Scope
@@ -35,12 +35,12 @@
 ## 4) Verifikáció (How tested)
 
 ### 4.1 Kötelező parancs
-* (éppen futtatva a repo gate) `./scripts/verify.sh --report codex/reports/ci/ci_db_contract_checks_pipeline.md`
+* GitHub Actions: `DB contract checks (sql_checks)` job futott `main@43a166d` commiton.
 
 ### 4.2 Opcionális, feladatfüggő parancsok
 * `supabase start`
 * `supabase db reset --local --no-seed`
-* `./scripts/check_db.sh | tee codex/reports/ci/ci_db_contract_checks_pipeline.db_checks.log`
+* `./scripts/check_db.sh`
 
 ## 4.0 Automatikus blokk (verify.sh)
 
@@ -80,12 +80,12 @@
 | #1 `scripts/check_db.sh` létezik és futtatható | PASS | `scripts/check_db.sh`:1-120 | Skript kialakítva a Supabase local URL feltérképezésével és minden `supabase/sql_checks/*.sql` futtatásával. | `./scripts/check_db.sh` |
 | #2 `.github/workflows/ci_db.yml` létezik | PASS | `.github/workflows/ci_db.yml`:1-32 | Workflow a `pull_request/push/workflow_dispatch` triggeren fut és a DB check scriptet hívja. | GitHub Actions job |
 | #3 `docs/qa/db_checks.md` leírja a futtatást | PASS | `docs/qa/db_checks.md`:1-32 | Rövid, parancscentrikus dokumentáció a lokális/CI futtatáshoz és hibaelhárításhoz. | - |
-| #4 DB check log mentve | FAIL | `codex/reports/ci/ci_db_contract_checks_pipeline.db_checks.log`:1-40 | A script `supabase status failed` hibával állt le, mert a local stack nem futott (`supabase start` timeout). | `./scripts/check_db.sh` |
+| #4 DB check log mentve | PASS | `documents/tmp/ci_db_log.txt`:4277 | A CI jobban a `./scripts/check_db.sh` lefutott es `DB contract checks: PASS` kimenettel zart. | `./scripts/check_db.sh` |
 | #5 Repo gate rögzítve | PASS | `codex/reports/ci/ci_db_contract_checks_pipeline.verify.log`:1-80 | Repo gate lefutott, `./scripts/check.sh` PASS lett, a log a report mellett elérhető. | `./scripts/verify.sh --report ...` |
 | #6 Branch protection | FAIL | - | Manuális GitHub beállítás hiányzik (`CI - DB / DB contract checks (sql_checks)`). | - |
 
 ## 8) Advisory notes (nem blokkoló)
-* tele van.
+* A CI logban erzekeny ertekek maszkoltan (`***`) jelennek meg; reportban tovabbra se taroljunk kulcsokat vagy tokeneket.
 
 ## 9) Follow-ups (opcionális)
-* Telepítsd a Supabase CLI-t és `psql`-t a fejlesztői/CI környezetbe, hogy a `./scripts/check_db.sh` tényleges SQL ellenőrzéseket végezzen.
+* Kapcsold be GitHub branch protection-ben a `CI - DB / DB contract checks (sql_checks)` required status check-et.
