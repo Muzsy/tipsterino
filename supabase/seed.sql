@@ -1,2 +1,21 @@
--- Placeholder seed file required by supabase/config.toml.
--- No seed data is injected for the bonus system schema task yet.
+-- Seed policy placeholder for Tipsterino.
+--
+-- Why this file exists:
+-- - supabase/config.toml declares [db.seed].sql_paths = ["./seed.sql"].
+-- - Supabase expects this file to exist when seed is enabled.
+--
+-- Why this is intentionally a no-op:
+-- - CI and DB contract checks run with: supabase db reset --local --no-seed
+-- - Deterministic checks must not depend on optional dev sample data.
+-- - Seeding auth.users or user-bound records is intentionally avoided.
+--
+-- What this file is NOT for:
+-- - It must not create real users, auth identities, or user-owned data.
+-- - It must not apply schema changes (migrations are the source of truth).
+--
+-- How seed would run:
+-- - A plain `supabase db reset --local` would execute this file.
+-- - In CI, we intentionally use `--no-seed`.
+--
+-- No-op statement kept explicit and idempotent.
+select 1;

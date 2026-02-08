@@ -1,0 +1,94 @@
+# FILE: codex/goals/canvases/setup/fill_canvas_setup_seed_policy_supabase_seed_sql.yaml
+
+steps:
+  - name: "Canvas létrehozása (P1-3 specifikáció)"
+    description: >
+      Hozd létre a P1-3 feladathoz tartozó canvas-t a repo szabvány szerint.
+      Kötelező szekciók: 🎯 Funkció, 🧠 Fejlesztési részletek, 🧪 Tesztállapot, 🌍 Lokalizáció, 📎 Kapcsolódások.
+      A canvas-ban hivatkozz konkrétan ezekre a fájlokra:
+      - supabase/seed.sql (jelenlegi placeholder)
+      - supabase/config.toml ([db.seed] enabled + sql_paths)
+      - .github/workflows/ci_db.yml (db reset --local --no-seed)
+      - docs/qa/db_checks.md (db reset --local --no-seed)
+    outputs:
+      - "canvases/setup/setup_seed_policy_supabase_seed_sql.md"
+
+  - name: "supabase/seed.sql placeholder rendbetétele (policy header + no-op garancia)"
+    description: >
+      Frissítsd a `supabase/seed.sql` fájlt úgy, hogy egyértelmű policy header legyen benne:
+
+      Kötelező tartalom:
+      - miért létezik (config.toml sql_paths miatt)
+      - miért no-op (CI determinisztika, auth.users seedelésének kerülése)
+      - mire NEM való (user-bound tesztadatok, auth.users)
+      - hogyan fut(na) (supabase db reset alapból seedelne, de mi CI-ben --no-seed-et használunk)
+
+      Fontos:
+      - maradjon biztonságos és idempotens (ne hozzon létre user adatot, ne módosítson sémát)
+      - legyen explicit, hogy jelenleg nem tölt be adatot (no-op)
+    outputs:
+      - "supabase/seed.sql"
+
+  - name: "Seed policy dokumentáció létrehozása (docs/qa/seed_policy.md)"
+    description: >
+      Hozd létre: `docs/qa/seed_policy.md`
+
+      Kötelező fejezetek (tömören, végrehajthatóan):
+      - Mi a seed szerepe ebben a repo-ban (és miért no-op)
+      - CI és DB contract check policy (mindig --no-seed)
+        * hivatkozás: .github/workflows/ci_db.yml + docs/qa/db_checks.md
+      - Miért nem seedelünk auth.users-t (brittle, félrevezető)
+      - Hogyan készül dev tesztadat seed nélkül (ajánlott app-flow):
+        * regisztráció / belépés
+        * daily bonus claim flow / user_events megjelenés
+        * hol ellenőrizhető (Supabase Studio lokál)
+      - Ha a jövőben mégis kell seed:
+        * csak nem-user-bound, determinisztikus adatok
+        * CI továbbra is --no-seed
+
+      Ne írj be semmilyen valós kulcsot vagy secretet.
+    outputs:
+      - "docs/qa/seed_policy.md"
+
+  - name: "docs/qa/db_checks.md kiegészítése (seed-policy link + indoklás)"
+    description: >
+      Frissítsd a `docs/qa/db_checks.md` fájlt:
+      - tegyél be egy rövid megjegyzést a `supabase db reset --local --no-seed` mellé,
+        hogy ez szándékos (seed no-op + determinisztikus contract check)
+      - linkeld a friss `docs/qa/seed_policy.md` doksit
+    outputs:
+      - "docs/qa/db_checks.md"
+
+  - name: "Codex checklist + report váz létrehozása"
+    description: >
+      Hozd létre a feladathoz a checklistet és a report vázat a szabvány szerint.
+
+      1) Checklist:
+         - File: codex/codex_checklist/setup/setup_seed_policy_supabase_seed_sql.md
+         - pipálható DoD lista a canvas DoD pontjai alapján.
+
+      2) Report váz:
+         - File: codex/reports/setup/setup_seed_policy_supabase_seed_sql.md
+         - kövesd a docs/codex/report_standard.md szerkezetét (Report Standard v2).
+         - kezdeti státusz: FAIL (amíg nem fut verify)
+         - legyen benne AUTO_VERIFY marker blokk (verify.sh tölti)
+    outputs:
+      - "codex/codex_checklist/setup/setup_seed_policy_supabase_seed_sql.md"
+      - "codex/reports/setup/setup_seed_policy_supabase_seed_sql.md"
+
+  - name: "Repo gate (verify) + report/checklist zárás"
+    description: >
+      Futtasd a standard repo ellenőrzést és rögzítsd reportban:
+
+      Parancs:
+      ./scripts/verify.sh --report codex/reports/setup/setup_seed_policy_supabase_seed_sql.md
+
+      Elvárt:
+      - létrejön/frissül: codex/reports/setup/setup_seed_policy_supabase_seed_sql.verify.log
+      - a report AUTO_VERIFY blokkja frissül
+      - PASS esetén: report státusz PASS (vagy PASS_WITH_NOTES), Change summary + DoD→Evidence Matrix kitöltve
+      - checklistben csak a valós, bizonyított pontok legyenek kipipálva
+    outputs:
+      - "codex/reports/setup/setup_seed_policy_supabase_seed_sql.md"
+      - "codex/reports/setup/setup_seed_policy_supabase_seed_sql.verify.log"
+      - "codex/codex_checklist/setup/setup_seed_policy_supabase_seed_sql.md"

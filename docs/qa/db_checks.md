@@ -14,6 +14,8 @@
    ```bash
    supabase db reset --local --no-seed
    ```
+   This is intentional: contract checks run seedless for deterministic results, and
+   the repository seed file is a no-op placeholder by policy. See: `docs/qa/seed_policy.md`.
 3. Run the SQL checks:
    ```bash
    ./scripts/check_db.sh
