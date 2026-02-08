@@ -46,8 +46,45 @@ steps:
         END IF;
 
         -- No client/table privileges
-        IF has_table_privilege('PUBLIC', 'public.reward_definitions', 'SELECT') THEN
+        IF EXISTS (
+          SELECT 1
+          FROM information_schema.role_table_grants
+          WHERE grantee = 'PUBLIC'
+            AND table_schema = 'public'
+            AND table_name = 'reward_definitions'
+            AND privilege_type = 'SELECT'
+        ) THEN
           RAISE EXCEPTION 'PUBLIC has SELECT on reward_definitions';
+        END IF;
+        IF EXISTS (
+          SELECT 1
+          FROM information_schema.role_table_grants
+          WHERE grantee = 'PUBLIC'
+            AND table_schema = 'public'
+            AND table_name = 'reward_definitions'
+            AND privilege_type = 'INSERT'
+        ) THEN
+          RAISE EXCEPTION 'PUBLIC has INSERT on reward_definitions';
+        END IF;
+        IF EXISTS (
+          SELECT 1
+          FROM information_schema.role_table_grants
+          WHERE grantee = 'PUBLIC'
+            AND table_schema = 'public'
+            AND table_name = 'reward_definitions'
+            AND privilege_type = 'UPDATE'
+        ) THEN
+          RAISE EXCEPTION 'PUBLIC has UPDATE on reward_definitions';
+        END IF;
+        IF EXISTS (
+          SELECT 1
+          FROM information_schema.role_table_grants
+          WHERE grantee = 'PUBLIC'
+            AND table_schema = 'public'
+            AND table_name = 'reward_definitions'
+            AND privilege_type = 'DELETE'
+        ) THEN
+          RAISE EXCEPTION 'PUBLIC has DELETE on reward_definitions';
         END IF;
 
         IF has_table_privilege('anon', 'public.reward_definitions', 'SELECT') THEN

@@ -47,10 +47,10 @@
 | DoD pont | Státusz | Bizonyíték (path + line) | Magyarázat | Kapcsolódó teszt/ellenőrzés |
 | -------- | ------- | ------------------------ | ---------- | --------------------------- |
 | Létrejött: `bonus_system_reward_definitions_privacy_contract_checks.sql` | PASS | `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql:1` | A privacy contract SQL check létrejött. | SQL check futtatás |
-| FAIL-oljon `anon`/`authenticated` SELECT/INSERT/UPDATE/DELETE esetén | PASS | `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql:67` | A check explicit exception-t dob bármely kliens-jogosultság esetén. | SQL check definíció |
-| FAIL-oljon policy esetén | PASS | `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql:21` | A check explicit `policy_count <> 0` esetén exception-t dob. | SQL check definíció |
+| FAIL-oljon `anon`/`authenticated` SELECT/INSERT/UPDATE/DELETE esetén | PASS | `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql:69` | A check explicit exception-t dob bármely kliens-jogosultság esetén. | SQL check definíció |
+| FAIL-oljon policy esetén | PASS | `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql:23` | A check explicit `policy_count <> 0` esetén exception-t dob. | SQL check definíció |
 | PASS a jelenlegi elvárt állapotban | PASS | `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log:20` | A check lefutott és `bonus_system reward_definitions privacy contract checks passed` kimenetet adott. | `./scripts/check_db.sh` |
-| Doksi hivatkozik a sql_check-re | PASS | `docs/data_model/reward_definitions_table_doc.md:113` | A tesztállapot szekció explicit hivatkozást kapott, plusz a revoke migrációra mutat. | Doksi ellenőrzés |
+| Doksi hivatkozik a sql_check-re | PASS | `docs/data_model/reward_definitions_table_doc.md:111` | A tesztállapot szekció explicit hivatkozást kapott, plusz a revoke migrációra mutat. | Doksi ellenőrzés |
 | DB log rögzítve | PASS | `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log:1` | A DB check teljes kimenete mentve. | tee log |
 | Repo gate rögzítve | PASS | `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.verify.log:1` | A verify futás PASS és a report AUTO_VERIFY blokk frissült. | `./scripts/verify.sh --report ...` |
 
