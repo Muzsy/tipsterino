@@ -245,6 +245,15 @@ Belépés után (first authenticated frame):
   * saját adatok: `auth.uid()` alapú policy
   * közösségi adatok: csak a szükséges public mezők / view-k
 
+## 12) Kijelentkezés (signOut)
+
+Az alkalmazásban a kijelentkezés implementálva van:
+
+* Implementáció: `AuthNotifier.signOut()` (`app/lib/src/features/auth/presentation/state/auth_provider.dart`)
+* Online esetben: Supabase hívás történik (`config.client!.auth.signOut()`), majd a state `AuthStatus.unauthenticated`.
+* Offline fallback: ha a Supabase nincs konfigurálva (`!config.isConfigured || config.client == null`), a notifier közvetlenül `AuthStatus.unauthenticated` állapotra vált.
+* UI hívási pont: `SettingsScreen` kijelentkezés gombja (`app/lib/src/screens/settings_screen.dart`) a `ref.read(authNotifierProvider.notifier).signOut()` hívással.
+
 ---
 
 # 🧪 Tesztállapot

@@ -1,0 +1,39 @@
+steps:
+  - name: "Felderítés és canvas"
+    description: >
+      Ellenőrizd a logout/signOut implementációt és hívási helyeit:
+      `app/lib/src/features/auth/presentation/state/auth_provider.dart` és
+      `app/lib/src/screens/settings_screen.dart`.
+      Ez alapján készítsd el a canvases/registration/registration_v2_auth_signout_documentation.md fájlt
+      a kötelező szekciókkal és pipálható teendőkkel.
+    outputs:
+      - "canvases/registration/registration_v2_auth_signout_documentation.md"
+
+  - name: "Doksi: signOut szekció hozzáadása"
+    description: >
+      Frissítsd a `docs/core_logic/authentication_flow.md` fájlt:
+      adj hozzá egy rövid, konkrét “Kijelentkezés (signOut)” szekciót, amely:
+      - megnevezi az implementációt (`AuthNotifier.signOut()`),
+      - jelzi, hogy Supabase `auth.signOut()` hívás történik,
+      - megadja a UI hívási pontot (`SettingsScreen` gomb),
+      - rögzíti az offline fallback viselkedést (unauthenticated state).
+    outputs:
+      - "docs/core_logic/authentication_flow.md"
+
+  - name: "Checklist és report"
+    description: >
+      Készítsd el a checklistet és a reportot a `docs/codex/report_standard.md` szerint:
+      `codex/codex_checklist/registration/registration_v2_auth_signout_documentation.md`
+      és `codex/reports/registration/registration_v2_auth_signout_documentation.md`.
+      A DoD → Evidence Matrix tartalmazzon konkrét path+line bizonyítékokat a doc és a kód alapján.
+    outputs:
+      - "codex/codex_checklist/registration/registration_v2_auth_signout_documentation.md"
+      - "codex/reports/registration/registration_v2_auth_signout_documentation.md"
+
+  - name: "Repo ellenőrzése (kötelező gate + AUTO_VERIFY)"
+    description: >
+      Futtasd: `./scripts/verify.sh --report codex/reports/registration/registration_v2_auth_signout_documentation.md`.
+      Győződj meg róla, hogy a report AUTO_VERIFY blokkja frissült és a `.verify.log` létrejött.
+    outputs:
+      - "codex/reports/registration/registration_v2_auth_signout_documentation.md"
+      - "codex/reports/registration/registration_v2_auth_signout_documentation.verify.log"
