@@ -15,5 +15,79 @@ Running SQL check: supabase/sql_checks/bonus_system_reward_definitions_privacy_c
 bonus_system reward_definitions privacy contract checks starting...
 BEGIN
 SET
-psql:supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql:95: ERROR:  anon has SELECT on reward_definitions
-CONTEXT:  PL/pgSQL function inline_code_block line 64 at RAISE
+DO
+ROLLBACK
+bonus_system reward_definitions privacy contract checks passed
+Running SQL check: supabase/sql_checks/bonus_system_rpc_daily_bonus_behavior_checks.sql
+bonus_system RPC daily bonus behavior checks
+BEGIN
+DO
+ROLLBACK
+Running SQL check: supabase/sql_checks/bonus_system_rpc_daily_bonus_checks.sql
+bonus_system RPC daily bonus checks
+DO
+DO
+DO
+bonus_system RPC daily bonus checks passed
+Running SQL check: supabase/sql_checks/bonus_system_rpc_daily_bonus_negative_access_checks.sql
+bonus_system RPC daily bonus negative access checks
+BEGIN
+SET
+DO
+DO
+ROLLBACK
+bonus_system RPC daily bonus negative access checks completed
+Running SQL check: supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql
+bonus_system RPC signup bonus behavior checks
+BEGIN
+DO
+ROLLBACK
+bonus_system RPC signup bonus behavior checks completed
+Running SQL check: supabase/sql_checks/bonus_system_rpc_signup_bonus_checks.sql
+bonus_system RPC checks starting...
+DO
+DO
+DO
+bonus_system RPC checks passed
+Running SQL check: supabase/sql_checks/bonus_system_rpc_signup_bonus_negative_access_checks.sql
+bonus_system RPC signup bonus negative access checks
+BEGIN
+SET
+DO
+DO
+ROLLBACK
+bonus_system RPC signup bonus negative access checks completed
+Running SQL check: supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql
+bonus_system user_events DB contract checks
+BEGIN
+SET
+DO
+ROLLBACK
+bonus_system user_events DB contract checks completed
+Running SQL check: supabase/sql_checks/registration_v2_profiles_rls_trigger_checks.sql
+ profiles_table_exists 
+-----------------------
+ t
+(1 row)
+
+ public_profiles_view_exists 
+-----------------------------
+ t
+(1 row)
+
+ nickname_available 
+--------------------
+ t
+(1 row)
+
+ trigger_exists 
+----------------
+ t
+(1 row)
+
+ rls_enabled 
+-------------
+ t
+(1 row)
+
+DB contract checks: PASS

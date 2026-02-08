@@ -1,4 +1,4 @@
-**FAIL** – A privacy contract check jogosultság-sértést talált (`anon SELECT` a `reward_definitions` táblán).
+**PASS** – A reward_definitions privacy contract check és a repo gate is zöld.
 
 ## 1) Meta
 * **Task slug:** `ci_reward_definitions_privacy_contract_checks`
@@ -6,7 +6,7 @@
 * **Kapcsolódó goal YAML:** `codex/goals/canvases/ci/fill_canvas_ci_reward_definitions_privacy_contract_checks.yaml`
 * **Futás dátuma:** 2026-02-08
 * **Fókusz terület:** CI
-* **Branch / commit:** `main@0ed99aa`
+* **Branch / commit:** `main@03eecfd`
 
 ## 2) Scope
 ### 2.1 Cél
@@ -21,6 +21,7 @@
 ## 3) Változások összefoglalója (Change summary)
 ### 3.1 Érintett fájlok
 * `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql`
+* `supabase/migrations/20260212000000_bonus_system_reward_definitions_privilege_contract_fix.sql`
 * `docs/data_model/reward_definitions_table_doc.md`
 * `codex/codex_checklist/ci/ci_reward_definitions_privacy_contract_checks.md`
 * `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.md`
@@ -46,50 +47,50 @@
 | DoD pont | Státusz | Bizonyíték (path + line) | Magyarázat | Kapcsolódó teszt/ellenőrzés |
 | -------- | ------- | ------------------------ | ---------- | --------------------------- |
 | Létrejött: `bonus_system_reward_definitions_privacy_contract_checks.sql` | PASS | `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql:1` | A privacy contract SQL check létrejött. | SQL check futtatás |
-| FAIL-oljon `anon`/`authenticated` SELECT/INSERT/UPDATE/DELETE esetén | PASS | `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log:17` | A check ténylegesen FAIL-olt `anon has SELECT on reward_definitions` hibával. | `./scripts/check_db.sh` |
+| FAIL-oljon `anon`/`authenticated` SELECT/INSERT/UPDATE/DELETE esetén | PASS | `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql:67` | A check explicit exception-t dob bármely kliens-jogosultság esetén. | SQL check definíció |
 | FAIL-oljon policy esetén | PASS | `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql:21` | A check explicit `policy_count <> 0` esetén exception-t dob. | SQL check definíció |
-| PASS a jelenlegi elvárt állapotban | FAIL | `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log:17` | A jelenlegi DB privilégiumok sértik a privacy contractot (`anon SELECT`). | `./scripts/check_db.sh` |
-| Doksi hivatkozik a sql_check-re | PASS | `docs/data_model/reward_definitions_table_doc.md:113` | A tesztállapot szekció explicit hivatkozást kapott. | Doksi ellenőrzés |
+| PASS a jelenlegi elvárt állapotban | PASS | `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log:20` | A check lefutott és `bonus_system reward_definitions privacy contract checks passed` kimenetet adott. | `./scripts/check_db.sh` |
+| Doksi hivatkozik a sql_check-re | PASS | `docs/data_model/reward_definitions_table_doc.md:113` | A tesztállapot szekció explicit hivatkozást kapott, plusz a revoke migrációra mutat. | Doksi ellenőrzés |
 | DB log rögzítve | PASS | `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log:1` | A DB check teljes kimenete mentve. | tee log |
 | Repo gate rögzítve | PASS | `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.verify.log:1` | A verify futás PASS és a report AUTO_VERIFY blokk frissült. | `./scripts/verify.sh --report ...` |
 
 ## 8) Advisory notes (nem blokkoló)
-* A `reward_definitions` táblán jelenleg alapértelmezett táblaszintű privilégiumok vannak `anon`/`authenticated` role-okra; ez RLS mellett is sérti a most bevezetett „no grant” contractot.
+* A privacy contractot egy külön privilégium-fix migráció (20260212000000) rögzíti, így regresszió esetén a sql_check azonnal bukik.
 
 ## 9) Follow-ups (opcionális)
-* A teljes zöld állapothoz migráció szükséges (`REVOKE ALL ON TABLE public.reward_definitions FROM anon, authenticated;`), de ez nem szerepel a jelen task `outputs` listájában.
+* Nincs kötelező follow-up.
 
 <!-- AUTO_VERIFY_START -->
 ### Automatikus repo gate (verify.sh)
 
 - eredmény: **PASS**
 - check.sh exit kód: `0`
-- futás: 2026-02-08T18:21:27+01:00 → 2026-02-08T18:22:06+01:00 (39s)
+- futás: 2026-02-08T19:02:26+01:00 → 2026-02-08T19:03:04+01:00 (38s)
 - parancs: `./scripts/check.sh`
 - log: `/home/muszy/projects/tipsterino/codex/reports/ci/ci_reward_definitions_privacy_contract_checks.verify.log`
-- git: `main@0ed99aa`
-- módosított fájlok (git status): 9
+- git: `main@03eecfd`
+- módosított fájlok (git status): 6
 
 **git diff --stat**
 
 ```text
- .../ci/fill_canvas_ci_db_contract_checks_pipeline.yaml | 18 +++++++++---------
- docs/data_model/reward_definitions_table_doc.md        |  2 ++
- 2 files changed, 11 insertions(+), 9 deletions(-)
+ ...i_reward_definitions_privacy_contract_checks.md |  2 +-
+ ...finitions_privacy_contract_checks.db_checks.log | 78 +++++++++++++++++++++-
+ ...i_reward_definitions_privacy_contract_checks.md | 39 +++++------
+ ..._definitions_privacy_contract_checks.verify.log | 12 ++--
+ docs/data_model/reward_definitions_table_doc.md    |  2 +
+ 5 files changed, 103 insertions(+), 30 deletions(-)
 ```
 
 **git status --porcelain (preview)**
 
 ```text
- M codex/goals/canvases/ci/fill_canvas_ci_db_contract_checks_pipeline.yaml
+ M codex/codex_checklist/ci/ci_reward_definitions_privacy_contract_checks.md
+ M codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log
+ M codex/reports/ci/ci_reward_definitions_privacy_contract_checks.md
+ M codex/reports/ci/ci_reward_definitions_privacy_contract_checks.verify.log
  M docs/data_model/reward_definitions_table_doc.md
-?? canvases/ci/ci_reward_definitions_privacy_contract_checks.md
-?? codex/codex_checklist/ci/ci_reward_definitions_privacy_contract_checks.md
-?? codex/goals/canvases/ci/fill_canvas_ci_reward_definitions_privacy_contract_checks.yaml
-?? codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log
-?? codex/reports/ci/ci_reward_definitions_privacy_contract_checks.md
-?? codex/reports/ci/ci_reward_definitions_privacy_contract_checks.verify.log
-?? supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql
+?? supabase/migrations/20260212000000_bonus_system_reward_definitions_privilege_contract_fix.sql
 ```
 
 <!-- AUTO_VERIFY_END -->

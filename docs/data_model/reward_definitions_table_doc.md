@@ -82,6 +82,8 @@ A pontos összeg kizárólag migrációval állítható.
 - A kliens (anon és authenticated) **nem** olvashatja.
 - A kliens **nem** írhatja.
 - A tábla módosítása kizárólag migrációval történik.
+- A táblaszintű jogosultság contractot explicit revoke migráció védi:
+  `supabase/migrations/20260212000000_bonus_system_reward_definitions_privilege_contract_fix.sql`.
 
 ### SELECT
 - tiltott anon és authenticated számára.

@@ -10,6 +10,6 @@
 - [x] `docs/data_model/reward_definitions_table_doc.md` explicit hivatkozik a SQL check fájlra és a `./scripts/check_db.sh` futtatásra.
 
 ## P2 – DB log + verify + zárás
-- [ ] A check PASS a jelenlegi elvárt állapotban.
+- [x] A check PASS a jelenlegi elvárt állapotban.
 - [x] DB log rögzítve: `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log`.
 - [x] Repo gate rögzítve: `./scripts/verify.sh --report codex/reports/ci/ci_reward_definitions_privacy_contract_checks.md` (+ verify log).
