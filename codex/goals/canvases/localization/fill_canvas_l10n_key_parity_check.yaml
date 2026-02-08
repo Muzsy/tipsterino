@@ -1,0 +1,82 @@
+# FILE: codex/goals/canvases/localization/fill_canvas_l10n_key_parity_check.yaml
+
+steps:
+  - name: "Canvas létrehozása (P1-4 specifikáció)"
+    description: >
+      Hozd létre a P1-4 feladathoz tartozó canvas-t a repó szabvány szerint.
+      Kötelező szekciók: 🎯 Funkció, 🧠 Fejlesztési részletek, 🧪 Tesztállapot, 🌍 Lokalizáció, 📎 Kapcsolódások.
+      Rögzítsd benne a valós fájlutakat: app/lib/l10n/app_en.arb, app/lib/l10n/app_hu.arb,
+      valamint a CI gate útját: .github/workflows/ci.yml -> scripts/check.sh -> scripts/flutter.sh test.
+    outputs:
+      - "canvases/localization/l10n_key_parity_check.md"
+
+  - name: "Unit teszt: ARB key parity + placeholder parity"
+    description: >
+      Hozd létre: app/test/unit/l10n_key_parity_test.dart
+
+      Követelmények:
+      - Olvasd be a két ARB fájlt:
+        - lib/l10n/app_en.arb
+        - lib/l10n/app_hu.arb
+      - Parse-old JSON-ként (dart:convert).
+      - Készíts kulcshalmazt csak a “valós” kulcsokból:
+        - minden olyan key, ami NEM '@'-val kezdődik (tehát az '@key' meta és '@@locale' jellegű kulcsok kimaradnak).
+      - Ellenőrizd, hogy a két halmaz pontosan egyezik.
+        * Ha eltérés van, a hibaüzenet listázza az extra/hiányzó kulcsokat.
+      - Árva meta kulcs guard:
+        * minden '@<k>' meta kulcshoz létezzen '<k>' kulcs (kivéve '@@...' jellegű global meta).
+      - Placeholder parity:
+        * ha egy kulcshoz bármelyik nyelvben van '@<k>' meta és benne 'placeholders',
+          akkor a placeholder név-halmaz mindkét nyelvben egyezzen.
+      - A teszt legyen determinisztikus, és ne függjön Flutter bindingtól (sima test elég).
+
+      Megjegyzés: a scripts/flutter.sh test a repo rootból az app/ alá cd-zik, ezért a fájlok relatív útja a tesztben:
+      - 'lib/l10n/app_en.arb', 'lib/l10n/app_hu.arb'
+    outputs:
+      - "app/test/unit/l10n_key_parity_test.dart"
+
+  - name: "Dokumentáció: localization_logic QA kiegészítése (parity teszt rögzítése)"
+    description: >
+      Frissítsd a docs/localization/localization_logic.md fájlt:
+
+      - A '6) Lokalizációs QA ellenőrzések' (vagy ennek megfelelő) részbe vedd fel,
+        hogy a kulcs-paritást automata unit teszt ellenőrzi:
+        app/test/unit/l10n_key_parity_test.dart
+      - Rögzítsd röviden, mit ellenőriz (key set parity + placeholder parity).
+      - Ne írj hosszú szöveget; csak a kötelező szabályt és a fájlutat.
+    outputs:
+      - "docs/localization/localization_logic.md"
+
+  - name: "Codex checklist + report váz létrehozása"
+    description: >
+      Hozd létre a feladathoz a checklistet és a report vázat a szabvány szerint.
+
+      1) Checklist:
+         - File: codex/codex_checklist/localization/l10n_key_parity_check.md
+         - pipálható DoD lista a canvas DoD pontjai alapján.
+
+      2) Report váz:
+         - File: codex/reports/localization/l10n_key_parity_check.md
+         - kövesd a docs/codex/report_standard.md szerkezetét (Report Standard v2).
+         - kezdeti státusz: FAIL (amíg nem fut verify)
+         - legyen benne AUTO_VERIFY marker blokk (verify.sh frissíti)
+    outputs:
+      - "codex/codex_checklist/localization/l10n_key_parity_check.md"
+      - "codex/reports/localization/l10n_key_parity_check.md"
+
+  - name: "Repo gate (automatikus verify) + report/checklist zárás"
+    description: >
+      Futtasd a standard repo ellenőrzést és rögzítsd a reportban:
+
+      Parancs:
+      ./scripts/verify.sh --report codex/reports/localization/l10n_key_parity_check.md
+
+      Elvárt:
+      - létrejön/frissül: codex/reports/localization/l10n_key_parity_check.verify.log
+      - a report AUTO_VERIFY blokkja frissül
+      - PASS esetén: report státusz PASS (vagy PASS_WITH_NOTES), Change summary + DoD→Evidence Matrix kitöltve
+      - checklistben csak a valós, bizonyított pontok legyenek kipipálva
+    outputs:
+      - "codex/reports/localization/l10n_key_parity_check.md"
+      - "codex/reports/localization/l10n_key_parity_check.verify.log"
+      - "codex/codex_checklist/localization/l10n_key_parity_check.md"

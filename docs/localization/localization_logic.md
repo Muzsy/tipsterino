@@ -144,6 +144,7 @@ Plural csak akkor, ha tényleg szükséges.
 
 * Minden új kulcs legyen mindkét ARB-ben.
 * Ne legyen „árva” kulcs csak az egyik nyelvben.
+* Kötelező automata parity teszt: `app/test/unit/l10n_key_parity_test.dart` (key set parity + placeholder parity + árva meta guard).
 
 ### 6.2 UI ellenőrzés
 
