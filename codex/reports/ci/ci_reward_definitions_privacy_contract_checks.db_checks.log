@@ -1,0 +1,19 @@
+Stopped services: [supabase_imgproxy_tipsterino supabase_pooler_tipsterino]
+A new version of Supabase CLI is available: v2.75.0 (currently installed v2.65.5)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli
+Using DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
+Running SQL check: supabase/sql_checks/bonus_system_db_schema_rls_checks.sql
+bonus_system schema/rls checks starting...
+DO
+DO
+DO
+DO
+DO
+DO
+bonus_system schema/rls checks passed
+Running SQL check: supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql
+bonus_system reward_definitions privacy contract checks starting...
+BEGIN
+SET
+psql:supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql:95: ERROR:  anon has SELECT on reward_definitions
+CONTEXT:  PL/pgSQL function inline_code_block line 64 at RAISE

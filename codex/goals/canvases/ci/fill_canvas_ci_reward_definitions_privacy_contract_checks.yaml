@@ -1,0 +1,140 @@
+steps:
+  - name: "Canvas létrehozása (P0-3 specifikáció)"
+    description: >
+      Hozd létre a P0-3 feladathoz tartozó canvas-t a repo szabvány szerint.
+      Kötelező szekciók: 🎯 Funkció, 🧠 Fejlesztési részletek, 🧪 Tesztállapot, 🌍 Lokalizáció, 📎 Kapcsolódások.
+      A DoD-ben szerepeljen: új sql_check fájl, DB log, repo verify log.
+    outputs:
+      - "canvases/ci/ci_reward_definitions_privacy_contract_checks.md"
+
+  - name: "Új SQL check: reward_definitions privacy contract"
+    description: >
+      Hozd létre a `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql` fájlt.
+      A cél: assertálni, hogy a `public.reward_definitions`:
+      - létezik,
+      - RLS ON,
+      - 0 policy van rajta,
+      - `PUBLIC`, `anon`, `authenticated` nem rendelkezik SELECT/INSERT/UPDATE/DELETE jogosultsággal.
+
+      A fájl teljes tartalma legyen pontosan ez:
+
+      ```sql
+      \\echo 'bonus_system reward_definitions privacy contract checks starting...'
+
+      BEGIN;
+
+      SET LOCAL search_path TO pg_catalog, public, auth;
+
+      DO $$
+      DECLARE
+        policy_count int;
+      BEGIN
+        IF to_regclass('public.reward_definitions') IS NULL THEN
+          RAISE EXCEPTION 'public.reward_definitions is missing';
+        END IF;
+
+        IF NOT (SELECT relrowsecurity FROM pg_class WHERE oid = 'public.reward_definitions'::regclass) THEN
+          RAISE EXCEPTION 'RLS is not enabled on public.reward_definitions';
+        END IF;
+
+        SELECT count(*) INTO policy_count
+        FROM pg_policies
+        WHERE schemaname = 'public' AND tablename = 'reward_definitions';
+
+        IF policy_count <> 0 THEN
+          RAISE EXCEPTION 'reward_definitions must have zero policies (found %)', policy_count;
+        END IF;
+
+        -- No client/table privileges
+        IF has_table_privilege('PUBLIC', 'public.reward_definitions', 'SELECT') THEN
+          RAISE EXCEPTION 'PUBLIC has SELECT on reward_definitions';
+        END IF;
+
+        IF has_table_privilege('anon', 'public.reward_definitions', 'SELECT') THEN
+          RAISE EXCEPTION 'anon has SELECT on reward_definitions';
+        END IF;
+        IF has_table_privilege('anon', 'public.reward_definitions', 'INSERT') THEN
+          RAISE EXCEPTION 'anon has INSERT on reward_definitions';
+        END IF;
+        IF has_table_privilege('anon', 'public.reward_definitions', 'UPDATE') THEN
+          RAISE EXCEPTION 'anon has UPDATE on reward_definitions';
+        END IF;
+        IF has_table_privilege('anon', 'public.reward_definitions', 'DELETE') THEN
+          RAISE EXCEPTION 'anon has DELETE on reward_definitions';
+        END IF;
+
+        IF has_table_privilege('authenticated', 'public.reward_definitions', 'SELECT') THEN
+          RAISE EXCEPTION 'authenticated has SELECT on reward_definitions';
+        END IF;
+        IF has_table_privilege('authenticated', 'public.reward_definitions', 'INSERT') THEN
+          RAISE EXCEPTION 'authenticated has INSERT on reward_definitions';
+        END IF;
+        IF has_table_privilege('authenticated', 'public.reward_definitions', 'UPDATE') THEN
+          RAISE EXCEPTION 'authenticated has UPDATE on reward_definitions';
+        END IF;
+        IF has_table_privilege('authenticated', 'public.reward_definitions', 'DELETE') THEN
+          RAISE EXCEPTION 'authenticated has DELETE on reward_definitions';
+        END IF;
+      END;
+      $$;
+
+      ROLLBACK;
+
+      \\echo 'bonus_system reward_definitions privacy contract checks passed'
+      ```
+    outputs:
+      - "supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql"
+
+  - name: "Doksi frissítés: reward_definitions_table_doc hivatkozás a sql_check-re"
+    description: >
+      Frissítsd a `docs/data_model/reward_definitions_table_doc.md` fájlt.
+      A 🧪 Tesztállapot szekcióban add hozzá, hogy a szerződés automatikusan ellenőrzött a
+      `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql` fájllal,
+      és hogy a futtatás a `./scripts/check_db.sh` (P0-2) részeként történik.
+      Ne írj át mást, csak ezt a hivatkozást tedd explicitté.
+    outputs:
+      - "docs/data_model/reward_definitions_table_doc.md"
+
+  - name: "Codex checklist + report váz létrehozása"
+    description: >
+      Hozd létre a checklistet és a report vázat a szabvány szerint.
+
+      1) Checklist: a canvas DoD pontjai 1:1-ben, pipálható listában.
+         File: codex/codex_checklist/ci/ci_reward_definitions_privacy_contract_checks.md
+
+      2) Report: kövesse a `docs/codex/report_standard.md` szerkezetét (Report Standard v2),
+         legyen benne hely DB log és verify log hivatkozásnak, kezdő státusz FAIL.
+         File: codex/reports/ci/ci_reward_definitions_privacy_contract_checks.md
+    outputs:
+      - "codex/codex_checklist/ci/ci_reward_definitions_privacy_contract_checks.md"
+      - "codex/reports/ci/ci_reward_definitions_privacy_contract_checks.md"
+
+  - name: "DB checks futtatás + log mentése"
+    description: >
+      Futtasd a DB contract ellenőrzést lokál Supabase-szal, majd ments logot:
+
+      - `supabase start`
+      - `supabase db reset --local --no-seed`
+      - `./scripts/check_db.sh | tee codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log`
+
+      A report Verifikáció szekciójában rögzítsd az eredményt és hivatkozz a log fájlra.
+    outputs:
+      - "codex/reports/ci/ci_reward_definitions_privacy_contract_checks.db_checks.log"
+      - "codex/reports/ci/ci_reward_definitions_privacy_contract_checks.md"
+
+  - name: "Repo gate (verify) + report/checklist zárás"
+    description: >
+      Futtasd a standard repo gate-et:
+      `./scripts/verify.sh --report codex/reports/ci/ci_reward_definitions_privacy_contract_checks.md`
+
+      Ez létrehozza:
+      `codex/reports/ci/ci_reward_definitions_privacy_contract_checks.verify.log`
+
+      Zárás:
+      - Report státusz PASS csak akkor, ha a DB log PASS és a verify is PASS.
+      - Töltsd ki a Change summary-t és a DoD → Evidence Matrix táblát (valós fájlútvonal + line range).
+      - Checklistben csak a ténylegesen teljesült pontokat pipáld.
+    outputs:
+      - "codex/reports/ci/ci_reward_definitions_privacy_contract_checks.md"
+      - "codex/reports/ci/ci_reward_definitions_privacy_contract_checks.verify.log"
+      - "codex/codex_checklist/ci/ci_reward_definitions_privacy_contract_checks.md"

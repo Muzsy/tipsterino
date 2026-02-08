@@ -106,6 +106,8 @@ Kötelező ellenőrzések:
 - authenticated felhasználó nem tud SELECT-et.
 - kliens nem tud INSERT/UPDATE/DELETE műveletet.
 - szerveroldali folyamat hibát kezel, ha hiányzik a `signup_bonus` rekord vagy `enabled=false`.
+- A privacy szerződés automatikus SQL checkje: `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql`.
+- A check futtatása a `./scripts/check_db.sh` (P0-2) részeként történik.
 
 ## 🌍 Lokalizáció
 A `reward_definitions` nem tartalmaz lokalizált szöveget.

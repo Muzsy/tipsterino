@@ -48,21 +48,21 @@ steps:
 
       # Try JSON output if available
       if supabase status --output json >/dev/null 2>&1; then
-        DB_URL="$(supabase status --output json | python3 - <<'PY'
-      import sys, json
+        # Avoid SIGPIPE with pipefail by parsing from a stored JSON snapshot.
+        STATUS_JSON="$(supabase status --output json || true)"
+        DB_URL="$(python3 -c 'import json,sys
       try:
-          data = json.load(sys.stdin)
+          data=json.loads(sys.stdin.read() or "{}")
       except Exception:
           print("")
           raise SystemExit(0)
-
-      for k in ["DB_URL", "db_url", "database_url", "DATABASE_URL"]:
-          if k in data and isinstance(data[k], str) and data[k].strip():
-              print(data[k].strip())
+      for k in ["DB_URL","db_url","database_url","DATABASE_URL"]:
+          v=data.get(k)
+          if isinstance(v,str) and v.strip():
+              print(v.strip())
               raise SystemExit(0)
       print("")
-      PY
-      )"
+      ' <<< "$STATUS_JSON")"
       fi
 
       # Fallback: parse text output
