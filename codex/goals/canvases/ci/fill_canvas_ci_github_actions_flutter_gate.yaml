@@ -5,12 +5,12 @@ steps:
       a cél/nem-cél, érintett fájlok, DoD, kockázat/rollback, teszt terv részeket.
       Kötelező szekciók: 🎯 Funkció, 🧠 Fejlesztési részletek, 🧪 Tesztállapot, 🌍 Lokalizáció, 📎 Kapcsolódások.
     outputs:
-      - "canvases/ci/ci_pipeline_flutter_quality_gate.md"
+      - "canvases/ci/ci_github_actions_flutter_gate.md"
 
   - name: "verify.sh futtathatóvá tétele (executable bit)"
     description: >
-      A repo állapotában a scripts/verify.sh jelenleg nem futtatható `./scripts/verify.sh` formában,
-      mert nincs executable bitje. Állítsd be executable-re és rögzítsd gitben is (chmod +x).
+      A scripts/verify.sh-nek futtathatónak kell lennie `./scripts/verify.sh` formában.
+      Ha nem az, állítsd be executable-re és rögzítsd gitben is (chmod +x scripts/verify.sh).
       Ellenőrzés (nem közvetlen flutter!): `./scripts/verify.sh --help` sikeresen fusson.
       A fájl tartalmát nem kell átírni, csak a futtathatóságot javítsd.
     outputs:
@@ -67,23 +67,23 @@ steps:
       Hozd létre a checklistet és a report vázat a szabvány szerint.
 
       1) Checklist: legyen pipálható DoD lista (a canvas DoD pontjai 1:1-ben).
-         File: codex/codex_checklist/ci/ci_pipeline_flutter_quality_gate.md
+         File: codex/codex_checklist/ci/ci_github_actions_flutter_gate.md
 
       2) Report váz: kövesd a `docs/codex/report_standard.md` szerkezetét (Report Standard v2).
          A report elején legyen státusz (kezdetben legyen FAIL, amíg nincs verify futás).
          Tartalmazzon egy üres/placeholder AUTO_VERIFY blokkot is (a verify.sh úgyis felülírja / hozzáadja).
-         File: codex/reports/ci/ci_pipeline_flutter_quality_gate.md
+         File: codex/reports/ci/ci_github_actions_flutter_gate.md
     outputs:
-      - "codex/codex_checklist/ci/ci_pipeline_flutter_quality_gate.md"
-      - "codex/reports/ci/ci_pipeline_flutter_quality_gate.md"
+      - "codex/codex_checklist/ci/ci_github_actions_flutter_gate.md"
+      - "codex/reports/ci/ci_github_actions_flutter_gate.md"
 
   - name: "Repo gate (automatikus verify) + report/checklist zárás"
     description: >
       Futtasd a standard ellenőrzést a wrapperen keresztül:
-      `./scripts/verify.sh --report codex/reports/ci/ci_pipeline_flutter_quality_gate.md`
+      `./scripts/verify.sh --report codex/reports/ci/ci_github_actions_flutter_gate.md`
 
       Ez létrehozza a logot és frissíti a report AUTO_VERIFY blokkját:
-      `codex/reports/ci/ci_pipeline_flutter_quality_gate.verify.log`
+      `codex/reports/ci/ci_github_actions_flutter_gate.verify.log`
 
       Ezután:
       - Ha a verify PASS: állítsd a report státuszt PASS-ra, töltsd ki röviden a Change summary-t,
@@ -94,6 +94,6 @@ steps:
 
       Fontos: ne futtass közvetlen `flutter ...` parancsokat; csak a wrapperen keresztül menjen a gate.
     outputs:
-      - "codex/reports/ci/ci_pipeline_flutter_quality_gate.md"
-      - "codex/reports/ci/ci_pipeline_flutter_quality_gate.verify.log"
-      - "codex/codex_checklist/ci/ci_pipeline_flutter_quality_gate.md"
+      - "codex/reports/ci/ci_github_actions_flutter_gate.md"
+      - "codex/reports/ci/ci_github_actions_flutter_gate.verify.log"
+      - "codex/codex_checklist/ci/ci_github_actions_flutter_gate.md"

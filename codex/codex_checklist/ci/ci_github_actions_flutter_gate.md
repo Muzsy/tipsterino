@@ -2,7 +2,7 @@
 
 ## P0 – Canvas + YAML
 - [x] A `canvases/ci/ci_github_actions_flutter_gate.md` leírja a GitHub Actions CI minőségi kapuját (scope, DoD, teszt terv, kockázat, rollback).
-- [x] A `codex/goals/canvases/fill_canvas_ci_github_actions_flutter_gate.yaml` lépései pontosan meghatározzák a megvalósítás + gate flow-t.
+- [x] A `codex/goals/canvases/ci/fill_canvas_ci_github_actions_flutter_gate.yaml` lépései pontosan meghatározzák a megvalósítás + gate flow-t.
 
 ## P1 – Workflow + script
 - [x] `.github/workflows/ci.yml` létrejött, a `Flutter gate (check.sh)` job a `pull_request`, `push` és `workflow_dispatch` trigger-eken fut, és `./scripts/check.sh`-t hívja.

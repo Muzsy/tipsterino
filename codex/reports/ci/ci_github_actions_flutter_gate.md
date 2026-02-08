@@ -3,7 +3,7 @@
 ## 1) Meta
 * **Task slug:** `ci_github_actions_flutter_gate`
 * **Kapcsolódó canvas:** `canvases/ci/ci_github_actions_flutter_gate.md`
-* **Kapcsolódó goal YAML:** `codex/goals/canvases/fill_canvas_ci_github_actions_flutter_gate.yaml`
+* **Kapcsolódó goal YAML:** `codex/goals/canvases/ci/fill_canvas_ci_github_actions_flutter_gate.yaml`
 * **Futás dátuma:** 2026-02-08
 * **Branch / commit:** `main@f58d0f6`
 * **Fókusz terület:** Docs
@@ -50,28 +50,31 @@
 
 - eredmény: **PASS**
 - check.sh exit kód: `0`
-- futás: 2026-02-08T15:14:16+01:00 → 2026-02-08T15:14:52+01:00 (36s)
+- futás: 2026-02-08T15:42:17+01:00 → 2026-02-08T15:42:49+01:00 (32s)
 - parancs: `./scripts/check.sh`
 - log: `/home/muszy/projects/tipsterino/codex/reports/ci/ci_github_actions_flutter_gate.verify.log`
-- git: `main@f58d0f6`
-- módosított fájlok (git status): 6
+- git: `main@a278a56`
+- módosított fájlok (git status): 5
 
 **git diff --stat**
 
 ```text
- scripts/verify.sh | 0
- 1 file changed, 0 insertions(+), 0 deletions(-)
+ canvases/ci/ci_github_actions_flutter_gate.md      | 16 +++++++--------
+ .../ci/ci_github_actions_flutter_gate.md           |  2 +-
+ ...fill_canvas_ci_github_actions_flutter_gate.yaml | 24 +++++++++++-----------
+ codex/reports/ci/ci_github_actions_flutter_gate.md |  2 +-
+ .../ci/ci_github_actions_flutter_gate.verify.log   | 14 ++++++-------
+ 5 files changed, 29 insertions(+), 29 deletions(-)
 ```
 
 **git status --porcelain (preview)**
 
 ```text
- M scripts/verify.sh
-?? .github/
-?? canvases/ci/
-?? codex/codex_checklist/ci/
-?? codex/goals/canvases/ci/
-?? codex/reports/ci/
+ M canvases/ci/ci_github_actions_flutter_gate.md
+ M codex/codex_checklist/ci/ci_github_actions_flutter_gate.md
+ M codex/goals/canvases/ci/fill_canvas_ci_github_actions_flutter_gate.yaml
+ M codex/reports/ci/ci_github_actions_flutter_gate.md
+ M codex/reports/ci/ci_github_actions_flutter_gate.verify.log
 ```
 
 <!-- AUTO_VERIFY_END -->

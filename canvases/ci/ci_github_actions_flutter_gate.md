@@ -11,13 +11,13 @@ Nem cél:
 ## 🧠 Fejlesztési részletek
 ### Érintett / létrejövő fájlok
 - Új: `.github/workflows/ci.yml`
-- Mód: `scripts/verify.sh` (jelenleg nem futtatható `./scripts/verify.sh` formában, mert **nem executable** a repo állapotában)
+- Mód: `scripts/verify.sh` (követelmény: futtatható legyen `./scripts/verify.sh` formában; ha nem, `chmod +x scripts/verify.sh`)
 - Új artefaktok ehhez a taskhoz:
-  - `canvases/ci/ci_pipeline_flutter_quality_gate.md`
-  - `codex/goals/canvases/ci/fill_canvas_ci_pipeline_flutter_quality_gate.yaml`
-  - `codex/codex_checklist/ci/ci_pipeline_flutter_quality_gate.md`
-  - `codex/reports/ci/ci_pipeline_flutter_quality_gate.md`
-  - `codex/reports/ci/ci_pipeline_flutter_quality_gate.verify.log` (auto)
+  - `canvases/ci/ci_github_actions_flutter_gate.md`
+  - `codex/goals/canvases/ci/fill_canvas_ci_github_actions_flutter_gate.yaml`
+  - `codex/codex_checklist/ci/ci_github_actions_flutter_gate.md`
+  - `codex/reports/ci/ci_github_actions_flutter_gate.md`
+  - `codex/reports/ci/ci_github_actions_flutter_gate.verify.log` (auto)
 
 ### CI elvárt viselkedés
 - Trigger: `pull_request`, `push`, + opcionális `workflow_dispatch`.
@@ -41,12 +41,12 @@ A workflow önmagában lefut, de “kötelező” státuszcheck csak GitHub olda
 - [ ] `.github/workflows/ci.yml` létrehozva (push + PR + manual run).
 - [ ] Workflow a `./scripts/check.sh`-t futtatja, hibára piros.
 - [ ] `scripts/verify.sh` futtatható: `./scripts/verify.sh --help` (executable bit rendben).
-- [ ] Repo gate futtatva és rögzítve: `./scripts/verify.sh --report codex/reports/ci/ci_pipeline_flutter_quality_gate.md` (PASS/FAIL a reportban + `.verify.log` megvan).
+- [ ] Repo gate futtatva és rögzítve: `./scripts/verify.sh --report codex/reports/ci/ci_github_actions_flutter_gate.md` (PASS/FAIL a reportban + `.verify.log` megvan).
 - [ ] (KÉZI) Branch protection: required status check beállítva `CI / Flutter gate (check.sh)`.
 
 ## 🧪 Tesztállapot
 - Kötelező (task zárás):  
-  `./scripts/verify.sh --report codex/reports/ci/ci_pipeline_flutter_quality_gate.md`
+  `./scripts/verify.sh --report codex/reports/ci/ci_github_actions_flutter_gate.md`
 - Lokál gyors kapu (fallback):  
   `./scripts/check.sh`
 
