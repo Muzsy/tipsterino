@@ -45,10 +45,12 @@ jobs:
 
       - name: Start Supabase local stack
         run: |
-          supabase start --no-attach
-          # wait for stack to be healthy
+          supabase start >/tmp/supabase.log 2>&1 &
+          echo $! > /tmp/supabase.pid
           for i in {1..20}; do
-            supabase status >/dev/null 2>&1 && break
+            if supabase status >/dev/null 2>&1; then
+              break
+            fi
             sleep 3
           done
           supabase status
@@ -63,4 +65,8 @@ jobs:
           ./scripts/check_db.sh
       - name: Stop Supabase local stack
         if: always()
-        run: supabase stop
+        run: |
+          if [[ -f /tmp/supabase.pid ]]; then
+            supabase stop >/tmp/supabase.log 2>&1 || true
+            kill "$(cat /tmp/supabase.pid)" >/dev/null 2>&1 || true
+          fi
