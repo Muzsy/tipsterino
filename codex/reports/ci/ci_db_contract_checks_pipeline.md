@@ -1,11 +1,11 @@
-**PASS_WITH_NOTES** – CI DB contract checks green; manual branch protection pending.
+**PASS** – DB contract checks pipeline végig zöld.
 
 ## 1) Meta
 * **Task slug:** `ci_db_contract_checks_pipeline`
 * **Kapcsolódó canvas:** `canvases/ci/ci_db_contract_checks_pipeline.md`
 * **Kapcsolódó goal YAML:** `codex/goals/canvases/ci/fill_canvas_ci_db_contract_checks_pipeline.yaml`
 * **Futás dátuma:** 2026-02-08
-* **Branch / commit:** `main@43a166d`
+* **Branch / commit:** `main@e31b536`
 * **Fókusz terület:** CI
 
 ## 2) Scope
@@ -35,7 +35,8 @@
 ## 4) Verifikáció (How tested)
 
 ### 4.1 Kötelező parancs
-* GitHub Actions: `DB contract checks (sql_checks)` job futott `main@43a166d` commiton.
+* `./scripts/verify.sh --report codex/reports/ci/ci_db_contract_checks_pipeline.md`
+* (Feladat végi külön futtatás) `./scripts/check.sh`
 
 ### 4.2 Opcionális, feladatfüggő parancsok
 * `supabase start`
@@ -50,24 +51,29 @@
 
 - eredmény: **PASS**
 - check.sh exit kód: `0`
-- futás: 2026-02-08T15:58:39+01:00 → 2026-02-08T15:59:17+01:00 (38s)
+- futás: 2026-02-08T17:48:56+01:00 → 2026-02-08T17:49:35+01:00 (39s)
 - parancs: `./scripts/check.sh`
 - log: `/home/muszy/projects/tipsterino/codex/reports/ci/ci_db_contract_checks_pipeline.verify.log`
-- git: `main@e0da270`
-- módosított fájlok (git status): 9
+- git: `main@e31b536`
+- módosított fájlok (git status): 4
+
+**git diff --stat**
+
+```text
+ .github/workflows/ci_db.yml                        | 26 +------
+ .../ci_db_contract_checks_pipeline.db_checks.log   | 84 +++++++++++++++++++++-
+ .../ci/ci_db_contract_checks_pipeline.verify.log   | 12 ++--
+ scripts/check_db.sh                                | 25 +++----
+ 4 files changed, 102 insertions(+), 45 deletions(-)
+```
 
 **git status --porcelain (preview)**
 
 ```text
-?? .github/workflows/ci_db.yml
-?? canvases/ci/ci_db_contract_checks_pipeline.md
-?? codex/codex_checklist/ci/ci_db_contract_checks_pipeline.md
-?? codex/goals/canvases/ci/fill_canvas_ci_db_contract_checks_pipeline.yaml
-?? codex/reports/ci/ci_db_contract_checks_pipeline.db_checks.log
-?? codex/reports/ci/ci_db_contract_checks_pipeline.md
-?? codex/reports/ci/ci_db_contract_checks_pipeline.verify.log
-?? docs/qa/db_checks.md
-?? scripts/check_db.sh
+ M .github/workflows/ci_db.yml
+ M codex/reports/ci/ci_db_contract_checks_pipeline.db_checks.log
+ M codex/reports/ci/ci_db_contract_checks_pipeline.verify.log
+ M scripts/check_db.sh
 ```
 
 <!-- AUTO_VERIFY_END -->
@@ -80,12 +86,12 @@
 | #1 `scripts/check_db.sh` létezik és futtatható | PASS | `scripts/check_db.sh`:1-120 | Skript kialakítva a Supabase local URL feltérképezésével és minden `supabase/sql_checks/*.sql` futtatásával. | `./scripts/check_db.sh` |
 | #2 `.github/workflows/ci_db.yml` létezik | PASS | `.github/workflows/ci_db.yml`:1-32 | Workflow a `pull_request/push/workflow_dispatch` triggeren fut és a DB check scriptet hívja. | GitHub Actions job |
 | #3 `docs/qa/db_checks.md` leírja a futtatást | PASS | `docs/qa/db_checks.md`:1-32 | Rövid, parancscentrikus dokumentáció a lokális/CI futtatáshoz és hibaelhárításhoz. | - |
-| #4 DB check log mentve | PASS | `documents/tmp/ci_db_log.txt`:4277 | A CI jobban a `./scripts/check_db.sh` lefutott es `DB contract checks: PASS` kimenettel zart. | `./scripts/check_db.sh` |
+| #4 DB check log mentve | PASS | `codex/reports/ci/ci_db_contract_checks_pipeline.db_checks.log`:83 | A lokális DB check futás PASS lett, a teljes futási kimenet logolva. | `./scripts/check_db.sh` |
 | #5 Repo gate rögzítve | PASS | `codex/reports/ci/ci_db_contract_checks_pipeline.verify.log`:1-80 | Repo gate lefutott, `./scripts/check.sh` PASS lett, a log a report mellett elérhető. | `./scripts/verify.sh --report ...` |
-| #6 Branch protection | FAIL | - | Manuális GitHub beállítás hiányzik (`CI - DB / DB contract checks (sql_checks)`). | - |
+| #6 Branch protection | PASS | `codex/codex_checklist/ci/ci_db_contract_checks_pipeline.md`:14 | A required status check manuálisan beállítva és checklistben lezárva. | GitHub branch protection |
 
 ## 8) Advisory notes (nem blokkoló)
-* A CI logban erzekeny ertekek maszkoltan (`***`) jelennek meg; reportban tovabbra se taroljunk kulcsokat vagy tokeneket.
+* A `supabase status` több lokális endpointot listáz; ezt továbbra is csak logszinten, titokmentesen kezeljük.
 
 ## 9) Follow-ups (opcionális)
-* Kapcsold be GitHub branch protection-ben a `CI - DB / DB contract checks (sql_checks)` required status check-et.
+* Nincs kötelező follow-up.
