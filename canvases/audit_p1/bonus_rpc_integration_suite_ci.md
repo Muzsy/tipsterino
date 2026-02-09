@@ -22,11 +22,12 @@ Tervezett kimenetek:
 - uj integration test suite: `app/integration_test/bonus_rpc_integration_test.dart`
 - CI futtatasi lepesek frissitese: `.github/workflows/ci_db.yml`
 - teszt workflow dokumentacio: `docs/qa/testing_guidelines.md`
+- CI futtatasi parancs: `./scripts/flutter.sh test integration_test/bonus_rpc_integration_test.dart -d linux --dart-define=BONUS_TEST_EMAIL=... --dart-define=BONUS_TEST_PASSWORD=...`
 
 DoD:
 - [ ] letezik bonus RPC integration teszt, ami lefedi a signup + daily bonus critical reason kodokat
 - [ ] a teszt suite CI-ben fut (Supabase local stack + app integration test)
-- [ ] a futtatasi sorrend deterministic (db reset -> check_db -> integration)
+- [ ] a futtatasi sorrend deterministic (db reset -> check_db -> CI auth user provision + sign-in validation -> integration)
 - [ ] reportban kulon bizonyitek van az integration futasrol
 
 Kockazat/rollback:

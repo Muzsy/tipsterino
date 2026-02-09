@@ -82,6 +82,15 @@ Minimum:
 
 **Fontos:** automata tesztben ne függj élő Supabase környezettől, kivéve ha külön „e2e” suite van.
 
+#### Bonus RPC integracios elvaras (P1)
+
+* A bonus RPC-khez (`grant_signup_bonus_if_eligible`, `grant_daily_bonus_if_eligible`) legyen dedikalt integration suite:
+  * `app/integration_test/bonus_rpc_integration_test.dart`
+* CI DB gate-ben a sorrend legyen determinisztikus:
+  * `supabase db reset --local --no-seed` -> `./scripts/check_db.sh` -> CI auth user provision + sign-in validation -> `./scripts/flutter.sh test integration_test/bonus_rpc_integration_test.dart -d linux --dart-define=BONUS_TEST_EMAIL=... --dart-define=BONUS_TEST_PASSWORD=...`
+* A CI workflow referencia: `.github/workflows/ci_db.yml`
+* Lokalis sokszori integration futtatasnal a `supabase/config.toml` `auth.rate_limit.email_sent` legyen eleg magas, hogy a signup alapu teszt ne legyen flaky.
+
 ---
 
 ## 4) Tesztstruktúra és naming

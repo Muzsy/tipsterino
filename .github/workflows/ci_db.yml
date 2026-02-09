@@ -22,6 +22,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
@@ -32,6 +38,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y postgresql-client
 
+      - name: Install Linux desktop build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev lld
+
       - name: Start Supabase local stack
         run: supabase start
 
@@ -40,3 +51,155 @@ jobs:
 
       - name: Run DB contract checks (sql_checks)
         run: ./scripts/check_db.sh
+
+      - name: Prepare app/.env for integration tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          API_URL=""
+          ANON_KEY=""
+          SERVICE_ROLE_KEY=""
+
+          if supabase status --output json >/dev/null 2>&1; then
+            STATUS_JSON="$(supabase status --output json || true)"
+            API_URL="$(python3 -c 'import json,sys
+try:
+    data=json.loads(sys.stdin.read() or "{}")
+except Exception:
+    print("")
+    raise SystemExit(0)
+for k in ("API_URL","api_url"):
+    v=data.get(k)
+    if isinstance(v,str) and v.strip():
+        print(v.strip())
+        raise SystemExit(0)
+print("")
+' <<< "$STATUS_JSON")"
+            ANON_KEY="$(python3 -c 'import json,sys
+try:
+    data=json.loads(sys.stdin.read() or "{}")
+except Exception:
+    print("")
+    raise SystemExit(0)
+for k in ("ANON_KEY","anon_key"):
+    v=data.get(k)
+    if isinstance(v,str) and v.strip():
+        print(v.strip())
+        raise SystemExit(0)
+print("")
+' <<< "$STATUS_JSON")"
+            SERVICE_ROLE_KEY="$(python3 -c 'import json,sys
+try:
+    data=json.loads(sys.stdin.read() or "{}")
+except Exception:
+    print("")
+    raise SystemExit(0)
+for k in ("SERVICE_ROLE_KEY","service_role_key"):
+    v=data.get(k)
+    if isinstance(v,str) and v.strip():
+        print(v.strip())
+        raise SystemExit(0)
+print("")
+' <<< "$STATUS_JSON")"
+          fi
+
+          if [[ -z "$API_URL" || -z "$ANON_KEY" || -z "$SERVICE_ROLE_KEY" ]]; then
+            STATUS_TEXT="$(supabase status || true)"
+            if [[ -z "$API_URL" ]]; then
+              API_URL="$(printf '%s\n' "$STATUS_TEXT" | grep -i '^API URL:' | head -n1 | sed 's/^[^:]*:[[:space:]]*//')"
+            fi
+            if [[ -z "$ANON_KEY" ]]; then
+              ANON_KEY="$(printf '%s\n' "$STATUS_TEXT" | grep -i '^anon key:' | head -n1 | sed 's/^[^:]*:[[:space:]]*//')"
+            fi
+            if [[ -z "$SERVICE_ROLE_KEY" ]]; then
+              SERVICE_ROLE_KEY="$(printf '%s\n' "$STATUS_TEXT" | grep -i '^service_role key:' | head -n1 | sed 's/^[^:]*:[[:space:]]*//')"
+            fi
+          fi
+
+          if [[ -z "$API_URL" || -z "$ANON_KEY" || -z "$SERVICE_ROLE_KEY" ]]; then
+            echo "ERROR: Failed to resolve API_URL/ANON_KEY/SERVICE_ROLE_KEY from supabase status."
+            exit 1
+          fi
+
+          BONUS_TEST_EMAIL="bonus-integration-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}@example.com"
+          BONUS_TEST_PASSWORD="ValidP@ss1"
+          export API_URL ANON_KEY SERVICE_ROLE_KEY BONUS_TEST_EMAIL BONUS_TEST_PASSWORD
+
+          # CI-only provisioning avoids flaky signup email rate-limits in integration tests.
+          python3 - <<'PY'
+import json
+import os
+import urllib.request
+
+api_url = os.environ["API_URL"]
+service_role_key = os.environ["SERVICE_ROLE_KEY"]
+email = os.environ["BONUS_TEST_EMAIL"]
+password = os.environ["BONUS_TEST_PASSWORD"]
+
+payload = json.dumps(
+    {
+        "email": email,
+        "password": password,
+        "email_confirm": True,
+        "user_metadata": {
+            "nickname": "ci_bonus_user",
+            "avatar_key": "default",
+        },
+    }
+).encode("utf-8")
+
+create_request = urllib.request.Request(
+    url=f"{api_url}/auth/v1/admin/users",
+    data=payload,
+    headers={
+        "apikey": service_role_key,
+        "Authorization": f"Bearer {service_role_key}",
+        "Content-Type": "application/json",
+    },
+    method="POST",
+)
+
+with urllib.request.urlopen(create_request) as response:
+    if response.status not in (200, 201):
+        raise RuntimeError(f"Failed provisioning bonus integration user: HTTP {response.status}")
+
+signin_payload = json.dumps(
+    {
+        "email": email,
+        "password": password,
+    }
+).encode("utf-8")
+
+signin_request = urllib.request.Request(
+    url=f"{api_url}/auth/v1/token?grant_type=password",
+    data=signin_payload,
+    headers={
+        "apikey": os.environ["ANON_KEY"],
+        "Content-Type": "application/json",
+    },
+    method="POST",
+)
+
+with urllib.request.urlopen(signin_request) as response:
+    if response.status != 200:
+        raise RuntimeError(f"Provisioned user sign-in failed: HTTP {response.status}")
+PY
+
+          cat > app/.env <<EOF
+          SUPABASE_URL=$API_URL
+          SUPABASE_ANON_KEY=$ANON_KEY
+          EOF
+
+          {
+            echo "SUPABASE_URL=$API_URL"
+            echo "SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "BONUS_TEST_EMAIL=$BONUS_TEST_EMAIL"
+            echo "BONUS_TEST_PASSWORD=$BONUS_TEST_PASSWORD"
+          } >> "$GITHUB_ENV"
+
+      - name: Run bonus RPC integration test
+        run: |
+          ./scripts/flutter.sh test integration_test/bonus_rpc_integration_test.dart -d linux \
+            --dart-define=BONUS_TEST_EMAIL="${BONUS_TEST_EMAIL}" \
+            --dart-define=BONUS_TEST_PASSWORD="${BONUS_TEST_PASSWORD}"
