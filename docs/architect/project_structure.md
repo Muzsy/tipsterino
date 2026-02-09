@@ -123,8 +123,8 @@ lib/
 
 ### 4) Átmeneti (migrációs) szabály – a jelenlegi zip miatt
 
-A feltöltött projektben még létezik:
-- `lib/src/screens/`
+A projektben a screen migracio mar lezart, a `lib/src/screens/` gyujto mappa megszunt.
+Atmenetileg meg elofordulhat:
 - `lib/src/providers/`
 - `lib/src/router/`
 - `lib/src/theme/`
@@ -134,7 +134,7 @@ A feltöltött projektben még létezik:
 - fokozatosan átköltöztetjük őket az új struktúrába:
 
 **Mapping:**
-- `src/screens/<feature>/...` → `src/features/<feature>/presentation/screens/...`
+- `src/screens/<feature>/...` → `src/features/<feature>/presentation/screens/...` *(lezart)*
 - `src/providers/<feature>_provider.dart` → `src/features/<feature>/presentation/state/...` *(vagy `src/core/...`, ha tényleg cross-cutting)*
 - `src/router/...` → `src/app/router/...`
 - `src/theme/...` → `src/shared/theme/...`

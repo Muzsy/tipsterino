@@ -9,12 +9,12 @@ Nem cel:
 
 ## 🧠 Fejlesztesi reszletek
 Valos forrasok:
-- `app/lib/src/screens/home_screen.dart`
-- `app/lib/src/screens/bets_screen.dart`
-- `app/lib/src/screens/forum_screen.dart`
-- `app/lib/src/screens/guest_info_screen.dart`
-- `app/lib/src/screens/profile_screen.dart`
-- `app/lib/src/screens/settings_screen.dart`
+- `app/lib/src/features/home/presentation/screens/home_screen.dart`
+- `app/lib/src/features/bets/presentation/screens/bets_screen.dart`
+- `app/lib/src/features/forum/presentation/screens/forum_screen.dart`
+- `app/lib/src/features/guest_info/presentation/screens/guest_info_screen.dart`
+- `app/lib/src/features/profile/presentation/screens/profile_screen.dart`
+- `app/lib/src/features/settings/presentation/screens/settings_screen.dart`
 - `app/lib/src/app/router/app_router.dart`
 - `app/test/widget/guest_routing_shells_test.dart`
 - `docs/architect/project_structure.md`

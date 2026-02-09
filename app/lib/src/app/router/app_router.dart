@@ -8,12 +8,12 @@ import 'package:tipsterino/src/features/auth/presentation/screens/login_screen.d
 import 'package:tipsterino/src/features/auth/presentation/screens/verify_email_pending_screen.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
 import 'package:tipsterino/src/features/events/presentation/screens/events_inbox_screen.dart';
-import '../../screens/bets_screen.dart';
-import '../../screens/forum_screen.dart';
-import '../../screens/guest_info_screen.dart';
-import '../../screens/home_screen.dart';
-import '../../screens/profile_screen.dart';
-import '../../screens/settings_screen.dart';
+import 'package:tipsterino/src/features/bets/presentation/screens/bets_screen.dart';
+import 'package:tipsterino/src/features/forum/presentation/screens/forum_screen.dart';
+import 'package:tipsterino/src/features/guest_info/presentation/screens/guest_info_screen.dart';
+import 'package:tipsterino/src/features/home/presentation/screens/home_screen.dart';
+import 'package:tipsterino/src/features/profile/presentation/screens/profile_screen.dart';
+import 'package:tipsterino/src/features/settings/presentation/screens/settings_screen.dart';
 
 GoRouter createAppRouter(Ref ref, {String initialLocation = '/home'}) {
   final refreshNotifier = ref.watch(authRefreshNotifierProvider);
