@@ -31,7 +31,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS reward_grants_user_daily_bonus_day_unique
 CREATE INDEX IF NOT EXISTS reward_grants_user_created_at_idx
   ON public.reward_grants (user_id, created_at desc);
 
--- Keep the existing signup bonus RPC logic but point the partial index conflict clause
+-- Canonical signup bonus RPC definition (single source of truth).
 CREATE OR REPLACE FUNCTION public.grant_signup_bonus_if_eligible()
   RETURNS jsonb
   SECURITY DEFINER
@@ -42,8 +42,6 @@ DECLARE
   v_amount integer;
   v_enabled boolean;
   v_grant_id uuid;
-  v_nickname text;
-  v_avatar_key text;
 BEGIN
   PERFORM set_config('search_path', 'pg_catalog, public, auth', true);
 
@@ -55,13 +53,7 @@ BEGIN
     RETURN jsonb_build_object('granted', false, 'amount', 0, 'reason', 'not_verified');
   END IF;
 
-  SELECT nickname, avatar_key
-    INTO v_nickname, v_avatar_key
-    FROM public.profiles
-   WHERE id = v_user_id;
-
-  IF v_nickname IS NULL OR btrim(v_nickname) = '' OR
-     v_avatar_key IS NULL OR btrim(v_avatar_key) = '' THEN
+  IF NOT public.is_profile_complete(v_user_id) THEN
     RETURN jsonb_build_object('granted', false, 'amount', 0, 'reason', 'profile_incomplete');
   END IF;
 
@@ -102,3 +94,5 @@ BEGIN
   RETURN jsonb_build_object('granted', true, 'amount', v_amount, 'reason', 'granted');
 END;
 $$;
+
+GRANT EXECUTE ON FUNCTION public.grant_signup_bonus_if_eligible() TO authenticated;

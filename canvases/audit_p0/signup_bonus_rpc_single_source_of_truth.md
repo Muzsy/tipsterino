@@ -19,6 +19,9 @@ Tervezett kimenetek:
 - SQL check erosites: `supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql`
 - docs frissites: `docs/core_logic/bonus_system.md`
 
+Kanonikus celallapot:
+- A `public.grant_signup_bonus_if_eligible()` vegso, egyetlen definicioja a jelenlegi migracios lanc vegpontjan marad (`20260213000000_bonus_system_rpc_rate_limit_guard.sql`), a korabbi migraciokban pedig ne maradjon felesleges duplikacio.
+
 DoD:
 - [ ] a report dokumentalja, melyik migracio marad a vegso RPC forras
 - [ ] SQL check ellenorzi, hogy a vegso viselkedes stabil

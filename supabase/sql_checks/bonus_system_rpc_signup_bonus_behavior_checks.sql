@@ -13,8 +13,23 @@ DECLARE
   v_has_email_confirmed boolean;
   v_has_confirmed boolean;
   v_confirmed_generated boolean := false;
+  v_fn_def text;
+  v_fn_norm text;
 BEGIN
   PERFORM set_config('search_path', 'pg_catalog, public, auth', true);
+
+  SELECT pg_get_functiondef('public.grant_signup_bonus_if_eligible()'::regprocedure)
+    INTO v_fn_def;
+  IF v_fn_def IS NULL THEN
+    RAISE EXCEPTION 'grant_signup_bonus_if_eligible function missing';
+  END IF;
+  v_fn_norm := regexp_replace(lower(v_fn_def), '\s+', ' ', 'g');
+  IF position('consume_bonus_rpc_token' in v_fn_norm) = 0 THEN
+    RAISE EXCEPTION 'grant_signup_bonus_if_eligible must include RPC rate-limit guard';
+  END IF;
+  IF position('on conflict (user_id, code) where code = ''signup_bonus'' do nothing' in v_fn_norm) = 0 THEN
+    RAISE EXCEPTION 'grant_signup_bonus_if_eligible must target signup_bonus partial unique index';
+  END IF;
 
   v_result := public.grant_signup_bonus_if_eligible();
   IF COALESCE(v_result->>'granted', 'false')::boolean THEN

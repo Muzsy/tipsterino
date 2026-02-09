@@ -43,6 +43,7 @@ A `signup_bonus` kizárólag akkor kerül kiosztásra, ha **minden** feltétel t
 * A regisztrációs flow **profil-kötelező részei megvannak** (nickname + avatar), azaz a profil „complete” állapotban van.
 * A bónusz definíció engedélyezett: `reward_definitions.code = 'signup_bonus'` és `enabled = true`.
 * A user még **nem kapta meg** (DB-szintű duplázásvédelem).
+* A kanonikus RPC definicio egyetlen forrasa: `supabase/migrations/20260213000000_bonus_system_rpc_rate_limit_guard.sql` (`public.grant_signup_bonus_if_eligible()`).
 
 > Megjegyzés: ha a profiladatok (nickname/avatar) már a signup során bekerülnek a meta-ba, a „profil complete” feltétel attól még kötelező, csak könnyebb teljesül.
 

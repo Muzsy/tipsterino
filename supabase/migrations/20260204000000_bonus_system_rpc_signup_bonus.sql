@@ -1,4 +1,4 @@
--- Migration 20260204000000: helper + RPC to grant the signup bonus post-verification
+-- Migration 20260204000000: helper for signup bonus eligibility checks
 
 create or replace function public.is_email_verified(p_user_id uuid)
   returns boolean
@@ -23,6 +23,7 @@ begin
 end;
 $$;
 
+-- Bootstrap implementation to keep migration chain callable before later refinements.
 create or replace function public.grant_signup_bonus_if_eligible()
   returns jsonb
   security definer
@@ -75,8 +76,13 @@ begin
    where user_id = v_user_id;
 
   insert into public.user_events (user_id, type, code, amount, payload)
-    values (v_user_id, 'tippcoin_credit', 'signup_bonus', v_amount,
-            jsonb_build_object('source', 'rpc', 'grant_code', 'signup_bonus'));
+    values (
+      v_user_id,
+      'tippcoin_credit',
+      'signup_bonus',
+      v_amount,
+      jsonb_build_object('source', 'rpc', 'grant_code', 'signup_bonus')
+    );
 
   return jsonb_build_object('granted', true, 'amount', v_amount, 'reason', 'granted');
 end;
