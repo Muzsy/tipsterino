@@ -1,0 +1,44 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a user_events unread index canvasat a valos adatmodell, repository
+      es SQL check hivatkozasokkal.
+    outputs:
+      - "canvases/audit_p1/user_events_unread_partial_index.md"
+
+  - name: "Partial index migracio"
+    description: >
+      Hozd letre a user_events olvasatlan listat gyorsito partial index migraciot
+      idempotens SQL-lel.
+    outputs:
+      - "supabase/migrations/20260214000000_user_events_unread_partial_index.sql"
+
+  - name: "DB contract check frissites"
+    description: >
+      Frissitsd a user_events DB contract checket, hogy ellenorizze az uj partial
+      index jelenletet.
+    outputs:
+      - "supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql"
+
+  - name: "Data model doksi frissites"
+    description: >
+      Frissitsd a user_events tabla dokumentaciot az unread partial index szerzodessel.
+    outputs:
+      - "docs/data_model/user_events_table_doc.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p1/user_events_unread_partial_index.md"
+      - "codex/reports/audit_p1/user_events_unread_partial_index.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p1/user_events_unread_partial_index.md
+      A reportban rogzitsd a check_db futas eredmenyet.
+    outputs:
+      - "codex/reports/audit_p1/user_events_unread_partial_index.md"
+      - "codex/reports/audit_p1/user_events_unread_partial_index.verify.log"
+      - "codex/codex_checklist/audit_p1/user_events_unread_partial_index.md"

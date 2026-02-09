@@ -1,0 +1,56 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a legacy screens alignment canvasat valos router/screen/doksi
+      hivatkozasokkal.
+    outputs:
+      - "canvases/audit_p1/legacy_screens_feature_first_alignment.md"
+
+  - name: "Screen fajlok feature-first atmozgatasa"
+    description: >
+      Mozgasd a src/screens gyujto mappabol a screeneket feature-first
+      presentation/screens helyekre.
+    outputs:
+      - "app/lib/src/screens/home_screen.dart"
+      - "app/lib/src/screens/bets_screen.dart"
+      - "app/lib/src/screens/forum_screen.dart"
+      - "app/lib/src/screens/guest_info_screen.dart"
+      - "app/lib/src/screens/profile_screen.dart"
+      - "app/lib/src/screens/settings_screen.dart"
+      - "app/lib/src/features/home/presentation/screens/home_screen.dart"
+      - "app/lib/src/features/bets/presentation/screens/bets_screen.dart"
+      - "app/lib/src/features/forum/presentation/screens/forum_screen.dart"
+      - "app/lib/src/features/guest_info/presentation/screens/guest_info_screen.dart"
+      - "app/lib/src/features/profile/presentation/screens/profile_screen.dart"
+      - "app/lib/src/features/settings/presentation/screens/settings_screen.dart"
+
+  - name: "Router es teszt importok frissitese"
+    description: >
+      Frissitsd a routert es a kapcsolodo smoke tesztet az uj feature-first screen
+      pathokra.
+    outputs:
+      - "app/lib/src/app/router/app_router.dart"
+      - "app/test/widget/guest_routing_shells_test.dart"
+
+  - name: "Architektura doksi szinkron"
+    description: >
+      Frissitsd a project_structure dokumentumot az atmeneti allapot lezarasahoz.
+    outputs:
+      - "docs/architect/project_structure.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p1/legacy_screens_feature_first_alignment.md"
+      - "codex/reports/audit_p1/legacy_screens_feature_first_alignment.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p1/legacy_screens_feature_first_alignment.md
+      A reportban rogzitsd a route smoke teszt eredmenyt.
+    outputs:
+      - "codex/reports/audit_p1/legacy_screens_feature_first_alignment.md"
+      - "codex/reports/audit_p1/legacy_screens_feature_first_alignment.verify.log"
+      - "codex/codex_checklist/audit_p1/legacy_screens_feature_first_alignment.md"

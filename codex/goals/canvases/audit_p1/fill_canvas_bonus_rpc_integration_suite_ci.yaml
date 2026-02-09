@@ -1,0 +1,45 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a task canvasat a valos bonus RPC, integration test es CI workflow
+      hivatkozasokkal.
+    outputs:
+      - "canvases/audit_p1/bonus_rpc_integration_suite_ci.md"
+
+  - name: "Bonus RPC integration teszt suite"
+    description: >
+      Hozd letre a bonus RPC integration tesztet ugy, hogy lefedje a signup es daily bonus
+      kritikus reason kodokat valos Supabase local stack mellett.
+    outputs:
+      - "app/integration_test/bonus_rpc_integration_test.dart"
+
+  - name: "CI workflow futtatas bekotese"
+    description: >
+      Frissitsd a DB CI workflow-t, hogy a DB reset/check_db utan a bonus RPC integration
+      teszt suite is lefusson.
+    outputs:
+      - ".github/workflows/ci_db.yml"
+
+  - name: "QA doksi frissites"
+    description: >
+      Frissitsd a testing guideline dokumentumot a bonus RPC integration futtatasi
+      kovetelmennyel.
+    outputs:
+      - "docs/qa/testing_guidelines.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p1/bonus_rpc_integration_suite_ci.md"
+      - "codex/reports/audit_p1/bonus_rpc_integration_suite_ci.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p1/bonus_rpc_integration_suite_ci.md
+      A reportban rogzitsd a check_db es integration futas eredmenyet is.
+    outputs:
+      - "codex/reports/audit_p1/bonus_rpc_integration_suite_ci.md"
+      - "codex/reports/audit_p1/bonus_rpc_integration_suite_ci.verify.log"
+      - "codex/codex_checklist/audit_p1/bonus_rpc_integration_suite_ci.md"

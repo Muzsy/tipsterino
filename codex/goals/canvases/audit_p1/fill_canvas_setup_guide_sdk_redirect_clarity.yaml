@@ -1,0 +1,39 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a setup guide clarity canvasat a valos pubspec, Supabase config es
+      setup doksi hivatkozasokkal.
+    outputs:
+      - "canvases/audit_p1/setup_guide_sdk_redirect_clarity.md"
+
+  - name: "Setup dokumentumok pontositasa"
+    description: >
+      Frissitsd a setup dokumentumokat az explicit SDK kovetelmenyekkel es
+      site_url/additional_redirect_urls magyarazattal.
+    outputs:
+      - "docs/setup/dev_setup.md"
+      - "docs/setup/supabase_setup.md"
+      - "docs/setup/supabase_configuration.md"
+
+  - name: "README setup hivatkozas frissites"
+    description: >
+      Frissitsd a root README setup szekciojat a pontos setup dokumentumokra.
+    outputs:
+      - "README.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p1/setup_guide_sdk_redirect_clarity.md"
+      - "codex/reports/audit_p1/setup_guide_sdk_redirect_clarity.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p1/setup_guide_sdk_redirect_clarity.md
+      A reportban rogzitsd a setup doksi ellenorzes eredmenyet.
+    outputs:
+      - "codex/reports/audit_p1/setup_guide_sdk_redirect_clarity.md"
+      - "codex/reports/audit_p1/setup_guide_sdk_redirect_clarity.verify.log"
+      - "codex/codex_checklist/audit_p1/setup_guide_sdk_redirect_clarity.md"

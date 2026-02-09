@@ -1,0 +1,39 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a rollback strategy canvasat a valos setup/check script
+      hivatkozasokkal.
+    outputs:
+      - "canvases/audit_p1/migration_rollback_strategy_playbook.md"
+
+  - name: "Rollback strategy dokumentum"
+    description: >
+      Hozd letre a migration rollback playbook dokumentumot local/stage/prod
+      dontesi agakkal es verify lepeseivel.
+    outputs:
+      - "docs/qa/migration_rollback_strategy.md"
+
+  - name: "Setup es QA doksi szinkron"
+    description: >
+      Frissitsd a Supabase setup es DB checks dokumentumot, hogy hivatkozzanak
+      az uj rollback playbookra.
+    outputs:
+      - "docs/setup/supabase_setup.md"
+      - "docs/qa/db_checks.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p1/migration_rollback_strategy_playbook.md"
+      - "codex/reports/audit_p1/migration_rollback_strategy_playbook.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p1/migration_rollback_strategy_playbook.md
+      A reportban rogzitsd a doksi gate eredmenyet.
+    outputs:
+      - "codex/reports/audit_p1/migration_rollback_strategy_playbook.md"
+      - "codex/reports/audit_p1/migration_rollback_strategy_playbook.verify.log"
+      - "codex/codex_checklist/audit_p1/migration_rollback_strategy_playbook.md"
