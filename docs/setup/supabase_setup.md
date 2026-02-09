@@ -29,3 +29,10 @@ Ez a guide a helyi Supabase stack futtatását és a DB contract check lépései
 - Supabase CLI nem érhető el: telepítsd, majd ellenőrizd `./scripts/supabase.sh --version`.
 - `psql` hiányzik: telepítsd a PostgreSQL klienst.
 - Port ütközés (pl. 54321/54322): állítsd le az ütköző folyamatot, majd indítsd újra a stack-et.
+
+## 6) Migration rollback hivatkozas
+- Incident esetben a canonical rollback runbook:
+  - `docs/qa/migration_rollback_strategy.md`
+- Local helyreallitas utan kotelezo minimum:
+  - `./scripts/check_db.sh`
+  - `./scripts/verify.sh --report codex/reports/<area>/<task>.md`

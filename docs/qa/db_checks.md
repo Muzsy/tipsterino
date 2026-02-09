@@ -32,6 +32,13 @@
 - Steps: checkout → install Supabase CLI → install `psql` → `supabase start` → `supabase db reset --local --no-seed` → `./scripts/check_db.sh`.
 - On failure, the job stops and surfaces the relevant error (missing CLI, DB port, or SQL errors).
 
+## Rollback linkage
+- Migration incident dontesi fa es rollback runbook:
+  - `docs/qa/migration_rollback_strategy.md`
+- Local rollback utan kotelezo verifikacio:
+  - `./scripts/check_db.sh`
+  - `./scripts/verify.sh --report codex/reports/<area>/<task>.md`
+
 ## Troubleshooting
 - `supabase: command not found`: install Supabase CLI (`npm install -g supabase` or follow https://supabase.com/docs/guides/cli).
 - `psql: command not found`: install `postgresql-client` (e.g., `sudo apt-get install -y postgresql-client`).

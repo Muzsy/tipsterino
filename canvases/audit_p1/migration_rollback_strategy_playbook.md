@@ -11,6 +11,7 @@ Nem cel:
 Valos forrasok:
 - `docs/setup/supabase_setup.md`
 - `docs/qa/db_checks.md`
+- `scripts/verify.sh`
 - `scripts/supabase.sh`
 - `scripts/check_db.sh`
 - `supabase/migrations/20260203000000_bonus_system_db_schema_rls.sql`
