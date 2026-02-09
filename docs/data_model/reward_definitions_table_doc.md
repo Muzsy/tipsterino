@@ -77,6 +77,7 @@ A pontos összeg kizárólag migrációval állítható.
 
 ### RLS állapot
 - A `reward_definitions` táblán RLS **bekapcsolva**.
+- Kliens oldali policy darabszám elvárt értéke: **0** (`pg_policies` ellenőrzés a privacy checkben).
 
 ### Alapelv
 - A kliens (anon és authenticated) **nem** olvashatja.
@@ -87,6 +88,7 @@ A pontos összeg kizárólag migrációval állítható.
 
 ### SELECT
 - tiltott anon és authenticated számára.
+- PUBLIC szerepkörre is tiltott (nincs táblaszintű SELECT jogosultság).
 
 ### INSERT / UPDATE / DELETE
 - tiltott anon és authenticated számára.

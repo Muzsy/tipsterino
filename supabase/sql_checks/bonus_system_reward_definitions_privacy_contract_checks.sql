@@ -20,11 +20,12 @@ BEGIN
   FROM pg_policies
   WHERE schemaname = 'public' AND tablename = 'reward_definitions';
 
+  -- Canonical privacy contract: no client-facing policy on reward_definitions.
   IF policy_count <> 0 THEN
     RAISE EXCEPTION 'reward_definitions must have zero policies (found %)', policy_count;
   END IF;
 
-  -- No client/table privileges
+  -- No client/table privileges for PUBLIC/anon/authenticated.
   IF EXISTS (
     SELECT 1
     FROM information_schema.role_table_grants
