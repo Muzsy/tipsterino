@@ -1,0 +1,41 @@
+steps:
+  - name: "Canvas veglegesitese konfliktusjegyzettel"
+    description: >
+      Frissitsd a task canvasat a konfliktus feloldasaval: a repo kanonikus szabaly
+      szerint `reward_definitions` kliens oldali SELECT tiltott.
+    outputs:
+      - "canvases/audit_p0/reward_definitions_privacy_contract_alignment.md"
+
+  - name: "Privacy contract SQL check frissitese"
+    description: >
+      Frissitsd a `supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql`
+      fajlt ugy, hogy explicit ellenorizze: RLS ON, policy count = 0,
+      valamint nincs SELECT/INSERT/UPDATE/DELETE jog anon/authenticated/public szerepkoroknek.
+    outputs:
+      - "supabase/sql_checks/bonus_system_reward_definitions_privacy_contract_checks.sql"
+
+  - name: "Reward definitions doksi szinkron"
+    description: >
+      Frissitsd a `docs/data_model/reward_definitions_table_doc.md` fajlt,
+      hogy a privacy contract egyertelmuen egyezzen a SQL checkkel es a bonus_system
+      core logic dokumentummal.
+    outputs:
+      - "docs/data_model/reward_definitions_table_doc.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a checklistet es report vazat a szabvany szerint.
+      A report FAIL kezdo statusszal indul, AUTO_VERIFY blokkal.
+    outputs:
+      - "codex/codex_checklist/audit_p0/reward_definitions_privacy_contract_alignment.md"
+      - "codex/reports/audit_p0/reward_definitions_privacy_contract_alignment.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p0/reward_definitions_privacy_contract_alignment.md
+      Rogzitsd a DB check futas allapotat a reportban.
+    outputs:
+      - "codex/reports/audit_p0/reward_definitions_privacy_contract_alignment.md"
+      - "codex/reports/audit_p0/reward_definitions_privacy_contract_alignment.verify.log"
+      - "codex/codex_checklist/audit_p0/reward_definitions_privacy_contract_alignment.md"

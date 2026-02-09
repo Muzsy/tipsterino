@@ -1,0 +1,44 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a canvas dokumentumot a concurrency-fokuszu DoD pontokkal es valos hivatkozasokkal.
+    outputs:
+      - "canvases/audit_p0/daily_bonus_rpc_concurrency_guard.md"
+
+  - name: "Daily bonus RPC concurrency vedelem"
+    description: >
+      Frissitsd a `supabase/migrations/20260210000000_bonus_system_rpc_daily_bonus.sql` fajlt,
+      hogy a grant logika user-szintu concurrency guardot alkalmazzon.
+    outputs:
+      - "supabase/migrations/20260210000000_bonus_system_rpc_daily_bonus.sql"
+
+  - name: "Concurrency SQL check letrehozasa"
+    description: >
+      Hozd letre a `supabase/sql_checks/bonus_system_rpc_daily_bonus_concurrency_checks.sql` fajlt,
+      amely ellenorzi, hogy parhuzamos trigger esetben legfeljebb egy grant szuletik.
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_daily_bonus_concurrency_checks.sql"
+
+  - name: "Daily bonus doksi frissites"
+    description: >
+      Frissitsd a `docs/core_logic/daily_bonus.md` dokumentumot a concurrency viselkedes
+      es az elvart masodik valasz explicit leirasaval.
+    outputs:
+      - "docs/core_logic/daily_bonus.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Keszits checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p0/daily_bonus_rpc_concurrency_guard.md"
+      - "codex/reports/audit_p0/daily_bonus_rpc_concurrency_guard.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p0/daily_bonus_rpc_concurrency_guard.md
+      A reportban rogzitsd a DB check eredmenyt.
+    outputs:
+      - "codex/reports/audit_p0/daily_bonus_rpc_concurrency_guard.md"
+      - "codex/reports/audit_p0/daily_bonus_rpc_concurrency_guard.verify.log"
+      - "codex/codex_checklist/audit_p0/daily_bonus_rpc_concurrency_guard.md"

@@ -1,0 +1,46 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a task canvasat a valos bonus RPC es service dependency forrasokra tamaszkodva.
+    outputs:
+      - "canvases/audit_p0/bonus_rpc_rate_limiting_strategy.md"
+
+  - name: "Rate limiting strategy doksi"
+    description: >
+      Hozd letre a `docs/core_logic/bonus_rpc_rate_limiting_strategy.md` fajlt,
+      amely osszeveti a lehetosegeket es rogzit egy MVP valasztast.
+    outputs:
+      - "docs/core_logic/bonus_rpc_rate_limiting_strategy.md"
+
+  - name: "MVP vedelmi migracio es SQL check"
+    description: >
+      Hozd letre a `supabase/migrations/20260213000000_bonus_system_rpc_rate_limit_guard.sql`
+      es `supabase/sql_checks/bonus_system_rpc_rate_limit_checks.sql` fajlokat,
+      amelyek legalabb a signup es daily bonus RPC-k vedelmi alapjat rogzitik.
+    outputs:
+      - "supabase/migrations/20260213000000_bonus_system_rpc_rate_limit_guard.sql"
+      - "supabase/sql_checks/bonus_system_rpc_rate_limit_checks.sql"
+
+  - name: "Bonus system core doksi frissites"
+    description: >
+      Frissitsd a `docs/core_logic/bonus_system.md` dokumentumot a rate-limit strategia
+      hivatkozasaval es residual risk jegyzettel.
+    outputs:
+      - "docs/core_logic/bonus_system.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Keszitsd el a checklistet es reportot a standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p0/bonus_rpc_rate_limiting_strategy.md"
+      - "codex/reports/audit_p0/bonus_rpc_rate_limiting_strategy.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p0/bonus_rpc_rate_limiting_strategy.md
+      A reportban rogzitsd a DB check eredmenyt is.
+    outputs:
+      - "codex/reports/audit_p0/bonus_rpc_rate_limiting_strategy.md"
+      - "codex/reports/audit_p0/bonus_rpc_rate_limiting_strategy.verify.log"
+      - "codex/codex_checklist/audit_p0/bonus_rpc_rate_limiting_strategy.md"

@@ -82,6 +82,15 @@ Bármely jövőbeli bónusz (pl. daily bonus, challenge reward) ugyanazt a sém�
 - A daily bonus a standard grant pipeline-t használja, napi (UTC) idempotencia mellett.
 - Az implementáció (reward definition, migráció, RPC, UI) külön járatokban készül; jelen dokumentáció csak a szerződést dokumentálja, nem feltételez kész állapotot.
 
+### RPC rate limiting (P0)
+
+- A signup/daily bonus RPC-khez DB oldali limiter guard tartozik (MVP).
+- A reszletes dontesi anyag: `docs/core_logic/bonus_rpc_rate_limiting_strategy.md`.
+- MVP vedelmi alap:
+  - rovid idoablakos tokenfogyasztas user+RPC alapon (`consume_bonus_rpc_token`)
+  - user-szintu advisory lock a parhuzamos trigger visszafogasara
+- Residual risk: a limiter tul szigoru parametrizalasa legitim gyors ujraprobalkozast is visszautasithat.
+
 ### Értesítések / inbox (user_events)
 
 Az „értesítés” itt **nem push**, hanem **in-app inbox**.

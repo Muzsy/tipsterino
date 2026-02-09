@@ -1,0 +1,48 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a canvases/audit_p0/signup_bonus_rpc_single_source_of_truth.md
+      fajlt pontos migracios hivatkozasokkal es DoD-val.
+    outputs:
+      - "canvases/audit_p0/signup_bonus_rpc_single_source_of_truth.md"
+
+  - name: "Migracios single-source rendezes"
+    description: >
+      Rendezd a signup bonus RPC definiciot ugy, hogy egyetlen kanonikus forras maradjon.
+      Erintett migraciok: 20260204000000, 20260205000000, 20260208000000.
+      A valtozas legyen elore kompatibilis es resetelheto.
+    outputs:
+      - "supabase/migrations/20260204000000_bonus_system_rpc_signup_bonus.sql"
+      - "supabase/migrations/20260205000000_bonus_system_signup_bonus_profile_complete_gate.sql"
+      - "supabase/migrations/20260208000000_bonus_system_reward_grants_grant_day_and_indexes.sql"
+
+  - name: "Signup bonus behavior check frissites"
+    description: >
+      Frissitsd a `supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql` fajlt,
+      hogy regresszioban is igazolja a vegso viselkedest a single-source rendezes utan.
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_signup_bonus_behavior_checks.sql"
+
+  - name: "Core logic doksi frissites"
+    description: >
+      Frissitsd a `docs/core_logic/bonus_system.md` dokumentumot,
+      jelezve a signup bonus RPC kanonikus forrasat.
+    outputs:
+      - "docs/core_logic/bonus_system.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a feladat checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p0/signup_bonus_rpc_single_source_of_truth.md"
+      - "codex/reports/audit_p0/signup_bonus_rpc_single_source_of_truth.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p0/signup_bonus_rpc_single_source_of_truth.md
+      A reportban dokumentald a check_db eredmenyt.
+    outputs:
+      - "codex/reports/audit_p0/signup_bonus_rpc_single_source_of_truth.md"
+      - "codex/reports/audit_p0/signup_bonus_rpc_single_source_of_truth.verify.log"
+      - "codex/codex_checklist/audit_p0/signup_bonus_rpc_single_source_of_truth.md"

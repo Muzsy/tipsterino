@@ -1,0 +1,41 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a task canvasat a valos SQL check es docs hivatkozasokkal.
+      A canvas tartalmazza a kotelezo szekciokat es a DoD listat.
+    outputs:
+      - "canvases/audit_p0/rls_cross_user_enforcement_checks.md"
+
+  - name: "Cross-user RLS SQL check letrehozasa"
+    description: >
+      Hozd letre a `supabase/sql_checks/bonus_system_rls_cross_user_enforcement_checks.sql` fajlt.
+      A check bizonyitsa, hogy authenticated user1 nem tud user2 rekordjaihoz hozzaferni
+      a `profiles`, `reward_grants`, `user_stats`, `user_events` tablakban.
+      A script legyen psql-kompatibilis (`BEGIN ... ROLLBACK`) es FAIL-eljen szerzodessertesnel.
+    outputs:
+      - "supabase/sql_checks/bonus_system_rls_cross_user_enforcement_checks.sql"
+
+  - name: "DB checks doksi frissitese"
+    description: >
+      Frissitsd a `docs/qa/db_checks.md` fajlt, hogy explicit szerepeljen
+      a cross-user RLS enforcement check es a celja.
+    outputs:
+      - "docs/qa/db_checks.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es a report vazat a report standard szerint.
+      A report kezdo statusza FAIL, es tartalmazza az AUTO_VERIFY markereket.
+    outputs:
+      - "codex/codex_checklist/audit_p0/rls_cross_user_enforcement_checks.md"
+      - "codex/reports/audit_p0/rls_cross_user_enforcement_checks.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd a standard verifikaciot:
+      ./scripts/verify.sh --report codex/reports/audit_p0/rls_cross_user_enforcement_checks.md
+      A reportban rogzitsd a check_db futas eredmenyet is.
+    outputs:
+      - "codex/reports/audit_p0/rls_cross_user_enforcement_checks.md"
+      - "codex/reports/audit_p0/rls_cross_user_enforcement_checks.verify.log"
+      - "codex/codex_checklist/audit_p0/rls_cross_user_enforcement_checks.md"
