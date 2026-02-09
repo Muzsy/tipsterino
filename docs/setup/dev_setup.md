@@ -32,3 +32,4 @@ Ez a guide egy friss gépes fejlesztői indulást ír le wrapper-alapú parancso
 ## 5) Secrets és gitignore szabály
 - `app/.env` és `.env.local` nem kerülhet gitbe.
 - Ne commitolj Supabase kulcsot vagy bármilyen secretet.
+- Részletes szabályok: `docs/setup/secret_management.md`
