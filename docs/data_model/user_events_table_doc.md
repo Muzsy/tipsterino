@@ -146,6 +146,17 @@ Kötelező szabályok:
 - pagination kötelező
 - olvasatlan jelölés: `read_at is null`
 
+### Index szerzodes (P1 teljesitmeny)
+- `user_events_user_created_at_idx`:
+  altalanos user esemeny lista (`user_id`, `created_at desc`).
+- `user_events_user_unread_created_at_idx`:
+  olvasatlan lista lekero partial index (`user_id`, `created_at desc`)
+  `where read_at is null` predicate-del.
+
+Rationale:
+- Az olvasatlan lista a user feed forro utvonala; a partial index csokkenti a
+  scanelt rekordok szamat, mikozben megtartja a rendezesi kulcsot.
+
 ## 🧪 Tesztállapot
 Kötelező ellenőrzések:
 - anon nem tud SELECT-et.

@@ -18,6 +18,7 @@ Tervezett kimenetek:
 - uj migracio: `supabase/migrations/20260214000000_user_events_unread_partial_index.sql`
 - sql check frissites: `supabase/sql_checks/bonus_system_user_events_db_contract_checks.sql`
 - data model doksi frissites: `docs/data_model/user_events_table_doc.md`
+- partial index neve: `user_events_user_unread_created_at_idx`
 
 DoD:
 - [ ] letezik partial index olvasatlan (`read_at is null`) user_events listara

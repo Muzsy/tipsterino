@@ -8,6 +8,7 @@ DO $$
 DECLARE
   amt_type text;
   idx_exists boolean;
+  unread_partial_idx_exists boolean;
 BEGIN
   IF to_regclass('public.user_events') IS NULL THEN
     RAISE EXCEPTION 'public.user_events table is missing';
@@ -130,6 +131,20 @@ BEGIN
 
   IF NOT idx_exists THEN
     RAISE EXCEPTION 'No index covers user_id and created_at on user_events';
+  END IF;
+
+  SELECT EXISTS (
+    SELECT 1
+    FROM pg_indexes
+    WHERE schemaname = 'public'
+      AND tablename = 'user_events'
+      AND indexname = 'user_events_user_unread_created_at_idx'
+      AND indexdef like '%(user_id, created_at DESC)%'
+      AND indexdef like '%WHERE (read_at IS NULL)%'
+  ) INTO unread_partial_idx_exists;
+
+  IF NOT unread_partial_idx_exists THEN
+    RAISE EXCEPTION 'user_events unread partial index missing or contract mismatch';
   END IF;
 END;
 $$;
