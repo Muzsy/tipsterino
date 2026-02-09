@@ -6,6 +6,7 @@ import 'package:tipsterino/l10n/app_localizations.dart';
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/signup_wizard_provider.dart';
+import 'package:tipsterino/src/features/auth/presentation/widgets/sign_up_wizard_step2.dart';
 
 void main() {
   testWidgets('Step 2 enables Next only when nickname is available', (
@@ -30,34 +31,36 @@ void main() {
     );
 
     await tester.pumpAndSettle();
+    final loc = await AppLocalizations.delegate.load(const Locale('en'));
 
     await tester.enterText(
-      find.widgetWithText(TextField, 'Email address'),
+      find.widgetWithText(TextField, loc.emailLabel),
       'test@example.com',
     );
     await tester.enterText(
-      find.widgetWithText(TextField, 'Password'),
+      find.widgetWithText(TextField, loc.passwordLabel),
       'Aa1!aaaa',
     );
     await tester.pumpAndSettle();
 
-    final nextButton = find.widgetWithText(ElevatedButton, 'Next');
+    final nextButton = find.widgetWithText(ElevatedButton, loc.common_next);
     expect(nextButton, findsOneWidget);
     await tester.tap(nextButton);
     await tester.pumpAndSettle();
 
-    expect(find.text('Step 2 – Profile'), findsWidgets);
+    expect(find.byType(SignUpWizardStep2), findsOneWidget);
+    expect(find.text(loc.auth_signup_step_profile), findsWidgets);
     expect(tester.widget<ElevatedButton>(nextButton).onPressed, isNull);
 
     await tester.enterText(
-      find.widgetWithText(TextField, 'Nickname'),
+      find.widgetWithText(TextField, loc.auth_nickname_label),
       'hero123',
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
 
-    expect(find.text('Nickname available'), findsOneWidget);
+    expect(find.text(loc.auth_nickname_available), findsOneWidget);
     expect(tester.widget<ElevatedButton>(nextButton).onPressed, isNotNull);
   });
 }

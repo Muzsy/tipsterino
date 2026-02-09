@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tipsterino/l10n/app_localizations.dart';
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
+import 'package:tipsterino/src/features/auth/presentation/widgets/sign_up_wizard_step1.dart';
 
 void main() {
   testWidgets('Step 1 Next button enables after email+password rules', (
@@ -27,6 +28,7 @@ void main() {
     );
 
     await tester.pumpAndSettle();
+    expect(find.byType(SignUpWizardStep1), findsOneWidget);
 
     final nextButtonFinder = find.widgetWithText(
       ElevatedButton,

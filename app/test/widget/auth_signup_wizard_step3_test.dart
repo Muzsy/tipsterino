@@ -8,6 +8,7 @@ import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/verify_email_pending_screen.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/signup_wizard_provider.dart';
+import 'package:tipsterino/src/features/auth/presentation/widgets/sign_up_wizard_step3.dart';
 
 void main() {
   testWidgets('Step 3 submits only with consents and navigates', (
@@ -93,6 +94,7 @@ void main() {
 
     await tester.tap(nextButton);
     await tester.pumpAndSettle();
+    expect(find.byType(SignUpWizardStep3), findsOneWidget);
 
     final submitButton = find.widgetWithText(
       ElevatedButton,

@@ -6,6 +6,9 @@ import 'package:tipsterino/l10n/app_localizations.dart';
 
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/signup_wizard_provider.dart';
+import 'package:tipsterino/src/features/auth/presentation/widgets/sign_up_wizard_step1.dart';
+import 'package:tipsterino/src/features/auth/presentation/widgets/sign_up_wizard_step2.dart';
+import 'package:tipsterino/src/features/auth/presentation/widgets/sign_up_wizard_step3.dart';
 
 class SignUpWizardScreen extends ConsumerStatefulWidget {
   const SignUpWizardScreen({super.key});
@@ -67,6 +70,7 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
     final loc = AppLocalizations.of(context)!;
     final state = ref.watch(signupWizardProvider);
     final isOffline = !ref.watch(supabaseConfigProvider).isConfigured;
+
     return Scaffold(
       appBar: AppBar(title: Text(loc.registerTitle)),
       body: SafeArea(
@@ -80,7 +84,13 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 16),
-              Expanded(child: _buildStepContent(state, loc, isOffline)),
+              Expanded(
+                child: _buildStepContent(
+                  state: state,
+                  loc: loc,
+                  isOffline: isOffline,
+                ),
+              ),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -154,279 +164,45 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
     }
   }
 
-  Widget _buildStepContent(
-    SignupWizardState state,
-    AppLocalizations loc,
-    bool isOffline,
-  ) {
+  Widget _buildStepContent({
+    required SignupWizardState state,
+    required AppLocalizations loc,
+    required bool isOffline,
+  }) {
     switch (state.stepIndex) {
       case 0:
-        return _buildAccountStep(state, loc, isOffline);
+        return SignUpWizardStep1(
+          state: state,
+          loc: loc,
+          isOffline: isOffline,
+          emailController: _emailController,
+          passwordController: _passwordController,
+        );
       case 1:
-        return _buildProfileStep(state, loc, isOffline);
+        return SignUpWizardStep2(
+          state: state,
+          loc: loc,
+          isOffline: isOffline,
+          nicknameController: _nicknameController,
+          onAvatarPickerPressed: () => _showAvatarPicker(context, state, loc),
+          avatarLabel: _avatarLabel,
+        );
       case 2:
-        return _buildConsentStep(state, loc, isOffline);
+        return SignUpWizardStep3(
+          state: state,
+          loc: loc,
+          isOffline: isOffline,
+          onTermsChanged: (accepted) => ref
+              .read(signupWizardProvider.notifier)
+              .toggleTermsAccepted(accepted),
+          onPrivacyChanged: (accepted) => ref
+              .read(signupWizardProvider.notifier)
+              .togglePrivacyAccepted(accepted),
+          avatarLabel: _avatarLabel,
+        );
       default:
         return const SizedBox.shrink();
     }
-  }
-
-  Widget _buildAccountStep(
-    SignupWizardState state,
-    AppLocalizations loc,
-    bool isOffline,
-  ) {
-    final rules = <_PasswordRule>[
-      _PasswordRule(loc.auth_password_rule_min_length, state.hasMinLength),
-      _PasswordRule(loc.auth_password_rule_uppercase, state.hasUppercase),
-      _PasswordRule(loc.auth_password_rule_lowercase, state.hasLowercase),
-      _PasswordRule(loc.auth_password_rule_special, state.hasSpecialChar),
-    ];
-    final unsatisfied = rules.where((rule) => !rule.isSatisfied).toList();
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            loc.auth_signup_step_account,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _emailController,
-            decoration: InputDecoration(
-              labelText: loc.emailLabel,
-              errorText: state.email.isEmpty
-                  ? null
-                  : (state.isEmailValid ? null : loc.invalidEmailError),
-            ),
-            keyboardType: TextInputType.emailAddress,
-            autofillHints: const [AutofillHints.email],
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _passwordController,
-            decoration: InputDecoration(labelText: loc.passwordLabel),
-            autofillHints: const [AutofillHints.newPassword],
-          ),
-          const SizedBox(height: 16),
-          if (unsatisfied.isNotEmpty) ...[
-            Text(
-              loc.passwordLabel,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 8),
-            ...unsatisfied.map(
-              (rule) => Padding(
-                padding: const EdgeInsets.only(bottom: 6),
-                child: Row(
-                  children: [
-                    const Icon(Icons.circle, size: 8),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(rule.label)),
-                  ],
-                ),
-              ),
-            ),
-          ],
-          const SizedBox(height: 24),
-          if (isOffline) ...[
-            Text(
-              loc.offlineNotice,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              loc.offlineDescription,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProfileStep(
-    SignupWizardState state,
-    AppLocalizations loc,
-    bool isOffline,
-  ) {
-    final statusWidget = _buildNicknameStatus(state, loc);
-    final nicknameError = _nicknameFieldError(state.nicknameStatus, loc);
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            loc.auth_signup_step_profile,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _nicknameController,
-            decoration: InputDecoration(
-              labelText: loc.auth_nickname_label,
-              helperText: loc.auth_nickname_help,
-              errorText: nicknameError,
-            ),
-            textCapitalization: TextCapitalization.none,
-            keyboardType: TextInputType.text,
-            autocorrect: false,
-          ),
-          if (statusWidget != null) ...[
-            const SizedBox(height: 8),
-            statusWidget,
-          ],
-          const SizedBox(height: 24),
-          Text(
-            loc.auth_avatar_label,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 28,
-                child: Text(
-                  state.avatarKey.isNotEmpty
-                      ? state.avatarKey[0].toUpperCase()
-                      : '',
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _avatarLabel(state.avatarKey),
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    TextButton(
-                      onPressed: () => _showAvatarPicker(context, state, loc),
-                      child: Text(loc.auth_avatar_change),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (isOffline) ...[
-            const SizedBox(height: 24),
-            Text(
-              loc.offlineNotice,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              loc.offlineDescription,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildConsentStep(
-    SignupWizardState state,
-    AppLocalizations loc,
-    bool isOffline,
-  ) {
-    final notifier = ref.read(signupWizardProvider.notifier);
-    final errorText = state.submitError;
-    return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            loc.auth_consent_title,
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          const SizedBox(height: 16),
-          _buildSummaryCard(state, loc),
-          const SizedBox(height: 16),
-          CheckboxListTile(
-            value: state.termsAccepted,
-            onChanged: (value) => notifier.toggleTermsAccepted(value ?? false),
-            title: Text(loc.auth_consent_terms_label),
-            controlAffinity: ListTileControlAffinity.leading,
-          ),
-          CheckboxListTile(
-            value: state.privacyAccepted,
-            onChanged: (value) =>
-                notifier.togglePrivacyAccepted(value ?? false),
-            title: Text(loc.auth_consent_privacy_label),
-            controlAffinity: ListTileControlAffinity.leading,
-          ),
-          if (errorText != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              loc.auth_signup_submit_error,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              errorText,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
-            ),
-          ],
-          if (isOffline) ...[
-            const SizedBox(height: 16),
-            Text(
-              loc.offlineNotice,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              loc.offlineDescription,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryCard(SignupWizardState state, AppLocalizations loc) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSummaryRow(loc.emailLabel, state.email),
-            _buildSummaryRow(
-              loc.auth_nickname_label,
-              state.nickname.isNotEmpty
-                  ? state.nickname
-                  : loc.auth_nickname_help,
-            ),
-            _buildSummaryRow(
-              loc.auth_avatar_label,
-              _avatarLabel(state.avatarKey),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, String value) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: theme.textTheme.labelSmall),
-          const SizedBox(height: 2),
-          Text(value, style: theme.textTheme.bodyMedium),
-        ],
-      ),
-    );
   }
 
   bool _submitEnabled(SignupWizardState state, bool isOffline) {
@@ -443,69 +219,6 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
     final email = ref.read(signupWizardProvider).email;
     final encodedEmail = Uri.encodeComponent(email);
     context.go('/auth/verify-pending?email=$encodedEmail');
-  }
-
-  Widget? _buildNicknameStatus(SignupWizardState state, AppLocalizations loc) {
-    final status = state.nicknameStatus;
-    final scheme = Theme.of(context).colorScheme;
-    switch (status) {
-      case NicknameAvailabilityStatus.tooShort:
-        return Text(
-          loc.auth_nickname_too_short,
-          style: TextStyle(color: scheme.error),
-        );
-      case NicknameAvailabilityStatus.checking:
-        return Row(
-          children: [
-            SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: scheme.primary,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(loc.auth_nickname_checking),
-          ],
-        );
-      case NicknameAvailabilityStatus.available:
-        return Row(
-          children: [
-            Icon(Icons.check_circle, color: scheme.primary, size: 18),
-            const SizedBox(width: 6),
-            Text(
-              loc.auth_nickname_available,
-              style: TextStyle(color: scheme.primary),
-            ),
-          ],
-        );
-      case NicknameAvailabilityStatus.unavailable:
-        return Text(
-          loc.auth_nickname_unavailable,
-          style: TextStyle(color: scheme.error),
-        );
-      case NicknameAvailabilityStatus.error:
-        return Text(
-          loc.auth_nickname_error,
-          style: TextStyle(color: scheme.error),
-        );
-      default:
-        return null;
-    }
-  }
-
-  String? _nicknameFieldError(
-    NicknameAvailabilityStatus status,
-    AppLocalizations loc,
-  ) {
-    if (status == NicknameAvailabilityStatus.invalid) {
-      return loc.auth_nickname_help;
-    }
-    if (status == NicknameAvailabilityStatus.error) {
-      return loc.auth_nickname_error;
-    }
-    return null;
   }
 
   String _avatarLabel(String key) {
@@ -607,11 +320,4 @@ class _SignUpWizardScreenState extends ConsumerState<SignUpWizardScreen> {
     if (state.stepIndex == 1) return state.step2Valid;
     return false;
   }
-}
-
-class _PasswordRule {
-  final String label;
-  final bool isSatisfied;
-
-  _PasswordRule(this.label, this.isSatisfied);
 }

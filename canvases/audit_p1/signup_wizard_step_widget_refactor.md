@@ -10,6 +10,10 @@ Nem cel:
 ## 🧠 Fejlesztesi reszletek
 Valos forrasok:
 - `app/lib/src/features/auth/presentation/screens/sign_up_wizard_screen.dart`
+- `app/lib/src/features/auth/presentation/widgets/sign_up_wizard_step1.dart`
+- `app/lib/src/features/auth/presentation/widgets/sign_up_wizard_step2.dart`
+- `app/lib/src/features/auth/presentation/widgets/sign_up_wizard_step3.dart`
+- `app/lib/src/features/auth/presentation/widgets/password_rules.dart`
 - `app/lib/src/features/auth/presentation/state/signup_wizard_provider.dart`
 - `app/test/widget/auth_signup_wizard_step1_test.dart`
 - `app/test/widget/auth_signup_wizard_step2_test.dart`
