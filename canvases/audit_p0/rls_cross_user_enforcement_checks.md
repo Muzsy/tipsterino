@@ -49,5 +49,6 @@ Nem erintett.
 - `docs/qa/testing_guidelines.md`
 - `docs/codex/yaml_schema.md`
 - `docs/codex/report_standard.md`
+- `supabase/sql_checks/bonus_system_rls_cross_user_enforcement_checks.sql`
 - `supabase/sql_checks/registration_v2_profiles_rls_trigger_checks.sql`
 - `supabase/sql_checks/bonus_system_db_schema_rls_checks.sql`

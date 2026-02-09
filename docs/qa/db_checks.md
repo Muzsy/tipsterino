@@ -21,6 +21,9 @@
    ./scripts/check_db.sh
    ```
    The script will verify that the stack is running, discover the `DATABASE_URL`, and execute every `supabase/sql_checks/*.sql` file.
+   Important cross-user RLS contract coverage includes:
+   - `supabase/sql_checks/bonus_system_rls_cross_user_enforcement_checks.sql`
+     (authenticated user1 must not read/update user2 rows in `profiles`, `reward_grants`, `user_stats`, `user_events`).
 4. On error, inspect `supabase start` logs, verify the port (`54322`) is listening, and ensure Supabase CLI + `psql` are installed.
 
 ## CI behaviour
