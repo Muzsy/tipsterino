@@ -1,0 +1,94 @@
+# FILE: codex/goals/canvases/bonus_system/fill_canvas_bonus_system_daily_bonus_rpc_unit_test.yaml
+
+steps:
+  - name: "Canvas létrehozása (P1-6 specifikáció)"
+    description: >
+      Hozd létre a P1-6 feladathoz tartozó canvas-t a repo szabvány szerint.
+      Kötelező szekciók: 🎯 Funkció, 🧠 Fejlesztési részletek, 🧪 Tesztállapot, 🌍 Lokalizáció, 📎 Kapcsolódások.
+      Rögzítsd a valós fájlutakat: app/lib/.../daily_bonus_rpc.dart, app/test/unit/..., docs/core_logic/daily_bonus.md,
+      és a gate-et: scripts/check.sh + .github/workflows/ci.yml.
+    outputs:
+      - "canvases/bonus_system/bonus_system_daily_bonus_rpc_unit_test.md"
+
+  - name: "daily_bonus_rpc tesztelhetőségi seam (raw caller provider)"
+    description: >
+      Módosítsd a fájlt: app/lib/src/features/rewards/data/daily_bonus_rpc.dart
+
+      Cél: a SupabaseClient közvetlen mockolása nélkül is lehessen unit tesztelni a wrapper viselkedését.
+
+      Követelmények:
+      - Vezess be egy új típust: DailyBonusRpcRawCaller = Future<Map<String, dynamic>?> Function();
+      - Hozz létre új providert: dailyBonusRpcRawCallerProvider (Provider<DailyBonusRpcRawCaller>):
+        * unconfigured (config.isConfigured == false vagy client == null) esetén: () async => null
+        * configured esetén: () async => client.rpc<Map<String, dynamic>>('grant_daily_bonus_if_eligible').maybeSingle()
+      - A meglévő dailyBonusRpcCallerProvider maradjon Provider<DailyBonusRpcCaller>, de a nyers providerből dolgozzon:
+        * final raw = ref.watch(dailyBonusRpcRawCallerProvider)
+        * return () async => DailyBonusGrantResult.fromJson(await raw())
+      - Viselkedés ne változzon:
+        * unconfigured esetén továbbra is DailyBonusReason.notConfigured legyen a vége (fromJson(null) miatt).
+    outputs:
+      - "app/lib/src/features/rewards/data/daily_bonus_rpc.dart"
+
+  - name: "Célzott unit teszt a daily_bonus_rpc wrapperre (provider override)"
+    description: >
+      Hozd létre: app/test/unit/daily_bonus_rpc_provider_test.dart
+
+      Követelmények:
+      - Használj ProviderContainer-t és override-old a dailyBonusRpcRawCallerProvider-t, hogy hálózat nélkül teszteljünk.
+      - Tesztesetek:
+        1) raw -> {'granted': true, 'amount': 50, 'reason': 'granted', 'next_eligible_at': '2025-12-31T23:59:59Z'}
+           * elvárt: granted=true, amount=50, reason=DailyBonusReason.granted, nextEligibleAt parse-olt DateTime
+        2) raw -> {'granted': false, 'amount': 0, 'reason': 'already_claimed_today', 'next_eligible_at': '2025-12-31T23:59:59Z'}
+           * elvárt: reason=DailyBonusReason.alreadyClaimedToday
+        3) raw -> {'granted': false, 'amount': 0, 'reason': 'disabled'}
+           * elvárt: reason=DailyBonusReason.disabled
+        4) raw -> null
+           * elvárt: reason=DailyBonusReason.notConfigured
+      - (Ajánlott) mérd a raw hívások számát (counter), és bizonyítsd, hogy 1x fut.
+      - A teszt csak flutter_test + riverpod alapokra épüljön, ne adj hozzá új dev dependency-t.
+    outputs:
+      - "app/test/unit/daily_bonus_rpc_provider_test.dart"
+
+  - name: "Dokumentáció: daily_bonus tesztfájl rögzítése"
+    description: >
+      Frissítsd: docs/core_logic/daily_bonus.md
+
+      - A 'Teszt DoD (csak felsorolás)' Flutter/Frontend részben add hozzá konkrétan:
+        * app/test/unit/daily_bonus_rpc_provider_test.dart (daily_bonus_rpc wrapper unit teszt)
+      - Röviden, 1-2 sorban, csak a kötelező fájlút + mit ellenőriz (mapping + next_eligible_at parse).
+    outputs:
+      - "docs/core_logic/daily_bonus.md"
+
+  - name: "Codex checklist + report váz létrehozása"
+    description: >
+      Hozd létre a feladathoz a checklistet és a report vázat a szabvány szerint.
+
+      1) Checklist:
+         - File: codex/codex_checklist/bonus_system/bonus_system_daily_bonus_rpc_unit_test.md
+         - pipálható DoD lista a canvas DoD pontjai alapján.
+
+      2) Report váz:
+         - File: codex/reports/bonus_system/bonus_system_daily_bonus_rpc_unit_test.md
+         - kövesd a docs/codex/report_standard.md szerkezetét (Report Standard v2).
+         - kezdeti státusz: FAIL (amíg nem fut verify)
+         - legyen benne AUTO_VERIFY marker blokk (verify.sh frissíti)
+    outputs:
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_rpc_unit_test.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_rpc_unit_test.md"
+
+  - name: "Repo gate (verify) + report/checklist zárás"
+    description: >
+      Futtasd a standard repo ellenőrzést és rögzítsd a reportban:
+
+      Parancs:
+      ./scripts/verify.sh --report codex/reports/bonus_system/bonus_system_daily_bonus_rpc_unit_test.md
+
+      Elvárt:
+      - létrejön/frissül: codex/reports/bonus_system/bonus_system_daily_bonus_rpc_unit_test.verify.log
+      - a report AUTO_VERIFY blokkja frissül
+      - PASS esetén: report státusz PASS (vagy PASS_WITH_NOTES), Change summary + DoD→Evidence Matrix kitöltve
+      - checklistben csak a valós, bizonyított pontok legyenek kipipálva
+    outputs:
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_rpc_unit_test.md"
+      - "codex/reports/bonus_system/bonus_system_daily_bonus_rpc_unit_test.verify.log"
+      - "codex/codex_checklist/bonus_system/bonus_system_daily_bonus_rpc_unit_test.md"

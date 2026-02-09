@@ -87,5 +87,6 @@ Az ARB-állományokra eltérő feladat hivatkozhat; itt csak javaslatot teszünk
 ### Flutter/Frontend
 - Daily bonus tile képes megjeleníteni available/claimed/offline állapotot a `next_eligible_at` alapján.
 - RPC hívás eredménye (granted/amount/reason) helyes hibakezeléssel.
+- `app/test/unit/daily_bonus_rpc_provider_test.dart` lefedi a `daily_bonus_rpc` wrapper mappinget és a `next_eligible_at` parse működését.
 - Inbox event `type/code` alapján megjeleníti a `dailyBonus` szövegeket.
 - `next_eligible_at` a kliens oldalon frissül és figyelembe veszi a napi limitet.
