@@ -22,7 +22,7 @@ Tervezett kimenetek:
 DoD:
 - [ ] a daily bonus RPC tartalmaz user-szintu concurrency vedelmet
 - [ ] check bizonyitja, hogy 2 parhuzamos triggerbol max 1 grant keletkezik
-- [ ] reportban explicit rogzites van a determinisztikus masodik valaszrol
+- [ ] reportban explicit rogzites van a determinisztikus masodik valaszrol (`already_claimed_today`)
 - [ ] verify gate futas dokumentalt
 
 Kockazat/rollback:

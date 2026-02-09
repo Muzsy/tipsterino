@@ -7,7 +7,6 @@ CREATE OR REPLACE FUNCTION public.grant_daily_bonus_if_eligible()
 AS $$
 DECLARE
   v_user_id uuid := auth.uid();
-  v_result jsonb;
   v_nickname text;
   v_avatar_key text;
   v_amount integer;
@@ -23,6 +22,16 @@ BEGIN
       'granted', false,
       'amount', 0,
       'reason', 'not_authenticated',
+      'next_eligible_at', v_next_eligible_at
+    );
+  END IF;
+
+  -- Serialise per-user daily bonus claim attempts inside one transaction window.
+  IF NOT pg_try_advisory_xact_lock(hashtext('daily_bonus_claim'), hashtext(v_user_id::text)) THEN
+    RETURN jsonb_build_object(
+      'granted', false,
+      'amount', 0,
+      'reason', 'already_claimed_today',
       'next_eligible_at', v_next_eligible_at
     );
   END IF;

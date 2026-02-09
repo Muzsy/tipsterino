@@ -24,6 +24,15 @@ Ezek az esetek a standard grant pipeline pre-ellenőrzésében szerepelnek; a pi
 - A `daily_bonus` esetén a `grant_day` mező nem lehet NULL (a migráció egy CHECK constrainttel biztosítja).
 - A `reward_grants_user_daily_bonus_day_unique` partial unique index (user_id, code, grant_day WHERE code = 'daily_bonus') garantálja, hogy minden user naponta egyszer kaphat `daily_bonus`-t.
 
+## Concurrency guard
+
+- A `grant_daily_bonus_if_eligible()` RPC user-szintu tranzakcios lockot hasznal:
+  `pg_try_advisory_xact_lock(hashtext('daily_bonus_claim'), hashtext(v_user_id::text))`.
+- Cél: ha ket claim hivas ugyanarra a userre parhuzamosan erkezik, ne fusson egyszerre a grant pipeline.
+- Determinisztikus masodik valasz: lock-utkozes vagy insert-conflict utan a valasz
+  `granted=false`, `reason='already_claimed_today'`, `amount=0`.
+- A lock mellett a napi unique index marad a vegso adat-integritasi vedelmi reteget adja.
+
 ## RPC contract
 
 - `public.grant_daily_bonus_if_eligible()` – visszaadott típus: `jsonb`.
