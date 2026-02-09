@@ -11,6 +11,7 @@ Nem cel:
 Valos forrasok:
 - `app/pubspec.yaml`
 - `supabase/config.toml`
+- `app/lib/src/app/router/app_router.dart`
 - `docs/setup/dev_setup.md`
 - `docs/setup/supabase_setup.md`
 - `docs/setup/supabase_configuration.md`

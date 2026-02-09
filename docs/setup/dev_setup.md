@@ -3,6 +3,10 @@
 Ez a guide egy friss gépes fejlesztői indulást ír le wrapper-alapú parancsokkal.
 
 ## 1) Minimum ellenőrzés friss klónozás után
+1. Ellenorizd az elvart Dart SDK sot:
+   - repo forras: `app/pubspec.yaml` -> `environment.sdk: ^3.10.4`
+   - helyi verzio ellenorzes: `./scripts/flutter.sh --version`
+   - ha eltérés van, frissitsd a Flutter SDK-t, mert a Dart verzio ebből jon.
 1. Ellenőrizd a Flutter telepítést:
    - `./scripts/flutter.sh doctor`
 2. Futtasd a repo standard gate-et:
@@ -33,3 +37,8 @@ Ez a guide egy friss gépes fejlesztői indulást ír le wrapper-alapú parancso
 - `app/.env` és `.env.local` nem kerülhet gitbe.
 - Ne commitolj Supabase kulcsot vagy bármilyen secretet.
 - Részletes szabályok: `docs/setup/secret_management.md`
+
+## 6) Redirect/site_url gyors hivatkozas
+- Supabase auth redirect beallitasok es callback route osszhang:
+  - `docs/setup/supabase_configuration.md`
+  - `docs/setup/supabase_setup.md`

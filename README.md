@@ -23,6 +23,7 @@ Struktúra:
 ## Setup (fresh machine + Supabase)
 - Fejlesztői setup: `docs/setup/dev_setup.md`
 - Supabase local setup: `docs/setup/supabase_setup.md`
+- Supabase config + redirect/site_url + SDK tisztazas: `docs/setup/supabase_configuration.md`
 - Secret kezelés: `docs/setup/secret_management.md`
 
 ## Legacy használat
