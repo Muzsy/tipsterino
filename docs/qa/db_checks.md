@@ -21,10 +21,23 @@
    ./scripts/check_db.sh
    ```
    The script will verify that the stack is running, discover the `DATABASE_URL`, and execute every `supabase/sql_checks/*.sql` file.
+   Retention contract coverage includes:
+   - `supabase/sql_checks/bonus_system_rpc_rate_limit_retention_checks.sql`
+     (cleanup function presence, security-definer hardening, execute privileges, smoke invocation).
    Important cross-user RLS contract coverage includes:
    - `supabase/sql_checks/bonus_system_rls_cross_user_enforcement_checks.sql`
      (authenticated user1 must not read/update user2 rows in `profiles`, `reward_grants`, `user_stats`, `user_events`).
 4. On error, inspect `supabase start` logs, verify the port (`54322`) is listening, and ensure Supabase CLI + `psql` are installed.
+
+## Rate-limit retention operation note
+- DB retention helper:
+  - `public.cleanup_bonus_rpc_rate_limit_state(interval, integer)`
+- Manual fallback run (admin/scheduler context):
+  ```sql
+  select public.cleanup_bonus_rpc_rate_limit_state(interval '7 days', 10000);
+  ```
+- Scheduler recommendation: run periodically (e.g. every hour) with conservative
+  retention to avoid unbounded `rpc_rate_limit_state` growth.
 
 ## CI behaviour
 - Workflow: `.github/workflows/ci_db.yml` triggers on `pull_request`, `push`, and `workflow_dispatch`.

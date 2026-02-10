@@ -44,9 +44,26 @@ Megjegyzes:
 - A limiter helper `SECURITY DEFINER`, search_path hardeninggel.
 - A ket bonus RPC tovabbra is csak `authenticated` role-ra executable.
 
+## Retention cleanup contract (P1)
+- Cleanup helper: `public.cleanup_bonus_rpc_rate_limit_state(interval, integer)`
+- Alap parameterek:
+  - retention: `7 days`
+  - batch size: `10000`
+- A helper `SECURITY DEFINER`, search_path hardeninget hasznal, es
+  `last_attempt_at` alapjan torli a stale sorokat.
+- Privilege policy:
+  - `anon`/`authenticated` execute nincs
+  - scheduler/admin futtatja (cron vagy kulso job)
+- Monitoring/check:
+  - SQL contract check: `supabase/sql_checks/bonus_system_rpc_rate_limit_retention_checks.sql`
+
+Manual futtatas (operational fallback):
+- `select public.cleanup_bonus_rpc_rate_limit_state(interval '7 days', 10000);`
+
 ## Residual risks
 - Egy legitim user gyors kattintasnal `rate_limited` valaszt kaphat.
-- A limiter allapot tabla novelheti az adatmeretet; kesobb retention/cleanup task javasolt.
+- Ha a retention tul szigorura van allitva, a hibaelemzeshez hasznos limiter
+  adatok korabban torlodhetnek.
 - Tovabbi hardeningkent kesobb Edge Function perimeter limiter bevezetese javasolt.
 
 ## Follow-up candidates

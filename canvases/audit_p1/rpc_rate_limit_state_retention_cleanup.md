@@ -21,6 +21,12 @@ Tervezett kimenetek:
 - strategy doksi frissites: `docs/core_logic/bonus_rpc_rate_limiting_strategy.md`
 - DB check guide frissites: `docs/qa/db_checks.md`
 
+Implementacios irany:
+- cleanup fuggveny neve: `public.cleanup_bonus_rpc_rate_limit_state(interval, integer)`
+- SECURITY DEFINER + search_path hardening (`pg_catalog, public, auth`)
+- retention alap: `7 days`, batch cleanup tamogatassal
+- contract check: function jelenlet, privilege guard (anon/auth execute tiltott), basic smoke invocation
+
 DoD:
 - [ ] letezik SECURITY DEFINER cleanup fuggveny a `public.rpc_rate_limit_state` regi sorainak torlesere
 - [ ] a cleanup futtatasi modja dokumentalt (cron vagy kulso scheduler), fallback manual parancsokkal
