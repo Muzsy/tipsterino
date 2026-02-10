@@ -1,0 +1,63 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a P1-3 canvasat az auth-rewards coupling valos import pontjaival,
+      startup celarchitekturaval es tesztelheto DOD listaval.
+    outputs:
+      - "canvases/audit_p1/auth_rewards_cross_feature_decoupling.md"
+
+  - name: "App startup orchestrator bevezetese"
+    description: >
+      Hozd letre az app/startup orchestrator providert, amely felelos a post-auth
+      init triggerelesert a featurek kozvetlen osszekotese nelkul.
+    outputs:
+      - "app/lib/src/app/startup/post_auth_startup_provider.dart"
+
+  - name: "Auth notifier decoupling"
+    description: >
+      Refaktoralj az auth notifierben, hogy ne importalja kozvetlenul a rewards
+      post_auth_init provideret, hanem app-startup retegen keresztul hivjon.
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/auth_provider.dart"
+
+  - name: "Feature public API es import cleanup"
+    description: >
+      Vezess be feature barrel exportokat es igazitsd a cross-feature importokat,
+      hogy ne legyen deep import a featurek belso retegeire.
+    outputs:
+      - "app/lib/src/features/auth/auth.dart"
+      - "app/lib/src/features/rewards/rewards.dart"
+      - "app/lib/src/features/home/presentation/screens/home_screen.dart"
+
+  - name: "Startup regresszios tesztek"
+    description: >
+      Frissitsd/egeszitsd ki a post-auth init teszteket az uj startup orchestration
+      viselkedes ellenorzesere.
+    outputs:
+      - "app/test/unit/bonus_system_post_auth_init_test.dart"
+      - "app/test/unit/post_auth_startup_provider_test.dart"
+
+  - name: "Architekturadoksi frissites"
+    description: >
+      Frissitsd a project structure es registration flow dokumentumokat az uj
+      app/startup integracios mintaval.
+    outputs:
+      - "docs/architect/project_structure.md"
+      - "docs/core_logic/registration_flow.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p1/auth_rewards_cross_feature_decoupling.md"
+      - "codex/reports/audit_p1/auth_rewards_cross_feature_decoupling.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p1/auth_rewards_cross_feature_decoupling.md
+      A reportban rogzitsd az auth/startup regresszios tesztek eredmenyet is.
+    outputs:
+      - "codex/reports/audit_p1/auth_rewards_cross_feature_decoupling.md"
+      - "codex/reports/audit_p1/auth_rewards_cross_feature_decoupling.verify.log"
+      - "codex/codex_checklist/audit_p1/auth_rewards_cross_feature_decoupling.md"

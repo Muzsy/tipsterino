@@ -1,0 +1,46 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a P1-1 canvasat valos DB limiter forrasokkal, retention scope-pal
+      es verifikacios kovetelmenyekkel.
+    outputs:
+      - "canvases/audit_p1/rpc_rate_limit_state_retention_cleanup.md"
+
+  - name: "Retention cleanup migracio"
+    description: >
+      Hozd letre a rpc_rate_limit_state retention cleanup migraciot SECURITY DEFINER
+      fuggvennyel es dokumentalt retention parameterekkel.
+    outputs:
+      - "supabase/migrations/20260217000000_rpc_rate_limit_state_retention_cleanup.sql"
+
+  - name: "Retention SQL check bevezetese"
+    description: >
+      Adj hozza kulon SQL contract checket, amely ellenorzi a cleanup fuggveny
+      jelenletet es alap retention szerzodeset.
+    outputs:
+      - "supabase/sql_checks/bonus_system_rpc_rate_limit_retention_checks.sql"
+
+  - name: "Strategia es DB check doksi frissites"
+    description: >
+      Frissitsd a bonus rate-limit strategia es DB check guide dokumentumokat,
+      hogy tartalmazzak a retention futtatasi modot es ellenorzeseket.
+    outputs:
+      - "docs/core_logic/bonus_rpc_rate_limiting_strategy.md"
+      - "docs/qa/db_checks.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerkezettel.
+    outputs:
+      - "codex/codex_checklist/audit_p1/rpc_rate_limit_state_retention_cleanup.md"
+      - "codex/reports/audit_p1/rpc_rate_limit_state_retention_cleanup.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p1/rpc_rate_limit_state_retention_cleanup.md
+      A reportban rogzitsd a check_db eredmenyt is.
+    outputs:
+      - "codex/reports/audit_p1/rpc_rate_limit_state_retention_cleanup.md"
+      - "codex/reports/audit_p1/rpc_rate_limit_state_retention_cleanup.verify.log"
+      - "codex/codex_checklist/audit_p1/rpc_rate_limit_state_retention_cleanup.md"

@@ -1,0 +1,45 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a P1-5 canvasat valos integration es CI referenciafajlokkal,
+      valamint rate-limit branch lefedesi kovetelmennyel.
+    outputs:
+      - "canvases/audit_p1/bonus_rpc_integration_rate_limit_branch.md"
+
+  - name: "Integration teszt rate-limit scenario"
+    description: >
+      Bovitd a bonus RPC integration tesztet determinisztikus rate_limited branch
+      ellenorzessel, hogy ne signup email rate-limitre tamaszkodjon.
+    outputs:
+      - "app/integration_test/bonus_rpc_integration_test.dart"
+
+  - name: "CI izolalt futtatas frissitese"
+    description: >
+      Frissitsd a DB CI workflow-t ugy, hogy a rate-limit scenario elkulonitett,
+      reprodukalhato futasi sorrendben menjen.
+    outputs:
+      - ".github/workflows/ci_db.yml"
+
+  - name: "QA guideline frissites"
+    description: >
+      Frissitsd a testing guideline doksit a bonus RPC rate-limit integration
+      elvarasokkal es futtatasi mintaval.
+    outputs:
+      - "docs/qa/testing_guidelines.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p1/bonus_rpc_integration_rate_limit_branch.md"
+      - "codex/reports/audit_p1/bonus_rpc_integration_rate_limit_branch.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p1/bonus_rpc_integration_rate_limit_branch.md
+      A reportban rogzitsd a check_db es integration futas eredmenyet is.
+    outputs:
+      - "codex/reports/audit_p1/bonus_rpc_integration_rate_limit_branch.md"
+      - "codex/reports/audit_p1/bonus_rpc_integration_rate_limit_branch.verify.log"
+      - "codex/codex_checklist/audit_p1/bonus_rpc_integration_rate_limit_branch.md"

@@ -1,0 +1,41 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a P1-4 canvasat a valos CI workflow referenciafajlokkal es pin
+      policy kovetelmenyekkel.
+    outputs:
+      - "canvases/audit_p1/ci_deterministic_pin_upgrade_policy.md"
+
+  - name: "CI workflow pin matrix frissitese"
+    description: >
+      Egységesitsd a workflow action es toolchain pineket, es tavolitsd el a driftet
+      okozo lebego verziohasznalatot.
+    outputs:
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/ci_db.yml"
+
+  - name: "Upgrade policy dokumentalas"
+    description: >
+      Frissitsd a CI pin upgrade policy dokumentaciot kotelezo local gate
+      parancsokkal es rollback orientalt folyamatleirassal.
+    outputs:
+      - "docs/qa/db_checks.md"
+      - "docs/setup/dev_setup.md"
+      - "README.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p1/ci_deterministic_pin_upgrade_policy.md"
+      - "codex/reports/audit_p1/ci_deterministic_pin_upgrade_policy.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p1/ci_deterministic_pin_upgrade_policy.md
+      A reportban rogzitsd a check.sh eredmenyt es pin matrix osszefoglalot.
+    outputs:
+      - "codex/reports/audit_p1/ci_deterministic_pin_upgrade_policy.md"
+      - "codex/reports/audit_p1/ci_deterministic_pin_upgrade_policy.verify.log"
+      - "codex/codex_checklist/audit_p1/ci_deterministic_pin_upgrade_policy.md"

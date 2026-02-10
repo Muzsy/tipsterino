@@ -1,0 +1,53 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a P1-2 canvasat a valos events domain/schema referenciafajlokkal
+      es a nullable code konzisztencia celjaval.
+    outputs:
+      - "canvases/audit_p1/user_event_code_schema_client_consistency.md"
+
+  - name: "UserEvent domain modell frissitese"
+    description: >
+      Igazitsd a UserEvent domain modellt a DB nullable code szerzodesehez,
+      hogy null code eseten se dobjon parse exceptiont.
+    outputs:
+      - "app/lib/src/features/events/domain/user_event.dart"
+
+  - name: "Inbox fallback logika frissitese"
+    description: >
+      Frissitsd az events inbox title/body fallback mappinget, hogy kezelje a null
+      vagy ures code ertekeket is.
+    outputs:
+      - "app/lib/src/features/events/presentation/screens/events_inbox_screen.dart"
+
+  - name: "Null code regresszios tesztek"
+    description: >
+      Adj hozza unit es widget regresszios teszteket a null code parse es render
+      scenariokra.
+    outputs:
+      - "app/test/unit/user_event_model_test.dart"
+      - "app/test/widget/events_inbox_data_flow_test.dart"
+
+  - name: "Data model doksi frissites"
+    description: >
+      Frissitsd a user_events tabla dokumentaciot a code nullable szerzodes es
+      kliens oldali fallback viselkedes rogzitesevel.
+    outputs:
+      - "docs/data_model/user_events_table_doc.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p1/user_event_code_schema_client_consistency.md"
+      - "codex/reports/audit_p1/user_event_code_schema_client_consistency.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p1/user_event_code_schema_client_consistency.md
+      A reportban rogzitsd a null code regresszios tesztek futasat is.
+    outputs:
+      - "codex/reports/audit_p1/user_event_code_schema_client_consistency.md"
+      - "codex/reports/audit_p1/user_event_code_schema_client_consistency.verify.log"
+      - "codex/codex_checklist/audit_p1/user_event_code_schema_client_consistency.md"
