@@ -21,6 +21,7 @@ class DailyBonusTile extends ConsumerWidget {
     final isSupabaseConfigured = ref.watch(supabaseConfigProvider).isConfigured;
     final showNotConfigured = !isSupabaseConfigured;
     final showOffline = hasError && isSupabaseConfigured;
+    final isRateLimited = reason == DailyBonusReason.rateLimited;
 
     final bodyText = _bodyText(
       loc,
@@ -31,7 +32,9 @@ class DailyBonusTile extends ConsumerWidget {
     );
     final buttonLabel = isClaimedNow
         ? loc.daily_bonus_cta_claimed
-        : (showOffline ? loc.daily_bonus_cta_retry : loc.daily_bonus_cta_claim);
+        : ((showOffline || isRateLimited)
+              ? loc.daily_bonus_cta_retry
+              : loc.daily_bonus_cta_claim);
     final canClaim = !isRunning &&
         !isClaimedNow &&
         !showNotConfigured &&
@@ -116,6 +119,8 @@ class DailyBonusTile extends ConsumerWidget {
         return loc.daily_bonus_body_not_verified;
       case DailyBonusReason.profileIncomplete:
         return loc.daily_bonus_body_profile_incomplete;
+      case DailyBonusReason.rateLimited:
+        return loc.daily_bonus_body_offline;
       default:
         break;
     }

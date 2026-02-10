@@ -5,6 +5,8 @@ enum SignupBonusReason {
   alreadyGranted,
   notVerified,
   notAuthenticated,
+  profileIncomplete,
+  rateLimited,
 }
 
 class SignupBonusGrantResult {
@@ -63,6 +65,10 @@ class SignupBonusGrantResult {
         return SignupBonusReason.alreadyGranted;
       case 'not_authenticated':
         return SignupBonusReason.notAuthenticated;
+      case 'profile_incomplete':
+        return SignupBonusReason.profileIncomplete;
+      case 'rate_limited':
+        return SignupBonusReason.rateLimited;
       default:
         return SignupBonusReason.notConfigured;
     }

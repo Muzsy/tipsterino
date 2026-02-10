@@ -120,4 +120,23 @@ void main() {
     final button = tester.widget<FilledButton>(find.byType(FilledButton));
     expect(button.onPressed, isNotNull);
   });
+
+  testWidgets('rate_limited reason shows dedicated text and retry CTA', (tester) async {
+    await pumpTile(
+      tester,
+      const DailyBonusClaimState(
+        lastResult: DailyBonusGrantResult(
+          granted: false,
+          amount: 0,
+          reason: DailyBonusReason.rateLimited,
+        ),
+      ),
+      isSupabaseConfigured: true,
+    );
+
+    expect(find.text('You appear to be offline. Try again.'), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+    final button = tester.widget<FilledButton>(find.byType(FilledButton));
+    expect(button.onPressed, isNotNull);
+  });
 }

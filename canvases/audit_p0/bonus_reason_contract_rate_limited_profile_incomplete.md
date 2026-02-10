@@ -29,6 +29,11 @@ Tervezett kimenetek:
 - EN/HU l10n bovites
 - unit/widget teszt bovites (`daily_bonus_grant_result_test`, uj `signup_bonus_grant_result_test`, `daily_bonus_tile_test`)
 
+Valasztott implementacios irany:
+- `DailyBonusReason`: uj `rateLimited` enum + string mapping `rate_limited`.
+- `SignupBonusReason`: uj `profileIncomplete` es `rateLimited` enum + string mapping.
+- `DailyBonusTile`: `rate_limited` esetben kulon body szoveg + `Retry` CTA.
+
 DoD:
 - [ ] `DailyBonusReason` kezeli a `rate_limited` reason-t
 - [ ] `SignupBonusReason` kezeli a `profile_incomplete` es `rate_limited` reason-t

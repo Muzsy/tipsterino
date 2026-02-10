@@ -24,6 +24,18 @@ void main() {
         {'reason': 'profile_incomplete', 'granted': false, 'amount': 0},
       );
       expect(profile.reason, DailyBonusReason.profileIncomplete);
+
+      final rateLimited = DailyBonusGrantResult.fromJson(
+        {'reason': 'rate_limited', 'granted': false, 'amount': 0},
+      );
+      expect(rateLimited.reason, DailyBonusReason.rateLimited);
+    });
+
+    test('fromJson unknown reason falls back to notConfigured', () {
+      final fallback = DailyBonusGrantResult.fromJson(
+        {'reason': 'unexpected_reason', 'granted': false, 'amount': 0},
+      );
+      expect(fallback.reason, DailyBonusReason.notConfigured);
     });
 
     test('fromJson parses nextEligibleAt string', () {

@@ -6,6 +6,7 @@ enum DailyBonusReason {
   notVerified,
   notAuthenticated,
   profileIncomplete,
+  rateLimited,
 }
 
 class DailyBonusGrantResult {
@@ -78,6 +79,8 @@ class DailyBonusGrantResult {
         return DailyBonusReason.notAuthenticated;
       case 'profile_incomplete':
         return DailyBonusReason.profileIncomplete;
+      case 'rate_limited':
+        return DailyBonusReason.rateLimited;
       default:
         return DailyBonusReason.notConfigured;
     }
