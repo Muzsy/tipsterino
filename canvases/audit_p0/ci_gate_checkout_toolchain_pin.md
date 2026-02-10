@@ -23,6 +23,12 @@ Tervezett kimenetek:
 - workflow pin frissites mindket CI fajlban (`actions/checkout`, Flutter, Supabase CLI)
 - QA doksi frissites a valasztott pinelt verziokkal es upgrade policy rovid indoklassal
 
+Valasztott implementacios irany:
+- `.github/workflows/ci.yml` es `.github/workflows/ci_db.yml` checkout lepes: `actions/checkout@v4.2.2` (nem lebego major tag).
+- Flutter toolchain pin: `subosito/flutter-action@v2` mellett explicit `flutter-version: 3.38.7`.
+- Supabase CLI pin: `supabase/setup-cli@v1` mellett explicit `version: 2.65.5` (`latest` tiltva).
+- `docs/qa/db_checks.md` CI szekcio bovites a pin listaval es rovid upgrade policyval.
+
 DoD:
 - [ ] `ci.yml` es `ci_db.yml` nem hasznal lebego checkout taget
 - [ ] Flutter action/csatorna explicit pinelt (nem driftelo)

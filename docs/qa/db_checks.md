@@ -28,9 +28,21 @@
 
 ## CI behaviour
 - Workflow: `.github/workflows/ci_db.yml` triggers on `pull_request`, `push`, and `workflow_dispatch`.
-- Runner: `ubuntu-latest`, with Supabase CLI (`supabase/setup-cli@v1`) and `postgresql-client` installed.
+- Runner: `ubuntu-latest`, with pinned toolchain setup and `postgresql-client` installed.
+- Pinned versions:
+  - `actions/checkout@v4.2.2`
+  - `subosito/flutter-action@v2` + `flutter-version: 3.38.7`
+  - `supabase/setup-cli@v1` + `version: 2.65.5`
 - Steps: checkout → install Supabase CLI → install `psql` → `supabase start` → `supabase db reset --local --no-seed` → `./scripts/check_db.sh`.
 - On failure, the job stops and surfaces the relevant error (missing CLI, DB port, or SQL errors).
+
+### Upgrade policy (CI pins)
+- Never use floating `latest` for CI toolchains (`Flutter`, `Supabase CLI`) or floating checkout major tags.
+- Upgrade pins in a dedicated PR by:
+  1. changing workflow version pins,
+  2. running local gate: `./scripts/check.sh` and `./scripts/check_db.sh`,
+  3. running report gate: `./scripts/verify.sh --report codex/reports/<area>/<task>.md`.
+- Keep upgrades small and explicit (single-version bump per tool when possible) so rollback stays low-risk.
 
 ## Rollback linkage
 - Migration incident dontesi fa es rollback runbook:
