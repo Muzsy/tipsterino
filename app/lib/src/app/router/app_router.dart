@@ -83,6 +83,7 @@ GoRouter createAppRouter(Ref ref, {String initialLocation = '/home'}) {
       GoRoute(
         path: '/auth/register',
         name: 'register',
+        // Registration v2 single source: /auth/register always opens the wizard.
         builder: (context, state) => const SignUpWizardScreen(),
       ),
       GoRoute(

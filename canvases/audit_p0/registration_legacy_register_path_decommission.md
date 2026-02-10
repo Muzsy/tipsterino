@@ -27,6 +27,11 @@ Tervezett kimenetek:
 - regresszios route teszt: `app/test/widget/guest_routing_shells_test.dart`
 - doksi frissites: `docs/core_logic/registration_flow.md`
 
+Valasztott implementacios irany:
+- `AuthNotifier.register()` eltavolitasa (nincs metadata-nelkul signup API a providerben).
+- `RegisterScreen` explicit deprecalt adapterkent marad, amely a `SignUpWizardScreen`-t adja vissza.
+- `/auth/register` route valtozatlanul wizard-only.
+
 DoD:
 - [ ] `AuthNotifier.register()` nem marad hivhato legacy utkent
 - [ ] `register_screen.dart` nincs aktiv routingban (torolve vagy explicit deprecalt, unreachable)

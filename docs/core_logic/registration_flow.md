@@ -28,6 +28,13 @@ Sikeres regisztráció után a felhasználó **VerifyEmailPending** képernyőre
 
 **Fontos:** a 1. és 2. lépésben csak lokálisan gyűjtünk adatot. A Supabase user létrehozás (signUp) **a 3. lépés CTA-jánál** fut.
 
+### Legacy minimal register út (P0 döntés)
+
+`AuthNotifier.register()` metadata nélküli, email+jelszó alapú signup ága kivezetésre került.
+Kötelező szabály: a kliensben nincs külön "minimal register" út, a `/auth/register`
+mindig a `SignUpWizardScreen`-re mutat, ahol a `nickname` + `avatar_key` kötelező
+adatok a signup payload részei.
+
 ---
 
 ## 1) 1. lépés – Email + Jelszó

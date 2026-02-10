@@ -82,6 +82,20 @@ void main() {
     expect(find.text(loc.homeTab), findsWidgets);
   });
 
+  testWidgets('Guest /auth/register opens registration wizard', (tester) async {
+    final loc = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.pumpWidget(
+      _buildApp(state: const AuthViewState(status: AuthStatus.unauthenticated)),
+    );
+
+    await tester.pumpAndSettle();
+    final router = GoRouter.of(tester.element(find.byType(Scaffold).first));
+
+    router.go('/auth/register');
+    await tester.pumpAndSettle();
+    expect(find.text(loc.auth_signup_step_account), findsWidgets);
+  });
+
   testWidgets('Auth legacy routes redirect to shell tabs', (tester) async {
     final loc = await AppLocalizations.delegate.load(const Locale('en'));
     await tester.pumpWidget(
@@ -98,5 +112,20 @@ void main() {
     router.go('/leaderboard');
     await tester.pumpAndSettle();
     expect(find.text(loc.homeTab), findsWidgets);
+  });
+
+  testWidgets('Auth /auth/register redirects to home shell', (tester) async {
+    final loc = await AppLocalizations.delegate.load(const Locale('en'));
+    await tester.pumpWidget(
+      _buildApp(state: const AuthViewState(status: AuthStatus.authenticated)),
+    );
+
+    await tester.pumpAndSettle();
+    final router = GoRouter.of(tester.element(find.byType(Scaffold).first));
+
+    router.go('/auth/register');
+    await tester.pumpAndSettle();
+    expect(find.text(loc.homeTab), findsWidgets);
+    expect(find.text(loc.auth_signup_step_account), findsNothing);
   });
 }

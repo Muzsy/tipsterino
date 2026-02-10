@@ -80,24 +80,6 @@ class AuthNotifier extends StateNotifier<AuthViewState> {
     }
   }
 
-  Future<void> register({
-    required String email,
-    required String password,
-  }) async {
-    final config = _ref.read(supabaseConfigProvider);
-    if (!config.isConfigured || config.client == null) {
-      throw const AuthFailure('Supabase nincs konfigurálva');
-    }
-
-    try {
-      await config.client!.auth.signUp(email: email, password: password);
-    } on AuthException catch (error) {
-      throw AuthFailure(error.message);
-    } catch (error) {
-      throw AuthFailure(error.toString());
-    }
-  }
-
   Future<void> signOut() async {
     final config = _ref.read(supabaseConfigProvider);
     if (!config.isConfigured || config.client == null) {
