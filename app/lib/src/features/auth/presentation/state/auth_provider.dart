@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthException, AuthState, Session;
 
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
-import 'package:tipsterino/src/features/rewards/application/post_auth_init_provider.dart';
+import 'package:tipsterino/src/app/startup/post_auth_startup_provider.dart';
 
 enum AuthStatus { unknown, authenticated, unauthenticated, offline }
 
@@ -99,12 +99,7 @@ class AuthNotifier extends StateNotifier<AuthViewState> {
   }
 
   void _runPostAuthInit(Session session) {
-    final config = _ref.read(supabaseConfigProvider);
-    if (!config.isConfigured || config.client == null) {
-      return;
-    }
-
-    final notifier = _ref.read(postAuthInitProvider.notifier);
+    final notifier = _ref.read(postAuthStartupProvider.notifier);
     unawaited(notifier.runIfNeeded(session));
   }
 

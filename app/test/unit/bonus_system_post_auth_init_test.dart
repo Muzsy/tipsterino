@@ -25,11 +25,20 @@ Session _buildSession(String userId) {
 void main() {
   const userId = 'user-123';
   final session = _buildSession(userId);
+  final emptySession = _buildSession('');
 
   test('records granted result when RPC returns success', () async {
-    final container = ProviderContainer(overrides: [
-      signupBonusRpcCallerProvider.overrideWithValue(() async => const SignupBonusGrantResult(granted: true, amount: 42, reason: SignupBonusReason.granted)),
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        signupBonusRpcCallerProvider.overrideWithValue(
+          () async => const SignupBonusGrantResult(
+            granted: true,
+            amount: 42,
+            reason: SignupBonusReason.granted,
+          ),
+        ),
+      ],
+    );
     addTearDown(container.dispose);
 
     await container.read(postAuthInitProvider.notifier).runIfNeeded(session);
@@ -44,9 +53,17 @@ void main() {
   });
 
   test('records not_verified result without marking error', () async {
-    final container = ProviderContainer(overrides: [
-      signupBonusRpcCallerProvider.overrideWithValue(() async => const SignupBonusGrantResult(granted: false, amount: 0, reason: SignupBonusReason.notVerified)),
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        signupBonusRpcCallerProvider.overrideWithValue(
+          () async => const SignupBonusGrantResult(
+            granted: false,
+            amount: 0,
+            reason: SignupBonusReason.notVerified,
+          ),
+        ),
+      ],
+    );
     addTearDown(container.dispose);
 
     await container.read(postAuthInitProvider.notifier).runIfNeeded(session);
@@ -59,9 +76,13 @@ void main() {
 
   test('captures errors thrown by RPC and keeps running flag false', () async {
     final error = StateError('rpc failure');
-    final container = ProviderContainer(overrides: [
-      signupBonusRpcCallerProvider.overrideWithValue(() async { throw error; }),
-    ]);
+    final container = ProviderContainer(
+      overrides: [
+        signupBonusRpcCallerProvider.overrideWithValue(() async {
+          throw error;
+        }),
+      ],
+    );
     addTearDown(container.dispose);
 
     await container.read(postAuthInitProvider.notifier).runIfNeeded(session);
@@ -69,6 +90,33 @@ void main() {
 
     expect(state.lastError, same(error));
     expect(state.lastResult, isNull);
+    expect(state.isRunning, isFalse);
+  });
+
+  test('does nothing for empty user id session', () async {
+    var called = false;
+    final container = ProviderContainer(
+      overrides: [
+        signupBonusRpcCallerProvider.overrideWithValue(() async {
+          called = true;
+          return const SignupBonusGrantResult(
+            granted: true,
+            amount: 42,
+            reason: SignupBonusReason.granted,
+          );
+        }),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    await container
+        .read(postAuthInitProvider.notifier)
+        .runIfNeeded(emptySession);
+    final state = container.read(postAuthInitProvider);
+
+    expect(called, isFalse);
+    expect(state.lastResult, isNull);
+    expect(state.lastRunAt, isNull);
     expect(state.isRunning, isFalse);
   });
 }

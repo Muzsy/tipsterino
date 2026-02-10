@@ -25,6 +25,11 @@ Tervezett kimenetek:
 - unit teszt frissites/uj teszt: `app/test/unit/bonus_system_post_auth_init_test.dart`, `app/test/unit/post_auth_startup_provider_test.dart`
 - docs frissites: `docs/architect/project_structure.md`, `docs/core_logic/registration_flow.md`
 
+Implementacios irany:
+- auth oldalon a rewards `post_auth_init_provider` direkt import helyett app-szintu startup orchestrator hivas.
+- app/startup orchestrator felel a session validacio + error swallow viselkedesert.
+- cross-feature importban barrel (`features/auth/auth.dart`, `features/rewards/rewards.dart`) hasznalat.
+
 DoD:
 - [ ] az auth feature nem importalja kozvetlenul a rewards belso startup provideret
 - [ ] a post-auth init hivas app/startup retegen keresztul tortenik

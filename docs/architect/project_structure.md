@@ -106,6 +106,8 @@ lib/
 - Ha kell közös használat:
   - vagy `shared/` komponens lesz belőle,
   - vagy a másik feature „public API”-ján keresztül (pl. `import '.../features/auth/auth.dart';`).
+- App-szintű orchestráció (pl. post-auth startup) az `app/startup/` rétegben történjen;
+  feature→feature közvetlen startup hívás helyett az app réteg hívja a feature public API-t.
 
 #### 3.3) Mi mehet a `shared/` alá?
 - Csak olyan UI/design elem, amit **legalább 2 feature** biztosan használ.
@@ -118,6 +120,8 @@ lib/
 #### 3.5) Riverpod/Supabase „globális” elemek helye
 - App-szintű (keresztmetszeti) provider mehet a `core/` alá (pl. supabase client konfiguráció, auth session stream), **de** feature-üzleti logika ne kerüljön ide.
 - Feature-üzleti logika: feature `presentation/state/` + szükség esetén `domain/`.
+- App-összefűző provider (pl. auth utáni startup trigger) mehet `app/startup/` alá,
+  és onnan delegáljon feature barrel exportokon keresztül.
 
 ---
 

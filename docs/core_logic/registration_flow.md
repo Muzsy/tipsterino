@@ -208,7 +208,7 @@ SignUp siker → `VerifyEmailPendingScreen`
 
 ## 5) Post-auth init (signup bónusz RPC)
 
-Az email verifikációt követő első authenticated session során a kliens egy *post-auth init* lépést futtat, amely nem blokkolja az auth állapot frissülését. Az `AuthNotifier` az `AuthState` streamben (és inicializációkor, ha a `currentSession` már létezik) meghívja a `PostAuthInitNotifier`-t, amely a `public.grant_signup_bonus_if_eligible()` RPC-t hívja.
+Az email verifikációt követő első authenticated session során a kliens egy *post-auth init* lépést futtat, amely nem blokkolja az auth állapot frissülését. Az `AuthNotifier` az auth state streamben (és inicializációkor, ha a `currentSession` már létezik) az app-szintű `PostAuthStartupNotifier`-t hívja (`app/lib/src/app/startup/post_auth_startup_provider.dart`), ami valid session esetén delegál a rewards feature `PostAuthInitNotifier`-ének.
 
 A RPC:
 
