@@ -23,6 +23,11 @@ Tervezett kimenetek:
 - widget teszt frissites: `app/test/widget/events_inbox_data_flow_test.dart`
 - adatmodell doksi frissites: `docs/data_model/user_events_table_doc.md`
 
+Implementacios irany:
+- `UserEvent.code` nullable kezelese (`String?`) parse exception nelkul.
+- `events_inbox_screen` fallback title/body ne generaljon `:null` vagy ures kod-szegmenst.
+- regresszios teszt: null `code` parse + null `code` UI render.
+
 DoD:
 - [ ] a `UserEvent.fromMap` nem dob exceptiont null `code` miatt
 - [ ] az inbox cim/body fallback logika kezeli a null/ures `code` erteket

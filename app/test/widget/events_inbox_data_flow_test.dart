@@ -19,7 +19,10 @@ class FakeUserEventsRepository implements UserEventsRepository {
   int markReadCallCount = 0;
 
   @override
-  Future<List<UserEvent>> fetchPage({required int offset, required int limit}) async {
+  Future<List<UserEvent>> fetchPage({
+    required int offset,
+    required int limit,
+  }) async {
     fetchOffsets.add(offset);
     await Future.delayed(Duration.zero);
     return List<UserEvent>.from(_pages[offset] ?? const []);
@@ -36,10 +39,17 @@ class FakeUserEventsRepository implements UserEventsRepository {
 Widget _buildTestApp(FakeUserEventsRepository repo) {
   return ProviderScope(
     overrides: [
-      authNotifierProvider.overrideWith((ref) => AuthNotifier(ref,
-          initialState: const AuthViewState(status: AuthStatus.authenticated), autoListen: false)),
+      authNotifierProvider.overrideWith(
+        (ref) => AuthNotifier(
+          ref,
+          initialState: const AuthViewState(status: AuthStatus.authenticated),
+          autoListen: false,
+        ),
+      ),
       userEventsRepositoryProvider.overrideWithValue(repo),
-      supabaseConfigProvider.overrideWithValue(const SupabaseConfiguration(isConfigured: false)),
+      supabaseConfigProvider.overrideWithValue(
+        const SupabaseConfiguration(isConfigured: false),
+      ),
     ],
     child: const TipsterinoApp(),
   );
@@ -72,8 +82,22 @@ List<UserEvent> _buildEvents({required int count, String prefix = 'e'}) {
 }
 
 void main() {
-  testWidgets('Initial load shows signup bonus and fetches page 0', (tester) async {
-    final repo = FakeUserEventsRepository({0: [UserEvent(id: 'e1', type: 'tippcoin_credit', code: 'signup_bonus', amount: 100, payload: null, createdAt: DateTime.now(), readAt: null)]});
+  testWidgets('Initial load shows signup bonus and fetches page 0', (
+    tester,
+  ) async {
+    final repo = FakeUserEventsRepository({
+      0: [
+        UserEvent(
+          id: 'e1',
+          type: 'tippcoin_credit',
+          code: 'signup_bonus',
+          amount: 100,
+          payload: null,
+          createdAt: DateTime.now(),
+          readAt: null,
+        ),
+      ],
+    });
     await tester.pumpWidget(_buildTestApp(repo));
     await _openEvents(tester);
 
@@ -83,28 +107,87 @@ void main() {
     expect(repo.fetchOffsets, contains(0));
   });
 
-  testWidgets('RefreshIndicator present and AppBar refresh triggers fetch again', (tester) async {
-    final repo = FakeUserEventsRepository({0: [UserEvent(id: 'e1', type: 'tippcoin_credit', code: 'signup_bonus', amount: 100, payload: null, createdAt: DateTime.now(), readAt: null)]});
+  testWidgets('Null code event renders fallback text without crash', (
+    tester,
+  ) async {
+    final repo = FakeUserEventsRepository({
+      0: [
+        UserEvent(
+          id: 'null-code',
+          type: 'custom_event',
+          code: null,
+          amount: null,
+          payload: null,
+          createdAt: DateTime.now(),
+          readAt: null,
+        ),
+      ],
+    });
     await tester.pumpWidget(_buildTestApp(repo));
     await _openEvents(tester);
 
-    expect(find.byType(RefreshIndicator), findsOneWidget);
-    final refreshFinder = find.widgetWithIcon(IconButton, Icons.refresh);
-    final refreshOutlinedFinder = find.widgetWithIcon(IconButton, Icons.refresh_outlined);
-    if (refreshFinder.evaluate().isNotEmpty) {
-      await tester.tap(refreshFinder);
-    } else if (refreshOutlinedFinder.evaluate().isNotEmpty) {
-      await tester.tap(refreshOutlinedFinder);
-    } else {
-      fail('Refresh action not found');
-    }
-    await tester.pumpAndSettle();
-    expect(repo.fetchOffsets.where((offset) => offset == 0).length, greaterThanOrEqualTo(2));
+    expect(find.text('custom_event'), findsWidgets);
+    expect(repo.fetchOffsets, contains(0));
   });
 
-  testWidgets('Scrolling near end triggers loadMore (fetch page 20)', (tester) async {
+  testWidgets(
+    'RefreshIndicator present and AppBar refresh triggers fetch again',
+    (tester) async {
+      final repo = FakeUserEventsRepository({
+        0: [
+          UserEvent(
+            id: 'e1',
+            type: 'tippcoin_credit',
+            code: 'signup_bonus',
+            amount: 100,
+            payload: null,
+            createdAt: DateTime.now(),
+            readAt: null,
+          ),
+        ],
+      });
+      await tester.pumpWidget(_buildTestApp(repo));
+      await _openEvents(tester);
+
+      expect(find.byType(RefreshIndicator), findsOneWidget);
+      final refreshFinder = find.widgetWithIcon(IconButton, Icons.refresh);
+      final refreshOutlinedFinder = find.widgetWithIcon(
+        IconButton,
+        Icons.refresh_outlined,
+      );
+      if (refreshFinder.evaluate().isNotEmpty) {
+        await tester.tap(refreshFinder);
+      } else if (refreshOutlinedFinder.evaluate().isNotEmpty) {
+        await tester.tap(refreshOutlinedFinder);
+      } else {
+        fail('Refresh action not found');
+      }
+      await tester.pumpAndSettle();
+      expect(
+        repo.fetchOffsets.where((offset) => offset == 0).length,
+        greaterThanOrEqualTo(2),
+      );
+    },
+  );
+
+  testWidgets('Scrolling near end triggers loadMore (fetch page 20)', (
+    tester,
+  ) async {
     final twentyEvents = _buildEvents(count: 20);
-    final repo = FakeUserEventsRepository({0: twentyEvents, 20: [UserEvent(id: 'e20', type: 'tippcoin_credit', code: 'signup_bonus', amount: 999, payload: null, createdAt: DateTime.now(), readAt: null)]});
+    final repo = FakeUserEventsRepository({
+      0: twentyEvents,
+      20: [
+        UserEvent(
+          id: 'e20',
+          type: 'tippcoin_credit',
+          code: 'signup_bonus',
+          amount: 999,
+          payload: null,
+          createdAt: DateTime.now(),
+          readAt: null,
+        ),
+      ],
+    });
     await tester.pumpWidget(_buildTestApp(repo));
     await _openEvents(tester);
 
@@ -118,7 +201,19 @@ void main() {
   });
 
   testWidgets('MarkRead is idempotent (called once)', (tester) async {
-    final repo = FakeUserEventsRepository({0: [UserEvent(id: 'e1', type: 'tippcoin_credit', code: 'signup_bonus', amount: 100, payload: null, createdAt: DateTime.now(), readAt: null)]});
+    final repo = FakeUserEventsRepository({
+      0: [
+        UserEvent(
+          id: 'e1',
+          type: 'tippcoin_credit',
+          code: 'signup_bonus',
+          amount: 100,
+          payload: null,
+          createdAt: DateTime.now(),
+          readAt: null,
+        ),
+      ],
+    });
     await tester.pumpWidget(_buildTestApp(repo));
     await _openEvents(tester);
 

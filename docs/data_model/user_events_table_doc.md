@@ -66,6 +66,12 @@ A `user_events` nem publikus. Anon felhasználó nem férhet hozzá.
 
 **Logika:**
 - TippCoin eseményeknél a `code` tipikusan a jutalom/bónusz kódja.
+- A schema `NULL` értéket is enged (`user_events_code_format` check), ezért a kliens
+  fallback szöveggel kezeli a hiányzó kódot.
+- Kliens oldali szerződés:
+  - parse: null `code` nem dob exceptiont.
+  - render: fallback `${type}` vagy `${type}:${code}` forma, ahol a `:code` csak
+    nem üres kód esetén jelenik meg.
 
 #### 5) `amount` (integer, nullable)
 **Szerep:**
@@ -170,6 +176,8 @@ A tábla nem tárol lokalizált szöveget.
 
 Megjelenítés:
 - a kliens a `type` + `code` alapján választ UI komponenst és lokalizált szöveget.
+- ha a `code` `NULL` vagy üres, a kliens type-alapú fallback szöveget használ
+  és nem törik el a feed render.
 - a `payload` mező adja a dinamikus értékeket (pl. küldő nickname, összeg, stb.).
 
 ## 📎 Kapcsolódások

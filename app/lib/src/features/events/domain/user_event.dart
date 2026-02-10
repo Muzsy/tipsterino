@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 const Object _readAtNotProvided = Object();
+const Object _codeNotProvided = Object();
 
 @immutable
 class UserEvent {
@@ -16,7 +17,7 @@ class UserEvent {
 
   final String id;
   final String type;
-  final String code;
+  final String? code;
   final int? amount;
   final Map<String, dynamic>? payload;
   final DateTime createdAt;
@@ -35,11 +36,6 @@ class UserEvent {
       throw StateError('Missing type in UserEvent payload');
     }
 
-    final code = map['code'];
-    if (code == null) {
-      throw StateError('Missing code in UserEvent payload');
-    }
-
     final createdAtValue = map['created_at'];
     final createdAt = _parseDateTime(createdAtValue, 'created_at');
 
@@ -49,7 +45,7 @@ class UserEvent {
     return UserEvent(
       id: id.toString(),
       type: type.toString(),
-      code: code.toString(),
+      code: _parseCode(map['code']),
       amount: _parseAmount(map['amount']),
       payload: _normalizePayload(map['payload']),
       createdAt: createdAt,
@@ -60,7 +56,7 @@ class UserEvent {
   UserEvent copyWith({
     String? id,
     String? type,
-    String? code,
+    Object? code = _codeNotProvided,
     int? amount,
     Map<String, dynamic>? payload,
     DateTime? createdAt,
@@ -69,10 +65,13 @@ class UserEvent {
     final DateTime? readAtValue = identical(readAt, _readAtNotProvided)
         ? this.readAt
         : readAt as DateTime?;
+    final String? codeValue = identical(code, _codeNotProvided)
+        ? this.code
+        : code as String?;
     return UserEvent(
       id: id ?? this.id,
       type: type ?? this.type,
-      code: code ?? this.code,
+      code: codeValue,
       amount: amount ?? this.amount,
       payload: payload ?? this.payload,
       createdAt: createdAt ?? this.createdAt,
@@ -113,5 +112,12 @@ class UserEvent {
       return Map<String, dynamic>.from(value);
     }
     return null;
+  }
+
+  static String? _parseCode(Object? value) {
+    if (value == null) return null;
+    final code = value.toString();
+    if (code.isEmpty) return null;
+    return code;
   }
 }

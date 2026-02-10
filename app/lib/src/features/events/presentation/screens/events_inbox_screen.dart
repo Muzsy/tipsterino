@@ -16,7 +16,8 @@ class EventsInboxScreen extends ConsumerStatefulWidget {
   ConsumerState<EventsInboxScreen> createState() => _EventsInboxScreenState();
 }
 
-class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with WidgetsBindingObserver {
+class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen>
+    with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   Timer? _pollingTimer;
   bool _isAppResumed = true;
@@ -27,7 +28,8 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     final lifecycleState = WidgetsBinding.instance.lifecycleState;
-    _isAppResumed = lifecycleState == null || lifecycleState == AppLifecycleState.resumed;
+    _isAppResumed =
+        lifecycleState == null || lifecycleState == AppLifecycleState.resumed;
     _startPollingTimer();
     _scrollController.addListener(_handleScroll);
     Future.microtask(() {
@@ -44,7 +46,6 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
-
 
   void _handleScroll() {
     if (!_scrollController.hasClients) return;
@@ -67,7 +68,9 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
     final state = ref.watch(userEventsProvider);
     final notifier = ref.read(userEventsProvider.notifier);
     final theme = Theme.of(context);
-    final titleStyle = theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
+    final titleStyle = theme.textTheme.titleMedium?.copyWith(
+      fontWeight: FontWeight.w600,
+    );
     final bodyStyle = theme.textTheme.bodyMedium;
     final filteredItems = state.filteredItems;
     final hasUnreadInView = filteredItems.any((event) => event.isUnread);
@@ -121,7 +124,10 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
                       messenger.showSnackBar(
                         SnackBar(
                           content: Text(
-                            loc.eventsMarkAllReadPartial(result.succeeded, result.failed),
+                            loc.eventsMarkAllReadPartial(
+                              result.succeeded,
+                              result.failed,
+                            ),
                           ),
                         ),
                       );
@@ -131,10 +137,7 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: content,
-      ),
+      body: Padding(padding: const EdgeInsets.all(16), child: content),
     );
   }
 
@@ -199,14 +202,22 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
     return true;
   }
 
-  Widget _buildOfflineState(AppLocalizations loc, TextStyle? titleStyle, TextStyle? bodyStyle) {
+  Widget _buildOfflineState(
+    AppLocalizations loc,
+    TextStyle? titleStyle,
+    TextStyle? bodyStyle,
+  ) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(loc.offlineNotice, style: titleStyle),
         const SizedBox(height: 8),
-        Text(loc.offlineDescription, style: bodyStyle, textAlign: TextAlign.center),
+        Text(
+          loc.offlineDescription,
+          style: bodyStyle,
+          textAlign: TextAlign.center,
+        ),
       ],
     );
   }
@@ -217,14 +228,22 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
     );
   }
 
-  Widget _buildEmptyState(AppLocalizations loc, TextStyle? titleStyle, TextStyle? bodyStyle) {
+  Widget _buildEmptyState(
+    AppLocalizations loc,
+    TextStyle? titleStyle,
+    TextStyle? bodyStyle,
+  ) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Text(loc.eventsEmptyTitle, style: titleStyle),
         const SizedBox(height: 8),
-        Text(loc.eventsEmptyBody, style: bodyStyle, textAlign: TextAlign.center),
+        Text(
+          loc.eventsEmptyBody,
+          style: bodyStyle,
+          textAlign: TextAlign.center,
+        ),
       ],
     );
   }
@@ -262,7 +281,8 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
               controller: _scrollController,
               physics: listPhysics,
               itemCount: itemCount,
-              separatorBuilder: (context, index) => Divider(color: theme.dividerColor, height: 1),
+              separatorBuilder: (context, index) =>
+                  Divider(color: theme.dividerColor, height: 1),
               itemBuilder: (context, index) {
                 if (!hasItems) {
                   return Column(
@@ -290,7 +310,11 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
                   leading: _buildUnreadIndicator(event, theme),
                   title: Text(
                     _mapTitle(event, loc),
-                    style: event.isUnread ? theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600) : null,
+                    style: event.isUnread
+                        ? theme.textTheme.bodyLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          )
+                        : null,
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,12 +342,14 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
     EventsFilter selected,
     void Function(EventsFilter) onFilterChanged,
   ) {
-    final segments = EventsFilter.values.map(
-      (filter) => ButtonSegment<EventsFilter>(
-        value: filter,
-        label: Text(_filterLabel(filter, loc)),
-      ),
-    ).toList();
+    final segments = EventsFilter.values
+        .map(
+          (filter) => ButtonSegment<EventsFilter>(
+            value: filter,
+            label: Text(_filterLabel(filter, loc)),
+          ),
+        )
+        .toList();
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -376,7 +402,8 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen> with Widg
   }
 
   String _fallbackText(UserEvent event) {
-    final codeSegment = event.code.isNotEmpty ? ':${event.code}' : '';
+    final code = event.code;
+    final codeSegment = (code != null && code.isNotEmpty) ? ':$code' : '';
     return '${event.type}$codeSegment';
   }
 
