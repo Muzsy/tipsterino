@@ -21,6 +21,11 @@ Tervezett kimenetek:
 - policy doksi frissites: `docs/qa/db_checks.md`, `docs/setup/dev_setup.md`
 - (ha szukseges) root setup hivatkozas frissites: `README.md`
 
+Implementacios irany:
+- `runs-on: ubuntu-latest` helyett explicit LTS runner pin (`ubuntu-24.04`) mindket workflowban.
+- `subosito/flutter-action` es `supabase/setup-cli` major-only tagek helyett explicit patch pin.
+- Dokumentalt pin-upgrade folyamat dedikalt PR-ben, kotelezo local gate futtatassal.
+
 DoD:
 - [ ] minden workflow action/toolchain pin explicit es dokumentalt
 - [ ] nincs lebego `latest`/major-only pin kritikus toolchain komponenseknel

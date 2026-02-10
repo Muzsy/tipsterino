@@ -25,6 +25,7 @@ Struktúra:
 - Supabase local setup: `docs/setup/supabase_setup.md`
 - Supabase config + redirect/site_url + SDK tisztazas: `docs/setup/supabase_configuration.md`
 - Secret kezelés: `docs/setup/secret_management.md`
+- DB check + CI pin policy: `docs/qa/db_checks.md`
 
 ## Legacy használat
 A `legacy/` mappa alapból:

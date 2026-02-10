@@ -27,11 +27,21 @@ Ez a guide egy friss gépes fejlesztői indulást ír le wrapper-alapú parancso
 ## 3) Tesztelés
 - Gyors helyi gate:
   - `./scripts/check.sh`
+- DB szerzodes/migracio erinto valtozasnal kotelezo extra gate:
+  - `./scripts/check_db.sh`
 - Flutter teszt wrapperrel:
   - `./scripts/flutter.sh test`
 
 ## 4) Task zárás (kötelező Codex gate)
 - `./scripts/verify.sh --report codex/reports/<area>/<task_slug>.md`
+
+## 4.1 CI pin upgrade policy (rovid)
+- CI pin frissitest dedikalt PR-ben vegezz (`.github/workflows/ci.yml`, `.github/workflows/ci_db.yml`).
+- Lebego `latest` vagy major-only action pin ne maradjon a runner/toolchain komponenseken.
+- Kotelezo lokalis verifikacio pin emeles utan:
+  - `./scripts/check.sh`
+  - `./scripts/check_db.sh` (ha DB workflow is erintett)
+  - `./scripts/verify.sh --report codex/reports/<area>/<task_slug>.md`
 
 ## 5) Secrets és gitignore szabály
 - `app/.env` és `.env.local` nem kerülhet gitbe.
