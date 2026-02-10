@@ -15,6 +15,14 @@ Következmény:
 - A `public_profiles` view olvasása anon módon is engedélyezett.
 - A Storage-ban az avatarok (beleértve a default avatart) **public read** hozzáférésűek.
 
+### Privacy hardening döntés (2026-02-10)
+- A `public.public_profiles` nézet publikus olvashatósága **megmarad** `anon` és `authenticated` szerepköröknek.
+- A publikus kontraktus mezőszintje fix: csak `id`, `nickname`, `avatar_key`.
+- A nézeten nincs kliens oldali írási jogosultság (`INSERT/UPDATE/DELETE` tiltott).
+- A kontraktus enforce elemei:
+  - migráció: `supabase/migrations/20260215000000_public_profiles_privacy_hardening.sql`
+  - SQL check: `supabase/sql_checks/registration_v2_profiles_rls_trigger_checks.sql`
+
 ## 🧠 Fejlesztési részletek
 
 ### Tábla: `public.profiles`
@@ -93,6 +101,7 @@ A közösségi használatra és keresésre a kliens nem közvetlenül a `profile
 **Publikusság:**
 - A `public_profiles` view olvasása **anon** és **authenticated** felhasználók számára is engedélyezett.
 - A view-ban szereplő adatok publikus profiladatnak minősülnek.
+- A `PUBLIC` grantee számára nincs közvetlen grant a nézeten.
 
 ### SELECT (olvasás)
 - **`public_profiles` view:**

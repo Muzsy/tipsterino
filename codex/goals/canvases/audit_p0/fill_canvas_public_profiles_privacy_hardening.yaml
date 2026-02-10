@@ -1,0 +1,54 @@
+steps:
+  - name: "Canvas veglegesitese konfliktusjegyzettel"
+    description: >
+      Frissitsd a canvas fajlt a jelenlegi publikus allapot es az audit P0 privacy
+      kockazat kozti konfliktus rovid rogzitesevel, es pontositsd a DoD pontokat.
+    outputs:
+      - "canvases/audit_p0/public_profiles_privacy_hardening.md"
+
+  - name: "Privacy hardening migracio"
+    description: >
+      Hozd letre a `supabase/migrations/20260215000000_public_profiles_privacy_hardening.sql`
+      fajlt. A migracio enforceolja a taskban rogzitett vegso dontest:
+      publikus contract minimal mezokeszlettel, vagy publikus SELECT revoke.
+    outputs:
+      - "supabase/migrations/20260215000000_public_profiles_privacy_hardening.sql"
+
+  - name: "Profiles privacy DB check frissitese"
+    description: >
+      Frissitsd a `supabase/sql_checks/registration_v2_profiles_rls_trigger_checks.sql`
+      checket, hogy explicit validalja a `public_profiles` jogosultsagi contractot.
+    outputs:
+      - "supabase/sql_checks/registration_v2_profiles_rls_trigger_checks.sql"
+
+  - name: "Profiles doksi szinkron"
+    description: >
+      Frissitsd a `docs/data_model/profiles_table_doc.md` fajlt, hogy a privacy
+      policy 1:1-ben egyezzen a migracioban es SQL checkben rogzitett contracttal.
+    outputs:
+      - "docs/data_model/profiles_table_doc.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p0/public_profiles_privacy_hardening.md"
+      - "codex/reports/audit_p0/public_profiles_privacy_hardening.md"
+
+  - name: "DB check futtatasa es report rogzites"
+    description: >
+      Futtasd: ./scripts/check_db.sh
+      Az eredmenyt rogzitsd a report Verifikacio szekciojaban.
+    outputs:
+      - "codex/reports/audit_p0/public_profiles_privacy_hardening.md"
+      - "codex/codex_checklist/audit_p0/public_profiles_privacy_hardening.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p0/public_profiles_privacy_hardening.md
+      A reportban maradjon hivatkozas a DB check futasra.
+    outputs:
+      - "codex/reports/audit_p0/public_profiles_privacy_hardening.md"
+      - "codex/reports/audit_p0/public_profiles_privacy_hardening.verify.log"
+      - "codex/codex_checklist/audit_p0/public_profiles_privacy_hardening.md"
