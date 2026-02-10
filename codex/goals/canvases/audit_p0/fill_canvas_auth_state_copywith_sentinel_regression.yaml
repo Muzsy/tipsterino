@@ -1,0 +1,64 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a canvas fajlt a ket erintett auth state modellel es a sentinel
+      referenciafajllal (`daily_bonus_claim_provider.dart`).
+    outputs:
+      - "canvases/audit_p0/auth_state_copywith_sentinel_regression.md"
+
+  - name: "Signup wizard copyWith sentinel javitas"
+    description: >
+      Vezesd be a sentinel pattern-t a `SignupWizardState.copyWith` metodusban,
+      hogy a `submitError` mezot explicit nullara lehessen allitani.
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/signup_wizard_provider.dart"
+
+  - name: "Verify pending copyWith sentinel javitas"
+    description: >
+      Vezesd be a sentinel pattern-t a `VerifyEmailPendingState.copyWith` metodusban,
+      hogy az `errorMessage` mezot explicit nullara lehessen allitani.
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/verify_email_pending_provider.dart"
+
+  - name: "Regresszios unit tesztek hozzaadasa"
+    description: >
+      Hozz letre dedikalt unit teszteket a ket state copyWith nullazasi viselkedesere.
+    outputs:
+      - "app/test/unit/signup_wizard_provider_test.dart"
+      - "app/test/unit/verify_email_pending_provider_test.dart"
+
+  - name: "Meglevo widget tesztek igazitas"
+    description: >
+      Frissitsd a wizard es verify pending widget teszteket, hogy explicit ellenorizzek
+      a stale error eltuneset sikeres muvelet utan.
+    outputs:
+      - "app/test/widget/auth_signup_wizard_step3_test.dart"
+      - "app/test/widget/auth_verify_pending_resend_test.dart"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p0/auth_state_copywith_sentinel_regression.md"
+      - "codex/reports/audit_p0/auth_state_copywith_sentinel_regression.md"
+
+  - name: "Celpont tesztek futtatasa es report rogzites"
+    description: >
+      Futtasd:
+      ./scripts/flutter.sh test test/unit/signup_wizard_provider_test.dart
+      ./scripts/flutter.sh test test/unit/verify_email_pending_provider_test.dart
+      ./scripts/flutter.sh test test/widget/auth_signup_wizard_step3_test.dart
+      ./scripts/flutter.sh test test/widget/auth_verify_pending_resend_test.dart
+      Az eredmenyeket rogzitsd a reportban.
+    outputs:
+      - "codex/reports/audit_p0/auth_state_copywith_sentinel_regression.md"
+      - "codex/codex_checklist/audit_p0/auth_state_copywith_sentinel_regression.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p0/auth_state_copywith_sentinel_regression.md
+    outputs:
+      - "codex/reports/audit_p0/auth_state_copywith_sentinel_regression.md"
+      - "codex/reports/audit_p0/auth_state_copywith_sentinel_regression.verify.log"
+      - "codex/codex_checklist/audit_p0/auth_state_copywith_sentinel_regression.md"

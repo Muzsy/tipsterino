@@ -1,0 +1,66 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a canvas fajlt a valos rewards domain, UI es l10n forrasokra
+      tamaszkodva, es pontositsd a reason contract DoD pontokat.
+    outputs:
+      - "canvases/audit_p0/bonus_reason_contract_rate_limited_profile_incomplete.md"
+
+  - name: "Rewards reason enum es mapping frissites"
+    description: >
+      Frissitsd a daily es signup bonus domain modelleket ugy, hogy explicit kezeljek
+      a `rate_limited` es `profile_incomplete` reason-okat a szerver contract szerint.
+    outputs:
+      - "app/lib/src/features/rewards/domain/daily_bonus_grant_result.dart"
+      - "app/lib/src/features/rewards/domain/signup_bonus_grant_result.dart"
+
+  - name: "Daily bonus UI reason allapot frissites"
+    description: >
+      Frissitsd a `daily_bonus_tile.dart` fajlt, hogy a `rate_limited` reason
+      kulon UI uzenetet es megfelelo CTA allapotot kapjon.
+    outputs:
+      - "app/lib/src/features/rewards/presentation/daily_bonus_tile.dart"
+
+  - name: "L10n kulcsok bovitese EN+HU"
+    description: >
+      Adj hozza minden uj reason-specifikus UI szoveget mindket ARB fajlban.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+
+  - name: "Unit es widget tesztek bovitese"
+    description: >
+      Frissitsd a daily reason unit tesztet, hozz letre signup reason unit tesztet,
+      es frissitsd a daily bonus tile widget tesztet az uj reason allapotokra.
+    outputs:
+      - "app/test/unit/daily_bonus_grant_result_test.dart"
+      - "app/test/unit/signup_bonus_grant_result_test.dart"
+      - "app/test/widget/daily_bonus_tile_test.dart"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p0/bonus_reason_contract_rate_limited_profile_incomplete.md"
+      - "codex/reports/audit_p0/bonus_reason_contract_rate_limited_profile_incomplete.md"
+
+  - name: "Celpont tesztek es parity futtatasa"
+    description: >
+      Futtasd a celzott unit/widget es l10n parity teszteket:
+      ./scripts/flutter.sh test test/unit/daily_bonus_grant_result_test.dart
+      ./scripts/flutter.sh test test/unit/signup_bonus_grant_result_test.dart
+      ./scripts/flutter.sh test test/widget/daily_bonus_tile_test.dart
+      ./scripts/flutter.sh test test/unit/l10n_key_parity_test.dart
+      Az eredmenyeket rogzitsd a reportban.
+    outputs:
+      - "codex/reports/audit_p0/bonus_reason_contract_rate_limited_profile_incomplete.md"
+      - "codex/codex_checklist/audit_p0/bonus_reason_contract_rate_limited_profile_incomplete.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p0/bonus_reason_contract_rate_limited_profile_incomplete.md
+    outputs:
+      - "codex/reports/audit_p0/bonus_reason_contract_rate_limited_profile_incomplete.md"
+      - "codex/reports/audit_p0/bonus_reason_contract_rate_limited_profile_incomplete.verify.log"
+      - "codex/codex_checklist/audit_p0/bonus_reason_contract_rate_limited_profile_incomplete.md"

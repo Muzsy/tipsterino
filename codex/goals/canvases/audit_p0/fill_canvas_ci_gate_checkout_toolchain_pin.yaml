@@ -1,0 +1,38 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a canvas fajlt a valos CI workflow es QA docs hivatkozasokkal,
+      es pontositsd a determinisztikus pineles DoD pontokat.
+    outputs:
+      - "canvases/audit_p0/ci_gate_checkout_toolchain_pin.md"
+
+  - name: "CI workflow pineles"
+    description: >
+      Frissitsd a `ci.yml` es `ci_db.yml` workflow-kat: ne legyen lebego checkout tag,
+      a Flutter action konfiguracio legyen explicit pinelt, es a Supabase CLI ne legyen `latest`.
+    outputs:
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/ci_db.yml"
+
+  - name: "QA doksi frissites a pin policyval"
+    description: >
+      Frissitsd a `docs/qa/db_checks.md` dokumentumot a valasztott workflow
+      verziopinokkal es rovid upgrade policy leirassal.
+    outputs:
+      - "docs/qa/db_checks.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p0/ci_gate_checkout_toolchain_pin.md"
+      - "codex/reports/audit_p0/ci_gate_checkout_toolchain_pin.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p0/ci_gate_checkout_toolchain_pin.md
+    outputs:
+      - "codex/reports/audit_p0/ci_gate_checkout_toolchain_pin.md"
+      - "codex/reports/audit_p0/ci_gate_checkout_toolchain_pin.verify.log"
+      - "codex/codex_checklist/audit_p0/ci_gate_checkout_toolchain_pin.md"

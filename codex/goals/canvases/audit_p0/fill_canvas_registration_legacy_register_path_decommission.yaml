@@ -1,0 +1,55 @@
+steps:
+  - name: "Canvas veglegesitese"
+    description: >
+      Frissitsd a canvas fajlt a valos auth/router forrasokkal, es pontositsd a
+      legacy register ut kivezetesere vonatkozo DoD pontokat.
+    outputs:
+      - "canvases/audit_p0/registration_legacy_register_path_decommission.md"
+
+  - name: "Legacy register API es screen kivezetes"
+    description: >
+      Vezesd ki az `AuthNotifier.register()` legacy utat, es rendezd a
+      `register_screen.dart` sorsat (torles vagy explicit deprecalt, unreachable allapot).
+      Ne maradjon aktiv, metadata-nelkul signup hivas.
+    outputs:
+      - "app/lib/src/features/auth/presentation/state/auth_provider.dart"
+      - "app/lib/src/features/auth/presentation/screens/register_screen.dart"
+
+  - name: "Router ellenorzes es routing teszt frissites"
+    description: >
+      Ellenorizd, hogy `/auth/register` tovabbra is a wizardra mutat, es frissitsd
+      a route smoke coverage-et a guest/auth shell tesztben.
+    outputs:
+      - "app/lib/src/app/router/app_router.dart"
+      - "app/test/widget/guest_routing_shells_test.dart"
+
+  - name: "Registration doksi szinkron"
+    description: >
+      Frissitsd a `docs/core_logic/registration_flow.md` dokumentaciot, hogy
+      explicit kimondja: nincs legacy minimal register ut.
+    outputs:
+      - "docs/core_logic/registration_flow.md"
+
+  - name: "Checklist es report scaffold"
+    description: >
+      Hozd letre a task checklistet es report vazat a report standard szerint.
+    outputs:
+      - "codex/codex_checklist/audit_p0/registration_legacy_register_path_decommission.md"
+      - "codex/reports/audit_p0/registration_legacy_register_path_decommission.md"
+
+  - name: "Celpont teszt futtatasa es report rogzites"
+    description: >
+      Futtasd: ./scripts/flutter.sh test test/widget/guest_routing_shells_test.dart
+      Az eredmenyt rogzitsd a report Verifikacio szekciojaban.
+    outputs:
+      - "codex/reports/audit_p0/registration_legacy_register_path_decommission.md"
+      - "codex/codex_checklist/audit_p0/registration_legacy_register_path_decommission.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd:
+      ./scripts/verify.sh --report codex/reports/audit_p0/registration_legacy_register_path_decommission.md
+    outputs:
+      - "codex/reports/audit_p0/registration_legacy_register_path_decommission.md"
+      - "codex/reports/audit_p0/registration_legacy_register_path_decommission.verify.log"
+      - "codex/codex_checklist/audit_p0/registration_legacy_register_path_decommission.md"
