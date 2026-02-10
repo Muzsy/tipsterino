@@ -20,6 +20,11 @@ Tervezett kimenetek:
 - CI futtatasi logika frissites: `.github/workflows/ci_db.yml`
 - QA guideline frissites: `docs/qa/testing_guidelines.md`
 
+Implementacios irany:
+- a `rate_limited` ag ellenorzes kulon integration tesztben fusson, ne a signup email send limiterre tamaszkodjon.
+- CI-ben legyen dedikalt, provisionalt teszt user a rate-limit scenariora.
+- a rate-limit branch kulon `--plain-name` futasi lepessel menjen, hogy izolalt reprodukciot adjon.
+
 DoD:
 - [ ] integration teszt explicit ellenorzi legalabb egy bonus RPC `rate_limited` reason agatat
 - [ ] a rate-limit scenariot izolalt futasi modban kezeli a CI (kulon step/job vagy egyertelmu sorrend)

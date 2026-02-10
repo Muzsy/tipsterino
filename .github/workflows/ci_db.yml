@@ -124,7 +124,9 @@ print("")
 
           BONUS_TEST_EMAIL="bonus-integration-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}@example.com"
           BONUS_TEST_PASSWORD="ValidP@ss1"
-          export API_URL ANON_KEY SERVICE_ROLE_KEY BONUS_TEST_EMAIL BONUS_TEST_PASSWORD
+          BONUS_RATE_LIMIT_TEST_EMAIL="bonus-rate-limit-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}@example.com"
+          BONUS_RATE_LIMIT_TEST_PASSWORD="ValidP@ss1"
+          export API_URL ANON_KEY SERVICE_ROLE_KEY BONUS_TEST_EMAIL BONUS_TEST_PASSWORD BONUS_RATE_LIMIT_TEST_EMAIL BONUS_RATE_LIMIT_TEST_PASSWORD
 
           # CI-only provisioning avoids flaky signup email rate-limits in integration tests.
           python3 - <<'PY'
@@ -134,56 +136,65 @@ import urllib.request
 
 api_url = os.environ["API_URL"]
 service_role_key = os.environ["SERVICE_ROLE_KEY"]
-email = os.environ["BONUS_TEST_EMAIL"]
-password = os.environ["BONUS_TEST_PASSWORD"]
+anon_key = os.environ["ANON_KEY"]
 
-payload = json.dumps(
-    {
-        "email": email,
-        "password": password,
-        "email_confirm": True,
-        "user_metadata": {
-            "nickname": "ci_bonus_user",
-            "avatar_key": "default",
+users = [
+    (os.environ["BONUS_TEST_EMAIL"], os.environ["BONUS_TEST_PASSWORD"], "ci_bonus_user"),
+    (
+        os.environ["BONUS_RATE_LIMIT_TEST_EMAIL"],
+        os.environ["BONUS_RATE_LIMIT_TEST_PASSWORD"],
+        "ci_bonus_rl_user",
+    ),
+]
+
+for email, password, nickname in users:
+    payload = json.dumps(
+        {
+            "email": email,
+            "password": password,
+            "email_confirm": True,
+            "user_metadata": {
+                "nickname": nickname,
+                "avatar_key": "default",
+            },
+        }
+    ).encode("utf-8")
+
+    create_request = urllib.request.Request(
+        url=f"{api_url}/auth/v1/admin/users",
+        data=payload,
+        headers={
+            "apikey": service_role_key,
+            "Authorization": f"Bearer {service_role_key}",
+            "Content-Type": "application/json",
         },
-    }
-).encode("utf-8")
+        method="POST",
+    )
 
-create_request = urllib.request.Request(
-    url=f"{api_url}/auth/v1/admin/users",
-    data=payload,
-    headers={
-        "apikey": service_role_key,
-        "Authorization": f"Bearer {service_role_key}",
-        "Content-Type": "application/json",
-    },
-    method="POST",
-)
+    with urllib.request.urlopen(create_request) as response:
+        if response.status not in (200, 201):
+            raise RuntimeError(f"Failed provisioning bonus integration user: HTTP {response.status}")
 
-with urllib.request.urlopen(create_request) as response:
-    if response.status not in (200, 201):
-        raise RuntimeError(f"Failed provisioning bonus integration user: HTTP {response.status}")
+    signin_payload = json.dumps(
+        {
+            "email": email,
+            "password": password,
+        }
+    ).encode("utf-8")
 
-signin_payload = json.dumps(
-    {
-        "email": email,
-        "password": password,
-    }
-).encode("utf-8")
+    signin_request = urllib.request.Request(
+        url=f"{api_url}/auth/v1/token?grant_type=password",
+        data=signin_payload,
+        headers={
+            "apikey": anon_key,
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
 
-signin_request = urllib.request.Request(
-    url=f"{api_url}/auth/v1/token?grant_type=password",
-    data=signin_payload,
-    headers={
-        "apikey": os.environ["ANON_KEY"],
-        "Content-Type": "application/json",
-    },
-    method="POST",
-)
-
-with urllib.request.urlopen(signin_request) as response:
-    if response.status != 200:
-        raise RuntimeError(f"Provisioned user sign-in failed: HTTP {response.status}")
+    with urllib.request.urlopen(signin_request) as response:
+        if response.status != 200:
+            raise RuntimeError(f"Provisioned user sign-in failed: HTTP {response.status}")
 PY
 
           cat > app/.env <<EOF
@@ -196,10 +207,20 @@ PY
             echo "SUPABASE_ANON_KEY=$ANON_KEY"
             echo "BONUS_TEST_EMAIL=$BONUS_TEST_EMAIL"
             echo "BONUS_TEST_PASSWORD=$BONUS_TEST_PASSWORD"
+            echo "BONUS_RATE_LIMIT_TEST_EMAIL=$BONUS_RATE_LIMIT_TEST_EMAIL"
+            echo "BONUS_RATE_LIMIT_TEST_PASSWORD=$BONUS_RATE_LIMIT_TEST_PASSWORD"
           } >> "$GITHUB_ENV"
 
-      - name: Run bonus RPC integration test
+      - name: Run bonus RPC integration test (core reasons)
         run: |
           ./scripts/flutter.sh test integration_test/bonus_rpc_integration_test.dart -d linux \
+            --plain-name="Signup and daily bonus RPC reasons stay deterministic" \
             --dart-define=BONUS_TEST_EMAIL="${BONUS_TEST_EMAIL}" \
             --dart-define=BONUS_TEST_PASSWORD="${BONUS_TEST_PASSWORD}"
+
+      - name: Run bonus RPC integration test (rate_limited branch)
+        run: |
+          ./scripts/flutter.sh test integration_test/bonus_rpc_integration_test.dart -d linux \
+            --plain-name="Bonus RPC rate_limited branch stays deterministic" \
+            --dart-define=BONUS_RATE_LIMIT_TEST_EMAIL="${BONUS_RATE_LIMIT_TEST_EMAIL}" \
+            --dart-define=BONUS_RATE_LIMIT_TEST_PASSWORD="${BONUS_RATE_LIMIT_TEST_PASSWORD}"

@@ -86,10 +86,20 @@ Minimum:
 
 * A bonus RPC-khez (`grant_signup_bonus_if_eligible`, `grant_daily_bonus_if_eligible`) legyen dedikalt integration suite:
   * `app/integration_test/bonus_rpc_integration_test.dart`
+* A suite explicit fedje a `rate_limited` reason branch-et is (legalabb az egyik bonus RPC-n).
 * CI DB gate-ben a sorrend legyen determinisztikus:
-  * `supabase db reset --local --no-seed` -> `./scripts/check_db.sh` -> CI auth user provision + sign-in validation -> `./scripts/flutter.sh test integration_test/bonus_rpc_integration_test.dart -d linux --dart-define=BONUS_TEST_EMAIL=... --dart-define=BONUS_TEST_PASSWORD=...`
+  * `supabase db reset --local --no-seed` -> `./scripts/check_db.sh` -> CI auth user provision + sign-in validation
+  * core reason futas: `./scripts/flutter.sh test integration_test/bonus_rpc_integration_test.dart -d linux --plain-name="Signup and daily bonus RPC reasons stay deterministic" --dart-define=BONUS_TEST_EMAIL=... --dart-define=BONUS_TEST_PASSWORD=...`
+  * rate-limit branch futas: `./scripts/flutter.sh test integration_test/bonus_rpc_integration_test.dart -d linux --plain-name="Bonus RPC rate_limited branch stays deterministic" --dart-define=BONUS_RATE_LIMIT_TEST_EMAIL=... --dart-define=BONUS_RATE_LIMIT_TEST_PASSWORD=...`
 * A CI workflow referencia: `.github/workflows/ci_db.yml`
-* Lokalis sokszori integration futtatasnal a `supabase/config.toml` `auth.rate_limit.email_sent` legyen eleg magas, hogy a signup alapu teszt ne legyen flaky.
+* A rate-limit branch ne a signup email-send limiterre tamaszkodjon; hasznalj CI-ben elore provisionalt dedikalt teszt usert (`BONUS_RATE_LIMIT_TEST_*`).
+* Fizikai Android eszkoz lokalis Supabase futtatasnal hasznalhato override:
+  * `--dart-define=IT_SUPABASE_URL=http://127.0.0.1:54321`
+  * `--dart-define=IT_SUPABASE_ANON_KEY=...`
+  * es port-forward: `adb reverse tcp:54321 tcp:54321`
+* Ha admin API-val (Auth `/auth/v1/admin/users`) pre-provisionalsz teszt usereket, a payload tartalmazza a `user_metadata.nickname` es `user_metadata.avatar_key` mezoket, kulonben a projektszintu profil trigger `500` hibaval dobhat.
+* Az integration teszt ezeknel az override define-oknal az `IT_SUPABASE_*` ertekeket preferalja a wrapper altal injektalt `SUPABASE_*` ertekekkel szemben.
+* Lokalis sokszori integration futtatasnal a `supabase/config.toml` `auth.rate_limit.email_sent` legyen eleg magas, ha fallbackkent uj user signup is szukseges.
 
 ---
 
