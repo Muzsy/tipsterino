@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,7 +16,8 @@ void main() {
   testWidgets('Verify pending resend throttles and shows feedback', (
     tester,
   ) async {
-    bool resendCalled = false;
+    int resendCalls = 0;
+    final successCompleter = Completer<void>();
 
     await tester.pumpWidget(
       ProviderScope(
@@ -25,7 +28,11 @@ void main() {
           verifyEmailPendingResenderProvider.overrideWithValue(({
             required String email,
           }) async {
-            resendCalled = true;
+            resendCalls++;
+            if (resendCalls == 1) {
+              throw Exception('resend failed');
+            }
+            await successCompleter.future;
           }),
           verifyEmailPendingCooldownProvider.overrideWithValue(1),
         ],
@@ -52,7 +59,19 @@ void main() {
     await tester.pump();
     await tester.pumpAndSettle();
 
-    expect(resendCalled, isTrue);
+    expect(resendCalls, 1);
+    expect(find.text('Exception: resend failed'), findsOneWidget);
+
+    await tester.tap(resendButton);
+    await tester.pump();
+
+    expect(resendCalls, 2);
+    expect(find.text('Exception: resend failed'), findsNothing);
+
+    successCompleter.complete();
+    await tester.pump();
+    await tester.pumpAndSettle();
+
     expect(find.text(loc.auth_verify_pending_resend_sent), findsOneWidget);
 
     await tester.pump(const Duration(milliseconds: 100));

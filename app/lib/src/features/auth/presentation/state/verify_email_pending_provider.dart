@@ -6,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 
 class VerifyEmailPendingState {
+  static const Object _undefined = Object();
+
   final bool isSending;
   final int cooldownRemainingSeconds;
   final String? errorMessage;
@@ -21,14 +23,16 @@ class VerifyEmailPendingState {
   VerifyEmailPendingState copyWith({
     bool? isSending,
     int? cooldownRemainingSeconds,
-    String? errorMessage,
+    Object? errorMessage = _undefined,
     DateTime? lastSuccess,
   }) {
     return VerifyEmailPendingState(
       isSending: isSending ?? this.isSending,
       cooldownRemainingSeconds:
           cooldownRemainingSeconds ?? this.cooldownRemainingSeconds,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: identical(errorMessage, _undefined)
+          ? this.errorMessage
+          : errorMessage as String?,
       lastSuccess: lastSuccess ?? this.lastSuccess,
     );
   }

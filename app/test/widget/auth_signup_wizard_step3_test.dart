@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -119,6 +121,120 @@ void main() {
     expect(submitCalled, isTrue);
     expect(submittedData, isNotNull);
     expect(submittedData!['nickname'], 'hero123');
+    expect(find.text(loc.auth_verify_pending_title), findsWidgets);
+  });
+
+  testWidgets('Step 3 clears stale submit error before successful retry', (
+    tester,
+  ) async {
+    final router = GoRouter(
+      initialLocation: '/auth/register',
+      routes: [
+        GoRoute(
+          path: '/auth/register',
+          builder: (context, _) => const SignUpWizardScreen(),
+        ),
+        GoRoute(
+          path: '/auth/verify-pending',
+          builder: (_, state) => VerifyEmailPendingScreen(
+            email: state.uri.queryParameters['email'] ?? '',
+          ),
+        ),
+      ],
+    );
+
+    int submitCalls = 0;
+    final secondAttemptCompleter = Completer<void>();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          supabaseConfigProvider.overrideWithValue(
+            const SupabaseConfiguration(isConfigured: true),
+          ),
+          nicknameAvailabilityCheckerProvider.overrideWithValue(
+            (_) async => true,
+          ),
+          signupSubmitterProvider.overrideWithValue(({
+            required String email,
+            required String password,
+            required String nickname,
+            required String avatarKey,
+          }) async {
+            submitCalls++;
+            if (submitCalls == 1) {
+              throw Exception('transient sign up failure');
+            }
+            await secondAttemptCompleter.future;
+          }),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    final loc = AppLocalizations.of(
+      tester.element(find.byType(SignUpWizardScreen)),
+    )!;
+
+    await tester.enterText(
+      find.widgetWithText(TextField, loc.emailLabel),
+      'test@example.com',
+    );
+    await tester.enterText(
+      find.widgetWithText(TextField, loc.passwordLabel),
+      'Aa1!aaaa',
+    );
+    await tester.pumpAndSettle();
+
+    final nextButton = find.widgetWithText(ElevatedButton, loc.common_next);
+    await tester.tap(nextButton);
+    await tester.pumpAndSettle();
+
+    await tester.enterText(
+      find.widgetWithText(TextField, loc.auth_nickname_label),
+      'hero123',
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
+
+    await tester.tap(nextButton);
+    await tester.pumpAndSettle();
+    expect(find.byType(SignUpWizardStep3), findsOneWidget);
+
+    final checkboxes = find.byType(CheckboxListTile);
+    await tester.tap(checkboxes.first);
+    await tester.pumpAndSettle();
+    await tester.tap(checkboxes.last);
+    await tester.pumpAndSettle();
+
+    final submitButton = find.widgetWithText(
+      ElevatedButton,
+      loc.auth_signup_submit,
+    );
+
+    await tester.tap(submitButton);
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(submitCalls, 1);
+    expect(find.text('Exception: transient sign up failure'), findsOneWidget);
+
+    await tester.tap(submitButton);
+    await tester.pump();
+
+    expect(submitCalls, 2);
+    expect(find.text('Exception: transient sign up failure'), findsNothing);
+
+    secondAttemptCompleter.complete();
+    await tester.pump();
+    await tester.pumpAndSettle();
+
     expect(find.text(loc.auth_verify_pending_title), findsWidgets);
   });
 }

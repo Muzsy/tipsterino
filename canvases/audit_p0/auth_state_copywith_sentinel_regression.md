@@ -24,6 +24,11 @@ Tervezett kimenetek:
 - regresszios unit tesztek a nullazasi esetre
 - widget tesztek finomitasa, hogy ne maradjon stale error
 
+Valasztott implementacios irany:
+- `SignupWizardState.copyWith`: `submitError` parameter `Object?` sentinel defaulttal, explicit `null` clearing tamogatassal.
+- `VerifyEmailPendingState.copyWith`: `errorMessage` parameter `Object?` sentinel defaulttal, explicit `null` clearing tamogatassal.
+- Widget regresszio bizonyitas: hiba utan ujraprobalasnal a stale error eltunik mar a sikeres muvelet futasa kozben.
+
 DoD:
 - [ ] `SignupWizardState.copyWith` kepes `submitError` mezot nullazni
 - [ ] `VerifyEmailPendingState.copyWith` kepes `errorMessage` mezot nullazni

@@ -27,6 +27,8 @@ typedef SignupSubmitter =
     });
 
 class SignupWizardState {
+  static const Object _undefined = Object();
+
   final int stepIndex;
   final String email;
   final String password;
@@ -87,7 +89,7 @@ class SignupWizardState {
     bool? termsAccepted,
     bool? privacyAccepted,
     bool? isSubmitting,
-    String? submitError,
+    Object? submitError = _undefined,
   }) {
     return SignupWizardState(
       stepIndex: stepIndex ?? this.stepIndex,
@@ -99,7 +101,9 @@ class SignupWizardState {
       termsAccepted: termsAccepted ?? this.termsAccepted,
       privacyAccepted: privacyAccepted ?? this.privacyAccepted,
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      submitError: submitError ?? this.submitError,
+      submitError: identical(submitError, _undefined)
+          ? this.submitError
+          : submitError as String?,
     );
   }
 }
