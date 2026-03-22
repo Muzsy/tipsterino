@@ -46,7 +46,7 @@ class FriendListItem extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.chat_butterfly_outlined),
+                    icon: const Icon(Icons.chat_outlined),
                     tooltip: AppLocalizations.of(context)!.friends_open_chat,
                     onPressed: onMessage,
                   ),

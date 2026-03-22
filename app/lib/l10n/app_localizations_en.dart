@@ -351,4 +351,117 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chat_error_generic => 'Failed to send message. Please try again.';
+
+  @override
+  String get friends_title => 'Friends';
+
+  @override
+  String get friends_search_placeholder => 'Search by nickname...';
+
+  @override
+  String get friends_search_clear => 'Clear search';
+
+  @override
+  String get friends_search_no_results => 'No profiles found';
+
+  @override
+  String get friends_section_friends => 'Friends';
+
+  @override
+  String get friends_empty_state => 'No friends yet. Search for profiles to add friends.';
+
+  @override
+  String get friends_requests_title => 'Incoming Requests';
+
+  @override
+  String get friends_requests_empty => 'No incoming requests';
+
+  @override
+  String get friends_request_subtitle => 'wants to be friends';
+
+  @override
+  String get friends_send_request => 'Send friend request';
+
+  @override
+  String get friends_accept => 'Accept';
+
+  @override
+  String get friends_decline => 'Decline';
+
+  @override
+  String get friends_open_chat => 'Open chat';
+
+  @override
+  String get friends_remove => 'Remove friend';
+
+  @override
+  String get friends_remove_confirm_title => 'Remove friend?';
+
+  @override
+  String friends_remove_confirm_message(Object nickname) {
+    return 'Are you sure you want to remove $nickname from your friends?';
+  }
+
+  @override
+  String get friends_remove_confirm_yes => 'Remove';
+
+  @override
+  String get friends_remove_confirm_no => 'Cancel';
+
+  @override
+  String get friends_request_sent => 'Friend request sent';
+
+  @override
+  String get friends_accept_success => 'Friend request accepted';
+
+  @override
+  String get friends_decline_success => 'Friend request declined';
+
+  @override
+  String get friends_remove_success => 'Friend removed';
+
+  @override
+  String get friends_remove_error => 'Failed to remove friend';
+
+  @override
+  String get friends_request_error => 'Failed to process request';
+
+  @override
+  String get friends_status_friend => 'Friend';
+
+  @override
+  String get friends_status_request_sent => 'Request sent';
+
+  @override
+  String get friends_status_request_received => 'Request received';
+
+  @override
+  String get friends_error_self => 'You cannot add yourself as a friend.';
+
+  @override
+  String get friends_error_already_friends => 'You are already friends.';
+
+  @override
+  String get friends_error_request_exists => 'You already sent a request to this user.';
+
+  @override
+  String get friends_error_incoming_exists => 'This user has already sent you a request.';
+
+  @override
+  String get friends_error_request_missing => 'Request not found.';
+
+  @override
+  String get friends_error_not_pending => 'This request is no longer pending.';
+
+  @override
+  String get friends_error_not_found => 'Friendship not found.';
+
+  @override
+  String get friends_error_generic => 'Something went wrong. Please try again.';
+
+  @override
+  String get unknown_error_try_again => 'An error occurred. Please try again.';
+
+  @override
+  String get events_screen_refresh => 'Retry';
 }

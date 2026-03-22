@@ -5,9 +5,6 @@ import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 
 import '../domain/friend_operation_exception.dart';
-import '../domain/friend_profile.dart';
-import '../domain/friend_search_result.dart';
-import '../domain/friend_status.dart';
 import '../domain/friendship.dart';
 
 /// Friends feature repository backed by Supabase.
@@ -246,7 +243,7 @@ class FriendsRepository {
       final friendId = row['friend_id'] as String?;
       if (friendId == null) continue;
       statusMap[friendId] = (
-        status: FriendStatusX.fromString(row['status'] as String?),
+        status: FriendStatus.fromString(row['status'] as String?),
         isRequester: true,
       );
     }
@@ -255,7 +252,7 @@ class FriendsRepository {
       final ownerId = row['user_id'] as String?;
       if (ownerId == null) continue;
       statusMap[ownerId] = (
-        status: FriendStatusX.fromString(row['status'] as String?),
+        status: FriendStatus.fromString(row['status'] as String?),
         isRequester: false,
       );
     }
@@ -306,7 +303,7 @@ class FriendsRepository {
 
     for (final row in existingRows) {
       final owner = row['user_id'] as String? ?? '';
-      final status = FriendStatusX.fromString(row['status'] as String?);
+      final status = FriendStatus.fromString(row['status'] as String?);
 
       if (status == FriendStatus.accepted) {
         throw const FriendOperationException('already_friends');
@@ -373,7 +370,7 @@ class FriendsRepository {
       throw const FriendOperationException('request_missing');
     }
 
-    final status = FriendStatusX.fromString(existing['status'] as String?);
+    final status = FriendStatus.fromString(existing['status'] as String?);
     if (status != FriendStatus.pending) {
       throw const FriendOperationException('not_pending');
     }

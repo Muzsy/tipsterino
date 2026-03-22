@@ -3,6 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'friend_profile.dart';
 import 'friend_status.dart';
 
+// Re-export FriendStatus so that importing this file provides
+// both Friendship and FriendStatus without additional imports.
+export 'friend_profile.dart';
+export 'friend_search_result.dart';
+export 'friend_status.dart';
+
 /// Represents a friendship record as seen by the current user.
 ///
 /// The [profile] field holds the OTHER user's profile (the friend/requester).
@@ -42,7 +48,7 @@ class Friendship {
     final userId = _asString(row['user_id']);
     final friendId = _asString(row['friend_id']);
     final createdAt = _parseDateTime(row['created_at']);
-    final status = FriendStatusX.fromString(row['status'] as String?);
+    final status = FriendStatus.fromString(row['status'] as String?);
     final isRequester = userId == viewerId;
 
     final requesterProfile =
@@ -101,8 +107,3 @@ class Friendship {
         other.isRequester == isRequester;
   }
 }
-
-// Re-export for convenience in providers/repository.
-export 'friend_profile.dart';
-export 'friend_search_result.dart';
-export 'friend_status.dart';

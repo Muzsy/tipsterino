@@ -90,7 +90,7 @@ class FriendSearchResultItem extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: const Icon(Icons.chat_butterfly_outlined),
+            icon: const Icon(Icons.chat_outlined),
             tooltip: loc.friends_open_chat,
             onPressed: onOpenChat,
           ),

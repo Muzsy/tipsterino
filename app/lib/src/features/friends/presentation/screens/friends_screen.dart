@@ -7,8 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:tipsterino/l10n/app_localizations.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/auth_provider.dart';
 import 'package:tipsterino/src/features/friends/domain/friend_operation_exception.dart';
-import 'package:tipsterino/src/features/friends/domain/friend_search_result.dart';
-import 'package:tipsterino/src/features/friends/domain/friend_status.dart';
 import 'package:tipsterino/src/features/friends/domain/friendship.dart';
 import 'package:tipsterino/src/features/friends/providers/friends_providers.dart';
 import 'package:tipsterino/src/features/friends/presentation/widgets/friend_list_item.dart';

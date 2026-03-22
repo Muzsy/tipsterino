@@ -351,4 +351,117 @@ class AppLocalizationsHu extends AppLocalizations {
 
   @override
   String get chat_error_generic => 'Az üzenet küldése sikertelen. Próbáld újra.';
+
+  @override
+  String get friends_title => 'Barátok';
+
+  @override
+  String get friends_search_placeholder => 'Keresés nicknév alapján...';
+
+  @override
+  String get friends_search_clear => 'Keresés törlése';
+
+  @override
+  String get friends_search_no_results => 'Nincs találat';
+
+  @override
+  String get friends_section_friends => 'Barátok';
+
+  @override
+  String get friends_empty_state => 'Még nincs barátod. Keress profilokat, és adj hozzá barátokat.';
+
+  @override
+  String get friends_requests_title => 'Bejövő kérések';
+
+  @override
+  String get friends_requests_empty => 'Nincs bejövő kérés';
+
+  @override
+  String get friends_request_subtitle => 'barátkozni szeretne';
+
+  @override
+  String get friends_send_request => 'Barátkérés küldése';
+
+  @override
+  String get friends_accept => 'Elfogadás';
+
+  @override
+  String get friends_decline => 'Elutasítás';
+
+  @override
+  String get friends_open_chat => 'Csevegés megnyitása';
+
+  @override
+  String get friends_remove => 'Barát eltávolítása';
+
+  @override
+  String get friends_remove_confirm_title => 'Barát eltávolítása?';
+
+  @override
+  String friends_remove_confirm_message(Object nickname) {
+    return 'Biztosan el szeretnéd távolítani $nickname barátait?';
+  }
+
+  @override
+  String get friends_remove_confirm_yes => 'Eltávolítás';
+
+  @override
+  String get friends_remove_confirm_no => 'Mégse';
+
+  @override
+  String get friends_request_sent => 'Barátkérés elküldve';
+
+  @override
+  String get friends_accept_success => 'Barátkérés elfogadva';
+
+  @override
+  String get friends_decline_success => 'Barátkérés elutasítva';
+
+  @override
+  String get friends_remove_success => 'Barát eltávolítva';
+
+  @override
+  String get friends_remove_error => 'A barát eltávolítása sikertelen';
+
+  @override
+  String get friends_request_error => 'A kérés feldolgozása sikertelen';
+
+  @override
+  String get friends_status_friend => 'Barát';
+
+  @override
+  String get friends_status_request_sent => 'Kérés elküldve';
+
+  @override
+  String get friends_status_request_received => 'Kérés érkezett';
+
+  @override
+  String get friends_error_self => 'Nem barátkozhatsz saját magaddal.';
+
+  @override
+  String get friends_error_already_friends => 'Már barátok vagytok.';
+
+  @override
+  String get friends_error_request_exists => 'Már küldtél kérést ennek a felhasználónak.';
+
+  @override
+  String get friends_error_incoming_exists => 'Ez a felhasználó már küldött neked kérést.';
+
+  @override
+  String get friends_error_request_missing => 'A kérés nem található.';
+
+  @override
+  String get friends_error_not_pending => 'Ez a kérés már nem függőben.';
+
+  @override
+  String get friends_error_not_found => 'A barátság nem található.';
+
+  @override
+  String get friends_error_generic => 'Valami hiba történt. Próbáld újra.';
+
+  @override
+  String get unknown_error_try_again => 'Hiba történt. Próbáld újra.';
+
+  @override
+  String get events_screen_refresh => 'Újrapróbálás';
 }

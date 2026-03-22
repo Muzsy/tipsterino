@@ -754,6 +754,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to send message. Please try again.'**
   String get chat_error_generic;
+
+  /// No description provided for @friends_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friends_title;
+
+  /// No description provided for @friends_search_placeholder.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by nickname...'**
+  String get friends_search_placeholder;
+
+  /// No description provided for @friends_search_clear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get friends_search_clear;
+
+  /// No description provided for @friends_search_no_results.
+  ///
+  /// In en, this message translates to:
+  /// **'No profiles found'**
+  String get friends_search_no_results;
+
+  /// No description provided for @friends_section_friends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friends_section_friends;
+
+  /// No description provided for @friends_empty_state.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends yet. Search for profiles to add friends.'**
+  String get friends_empty_state;
+
+  /// No description provided for @friends_requests_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Incoming Requests'**
+  String get friends_requests_title;
+
+  /// No description provided for @friends_requests_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'No incoming requests'**
+  String get friends_requests_empty;
+
+  /// No description provided for @friends_request_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'wants to be friends'**
+  String get friends_request_subtitle;
+
+  /// No description provided for @friends_send_request.
+  ///
+  /// In en, this message translates to:
+  /// **'Send friend request'**
+  String get friends_send_request;
+
+  /// No description provided for @friends_accept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get friends_accept;
+
+  /// No description provided for @friends_decline.
+  ///
+  /// In en, this message translates to:
+  /// **'Decline'**
+  String get friends_decline;
+
+  /// No description provided for @friends_open_chat.
+  ///
+  /// In en, this message translates to:
+  /// **'Open chat'**
+  String get friends_open_chat;
+
+  /// No description provided for @friends_remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove friend'**
+  String get friends_remove;
+
+  /// No description provided for @friends_remove_confirm_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove friend?'**
+  String get friends_remove_confirm_title;
+
+  /// No description provided for @friends_remove_confirm_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove {nickname} from your friends?'**
+  String friends_remove_confirm_message(Object nickname);
+
+  /// No description provided for @friends_remove_confirm_yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get friends_remove_confirm_yes;
+
+  /// No description provided for @friends_remove_confirm_no.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get friends_remove_confirm_no;
+
+  /// No description provided for @friends_request_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend request sent'**
+  String get friends_request_sent;
+
+  /// No description provided for @friends_accept_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend request accepted'**
+  String get friends_accept_success;
+
+  /// No description provided for @friends_decline_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend request declined'**
+  String get friends_decline_success;
+
+  /// No description provided for @friends_remove_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend removed'**
+  String get friends_remove_success;
+
+  /// No description provided for @friends_remove_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to remove friend'**
+  String get friends_remove_error;
+
+  /// No description provided for @friends_request_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to process request'**
+  String get friends_request_error;
+
+  /// No description provided for @friends_status_friend.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend'**
+  String get friends_status_friend;
+
+  /// No description provided for @friends_status_request_sent.
+  ///
+  /// In en, this message translates to:
+  /// **'Request sent'**
+  String get friends_status_request_sent;
+
+  /// No description provided for @friends_status_request_received.
+  ///
+  /// In en, this message translates to:
+  /// **'Request received'**
+  String get friends_status_request_received;
+
+  /// No description provided for @friends_error_self.
+  ///
+  /// In en, this message translates to:
+  /// **'You cannot add yourself as a friend.'**
+  String get friends_error_self;
+
+  /// No description provided for @friends_error_already_friends.
+  ///
+  /// In en, this message translates to:
+  /// **'You are already friends.'**
+  String get friends_error_already_friends;
+
+  /// No description provided for @friends_error_request_exists.
+  ///
+  /// In en, this message translates to:
+  /// **'You already sent a request to this user.'**
+  String get friends_error_request_exists;
+
+  /// No description provided for @friends_error_incoming_exists.
+  ///
+  /// In en, this message translates to:
+  /// **'This user has already sent you a request.'**
+  String get friends_error_incoming_exists;
+
+  /// No description provided for @friends_error_request_missing.
+  ///
+  /// In en, this message translates to:
+  /// **'Request not found.'**
+  String get friends_error_request_missing;
+
+  /// No description provided for @friends_error_not_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'This request is no longer pending.'**
+  String get friends_error_not_pending;
+
+  /// No description provided for @friends_error_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'Friendship not found.'**
+  String get friends_error_not_found;
+
+  /// No description provided for @friends_error_generic.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get friends_error_generic;
+
+  /// No description provided for @unknown_error_try_again.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get unknown_error_try_again;
+
+  /// No description provided for @events_screen_refresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get events_screen_refresh;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

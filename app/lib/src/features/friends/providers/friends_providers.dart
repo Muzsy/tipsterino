@@ -4,7 +4,6 @@ import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/auth_provider.dart';
 
 import '../data/friends_repository.dart';
-import '../domain/friend_search_result.dart';
 import '../domain/friendship.dart';
 
 /// Provides the [FriendsRepository] using Tipsterino's [supabaseConfigProvider].
