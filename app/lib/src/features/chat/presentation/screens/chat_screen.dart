@@ -29,6 +29,29 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   bool _isSending = false;
+  bool _readMarked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Mark unread incoming messages as read once when the screen mounts.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _markReadIfNeeded();
+    });
+  }
+
+  void _markReadIfNeeded() {
+    if (_readMarked) return;
+    final authState = ref.read(authNotifierProvider);
+    final currentUserId = authState.session?.user.id;
+    if (currentUserId == null || currentUserId.isEmpty) return;
+    _readMarked = true;
+    final repository = ref.read(chatRepositoryProvider);
+    repository.markConversationAsRead(
+      currentUserId: currentUserId,
+      friendId: widget.friendId,
+    );
+  }
 
   @override
   void dispose() {

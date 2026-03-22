@@ -91,4 +91,31 @@ class ChatRepository {
       throw const ChatException('send_failed');
     }
   }
+
+  /// Marks all unread incoming messages from [friendId] to [currentUserId] as read.
+  ///
+  /// Targets only: receiver_id = currentUserId, sender_id = friendId, read_at is null.
+  /// Uses now() as the read timestamp.
+  ///
+  /// This operation is idempotent — re-running it updates rows that are already
+  /// marked read with the same timestamp, causing no functional harm.
+  ///
+  /// Returns silently (no throw) if the client is unavailable.
+  Future<void> markConversationAsRead({
+    required String currentUserId,
+    required String friendId,
+  }) async {
+    if (currentUserId.isEmpty || friendId.isEmpty) return;
+
+    final client = _config.client;
+    if (client == null) return;
+
+    try {
+      await client.from('messages').update({
+        'read_at': DateTime.now().toUtc().toIso8601String(),
+      }).eq('receiver_id', currentUserId).eq('sender_id', friendId).is_('read_at', null);
+    } catch (_) {
+      // Silently ignore errors — read marking is best-effort.
+    }
+  }
 }

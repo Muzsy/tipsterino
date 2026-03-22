@@ -1,0 +1,76 @@
+title: "Fill Canvas: read_at_update_on_chat_open"
+slug: read_at_update_on_chat_open
+created: 2026-03-22
+
+inputs:
+  task_file: codex/prompts/migration/read_at_update_on_chat_open/run.md
+  chat_repository: app/lib/src/features/chat/data/chat_repository.dart
+  chat_screen: app/lib/src/features/chat/presentation/screens/chat_screen.dart
+  chat_message: app/lib/src/features/chat/domain/chat_message.dart
+  chat_providers: app/lib/src/features/chat/providers/chat_providers.dart
+  messages_migration: supabase/migrations/20260322_001151_messages_table.sql
+  chat_test: app/test/widgets/chat_screen_test.dart
+
+outputs:
+  - canvases/read_at_update_on_chat_open.md
+  - codex/goals/canvases/fill_canvas_read_at_update_on_chat_open.yaml
+  - codex/prompts/migration/read_at_update_on_chat_open/run.md
+  - codex/codex_checklist/migration/read_at_update_on_chat_open.md
+  - codex/reports/migration/read_at_update_on_chat_open.md
+  - app/lib/src/features/chat/domain/chat_message.dart
+  - app/lib/src/features/chat/data/chat_repository.dart
+  - app/lib/src/features/chat/presentation/screens/chat_screen.dart
+  - app/lib/src/features/chat/providers/chat_providers.dart
+  - app/test/widgets/chat_screen_test.dart
+
+steps:
+  - id: phase_1_baseline
+    description: "Phase 1 — Reconstruct baseline: inspect current messages schema, RLS policy, ChatRepository, ChatScreen lifecycle"
+    verify:
+      - file: messages_migration
+        contains: read_at
+      - file: chat_repository
+        not_contains: markConversationAsRead
+
+  - id: phase_2_control_pack
+    description: "Phase 2 — Create dedicated control pack (canvas, YAML, run prompt, checklist, report)"
+    verify:
+      - file: canvases/read_at_update_on_chat_open.md
+        exists: true
+      - file: codex/goals/canvases/fill_canvas_read_at_update_on_chat_open.yaml
+        exists: true
+      - file: codex/codex_checklist/migration/read_at_update_on_chat_open.md
+        exists: true
+
+  - id: phase_3_repository
+    description: "Phase 3 — Add readAt field to ChatMessage; add markConversationAsRead() to ChatRepository"
+    verify:
+      - file: app/lib/src/features/chat/domain/chat_message.dart
+        contains: readAt
+      - file: app/lib/src/features/chat/data/chat_repository.dart
+        contains: markConversationAsRead
+
+  - id: phase_4_screen_integration
+    description: "Phase 4 — Wire markConversationAsRead into ChatScreen on mount (addPostFrameCallback)"
+    verify:
+      - file: app/lib/src/features/chat/presentation/screens/chat_screen.dart
+        contains: markConversationAsRead
+      - file: app/lib/src/features/chat/presentation/screens/chat_screen.dart
+        contains: addPostFrameCallback
+
+  - id: phase_5_policy_review
+    description: "Phase 5 — Review RLS policy: existing update policy covers receiver read_at updates; no new migration needed"
+    verify:
+      - file: supabase/migrations/20260322_001151_messages_table.sql
+        contains: Messages update participants
+
+  - id: phase_6_test_and_verify
+    description: "Phase 6 — Update widget test; run verify.sh"
+    verify:
+      - file: app/test/widgets/chat_screen_test.dart
+        exists: true
+
+  - id: repo_gate
+    description: "Repo gate: verify.sh"
+    command: ./scripts/verify.sh --report codex/reports/migration/read_at_update_on_chat_open.md
+    allow_failure_reason: "Flutter SDK may not be available in execution environment; document truthfully"
