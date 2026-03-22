@@ -270,7 +270,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventsMarkAllReadSuccess => 'All marked as read';
 
   @override
-  String eventsMarkAllReadPartial(Object succeeded, Object failed) {
+  String eventsMarkAllReadPartial(Object failed, Object succeeded) {
     return 'Marked $succeeded, failed $failed';
   }
 
@@ -283,10 +283,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get eventDailyBonusTitle => 'Daily bonus';
+  String get event_daily_bonus_title => 'Daily bonus';
 
   @override
-  String eventDailyBonusBody(Object amount) {
+  String event_daily_bonus_body(Object amount) {
     return 'Daily bonus credited: +$amount TippCoins.';
   }
 
@@ -306,8 +306,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get daily_bonus_body_not_verified => 'Verify your email to claim the daily bonus.';
 
   @override
-  String get daily_bonus_body_profile_incomplete =>
-      'Complete your profile to claim the daily bonus.';
+  String get daily_bonus_body_profile_incomplete => 'Complete your profile to claim the daily bonus.';
 
   @override
   String get daily_bonus_cta_claim => 'Claim';
@@ -324,8 +323,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get daily_bonus_body_not_configured => 'Daily bonus is unavailable (not configured).';
 
   @override
+  String get daily_bonus_body_rate_limited => 'Too many claim attempts. Please try again shortly.';
+
+  @override
   String get daily_bonus_body_offline => 'You appear to be offline. Try again.';
 
   @override
   String get daily_bonus_cta_retry => 'Retry';
+
+  @override
+  String get chat_title => 'Chat';
+
+  @override
+  String get chat_message_hint => 'Type a message...';
+
+  @override
+  String get chat_send => 'Send';
+
+  @override
+  String get chat_empty_state => 'No messages yet';
+
+  @override
+  String get chat_error_empty => 'Cannot send an empty message.';
+
+  @override
+  String get chat_error_too_long => 'Message is too long (max 2000 characters).';
+
+  @override
+  String get chat_error_generic => 'Failed to send message. Please try again.';
 }

@@ -74,7 +74,7 @@ void main() {
 
       // Message input hint should be visible
       final loc = await AppLocalizations.delegate.load(const Locale('en'));
-      expect(find.text(loc.chatMessageHint), findsOneWidget);
+      expect(find.text(loc.chat_message_hint), findsOneWidget);
     });
   });
 }

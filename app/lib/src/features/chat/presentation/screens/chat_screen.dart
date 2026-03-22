@@ -63,14 +63,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final loc = AppLocalizations.of(context)!;
       final key = e.localizedKey;
       final message = key == 'chat_error_empty'
-          ? loc.chatErrorEmpty
+          ? loc.chat_error_empty
           : key == 'chat_error_too_long'
-              ? loc.chatErrorTooLong
-              : loc.chatErrorGeneric;
+              ? loc.chat_error_too_long
+              : loc.chat_error_generic;
       _showError(message);
     } catch (_) {
       if (!mounted) return;
-      _showError(AppLocalizations.of(context)!.chatErrorGeneric);
+      _showError(AppLocalizations.of(context)!.chat_error_generic);
     } finally {
       if (mounted) {
         setState(() => _isSending = false);
@@ -108,7 +108,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.chatTitle),
+        title: Text(loc.chat_title),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -122,7 +122,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       child: Padding(
                         padding: const EdgeInsets.all(24),
                         child: Text(
-                          loc.chatEmptyState,
+                          loc.chat_empty_state,
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
@@ -154,7 +154,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   child: Padding(
                     padding: const EdgeInsets.all(24),
                     child: Text(
-                      loc.chatErrorGeneric,
+                      loc.chat_error_generic,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: colorScheme.error,
                       ),
@@ -227,7 +227,7 @@ class _MessageBubble extends StatelessWidget {
                 color: (isMine
                         ? colorScheme.onPrimaryContainer
                         : colorScheme.onSurfaceVariant)
-                    .withOpacity(0.7),
+                    .withValues(alpha: 0.7),
               ),
             ),
           ],
@@ -283,7 +283,7 @@ class _MessageInputBar extends StatelessWidget {
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => onSend(),
               decoration: InputDecoration(
-                hintText: loc.chatMessageHint,
+                hintText: loc.chat_message_hint,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(24),
                   borderSide: BorderSide.none,

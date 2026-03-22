@@ -270,7 +270,7 @@ class AppLocalizationsHu extends AppLocalizations {
   String get eventsMarkAllReadSuccess => 'Minden olvasottként jelölve';
 
   @override
-  String eventsMarkAllReadPartial(Object succeeded, Object failed) {
+  String eventsMarkAllReadPartial(Object failed, Object succeeded) {
     return '$succeeded olvasott, $failed sikertelen';
   }
 
@@ -283,10 +283,10 @@ class AppLocalizationsHu extends AppLocalizations {
   }
 
   @override
-  String get eventDailyBonusTitle => 'Napi bónusz';
+  String get event_daily_bonus_title => 'Napi bónusz';
 
   @override
-  String eventDailyBonusBody(Object amount) {
+  String event_daily_bonus_body(Object amount) {
     return 'Napi bónusz jóváírva: +$amount TippCoin.';
   }
 
@@ -303,12 +303,10 @@ class AppLocalizationsHu extends AppLocalizations {
   String get daily_bonus_body_disabled => 'A napi bónusz jelenleg nem aktív.';
 
   @override
-  String get daily_bonus_body_not_verified =>
-      'Email megerősítése szükséges a napi bónusz igényléséhez.';
+  String get daily_bonus_body_not_verified => 'Email megerősítése szükséges a napi bónusz igényléséhez.';
 
   @override
-  String get daily_bonus_body_profile_incomplete =>
-      'Profil kitöltése szükséges a napi bónusz igényléséhez.';
+  String get daily_bonus_body_profile_incomplete => 'Profil kitöltése szükséges a napi bónusz igényléséhez.';
 
   @override
   String get daily_bonus_cta_claim => 'Igénylés';
@@ -325,8 +323,32 @@ class AppLocalizationsHu extends AppLocalizations {
   String get daily_bonus_body_not_configured => 'A napi bónusz nem elérhető (nincs beállítva).';
 
   @override
+  String get daily_bonus_body_rate_limited => 'Túl sok igénylési kísérlet történt. Próbáld újra hamarosan.';
+
+  @override
   String get daily_bonus_body_offline => 'Úgy tűnik, nincs internetkapcsolat. Próbáld újra.';
 
   @override
   String get daily_bonus_cta_retry => 'Újrapróbálás';
+
+  @override
+  String get chat_title => 'Csevegés';
+
+  @override
+  String get chat_message_hint => 'Írj üzenetet...';
+
+  @override
+  String get chat_send => 'Küldés';
+
+  @override
+  String get chat_empty_state => 'Még nincs üzenet';
+
+  @override
+  String get chat_error_empty => 'Üres üzenet nem küldhető.';
+
+  @override
+  String get chat_error_too_long => 'Az üzenet túl hosszú (max 2000 karakter).';
+
+  @override
+  String get chat_error_generic => 'Az üzenet küldése sikertelen. Próbáld újra.';
 }

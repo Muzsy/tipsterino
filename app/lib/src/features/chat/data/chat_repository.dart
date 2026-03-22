@@ -37,8 +37,7 @@ class ChatRepository {
     return client
         .from('messages')
         .stream(primaryKey: const ['id'])
-        .in_('sender_id', participants)
-        .in_('receiver_id', participants)
+        .inFilter('sender_id', participants)
         .order('created_at', ascending: true)
         .map((rows) {
           final list = rows.cast<Map<String, dynamic>>();

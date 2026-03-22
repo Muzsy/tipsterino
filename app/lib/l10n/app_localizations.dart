@@ -609,7 +609,7 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Marked {succeeded}, failed {failed}'**
-  String eventsMarkAllReadPartial(Object succeeded, Object failed);
+  String eventsMarkAllReadPartial(Object failed, Object succeeded);
 
   /// No description provided for @eventSignupBonusTitle.
   ///
@@ -623,17 +623,17 @@ abstract class AppLocalizations {
   /// **'You earned {amount} TippCoins as a signup bonus.'**
   String eventSignupBonusBody(Object amount);
 
-  /// No description provided for @eventDailyBonusTitle.
+  /// No description provided for @event_daily_bonus_title.
   ///
   /// In en, this message translates to:
   /// **'Daily bonus'**
-  String get eventDailyBonusTitle;
+  String get event_daily_bonus_title;
 
-  /// No description provided for @eventDailyBonusBody.
+  /// No description provided for @event_daily_bonus_body.
   ///
   /// In en, this message translates to:
   /// **'Daily bonus credited: +{amount} TippCoins.'**
-  String eventDailyBonusBody(Object amount);
+  String event_daily_bonus_body(Object amount);
 
   /// No description provided for @daily_bonus_title.
   ///
@@ -695,6 +695,12 @@ abstract class AppLocalizations {
   /// **'Daily bonus is unavailable (not configured).'**
   String get daily_bonus_body_not_configured;
 
+  /// No description provided for @daily_bonus_body_rate_limited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many claim attempts. Please try again shortly.'**
+  String get daily_bonus_body_rate_limited;
+
   /// No description provided for @daily_bonus_body_offline.
   ///
   /// In en, this message translates to:
@@ -706,6 +712,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get daily_bonus_cta_retry;
+
+  /// No description provided for @chat_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get chat_title;
+
+  /// No description provided for @chat_message_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message...'**
+  String get chat_message_hint;
+
+  /// No description provided for @chat_send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get chat_send;
+
+  /// No description provided for @chat_empty_state.
+  ///
+  /// In en, this message translates to:
+  /// **'No messages yet'**
+  String get chat_empty_state;
+
+  /// No description provided for @chat_error_empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot send an empty message.'**
+  String get chat_error_empty;
+
+  /// No description provided for @chat_error_too_long.
+  ///
+  /// In en, this message translates to:
+  /// **'Message is too long (max 2000 characters).'**
+  String get chat_error_too_long;
+
+  /// No description provided for @chat_error_generic.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send message. Please try again.'**
+  String get chat_error_generic;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
