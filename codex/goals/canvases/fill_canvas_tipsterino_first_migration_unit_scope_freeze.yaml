@@ -1,0 +1,209 @@
+steps:
+  - name: "CP1 — DB migráció létrehozása a messages táblához"
+    description: >
+      Másold át a TippmixApp `messages` tábla sémáját és RLS policy-jait egy új
+      Tipsterino migration fájlba. Használd参考:
+      `tippmixapp/supabase/migrations/20250922180200_messages_table.sql`
+      
+      Fájl elérési út: `supabase/migrations/<timestamp>_messages_table.sql`
+      A timestamp legyen a futás dátuma: `20260322_XXXXXX`
+      
+      Tartalom:
+      - `messages` tábla: id (uuid), sender_id, receiver_id, content (text, max 2000),
+        created_at, read_at
+      - Indexek: sender_idx, receiver_idx, conversation_idx
+      - RLS policies: select (participants), insert (sender), update (participants), delete (participants)
+      - Constraint: messages_no_self (sender_id <> receiver_id)
+      
+      Ellenőrizd, hogy a Tipsterino `supabase/migrations/` könyvtárban a legújabb
+      migration fájl neve alapján generáld a timestamp-et.
+    outputs:
+      - "supabase/migrations/<timestamp>_messages_table.sql"
+
+  - name: "CP2 — Domain réteg migrálása: chat_message.dart és chat_exception.dart"
+    description: >
+      Migráld a TippmixApp domain fájljait a Tipsterino feature-first struktúrába.
+      Célkönyvtár: `app/lib/src/features/chat/domain/`
+      
+      Forrás fájlok:
+      - `tippmixapp/lib/features/chat/domain/chat_message.dart` →
+        `app/lib/src/features/chat/domain/chat_message.dart`
+      - `tippmixapp/lib/features/chat/domain/chat_exception.dart` →
+        `app/lib/src/features/chat/domain/chat_exception.dart`
+      
+      Módosítások:
+      - Import útvonalak frissítése (Tipsterino package neve: `package:tipsterino/...`)
+      - `@immutable` annotáció és `Equatable` / `@freezed` használata (ha a projekt ezt preferálja)
+      - Import: `package:tipsterino/core/errors/app_error.dart` (ha van) vagy saját exception
+      
+      Ellenőrizd a Tipsterino `app/lib/src/features/events/domain/user_event.dart`
+      mintát az immutábilis domain model konvencióhoz.
+    outputs:
+      - "app/lib/src/features/chat/domain/chat_message.dart"
+      - "app/lib/src/features/chat/domain/chat_exception.dart"
+
+  - name: "CP3 — Data réteg migrálása: chat_repository.dart (Tipsterino adapter)"
+    description: >
+      Migráld a TippmixApp ChatRepository-jét a Tipsterino `app/lib/src/features/chat/data/`
+      könyvtárba, és adaptereld a Tipsterino Supabase konfigurációs mintájára.
+      
+      Forrás: `tippmixapp/lib/features/chat/data/chat_repository.dart`
+      Cél: `app/lib/src/features/chat/data/chat_repository.dart`
+      
+      Adapter változtatások:
+      - Ne használj `sb.Supabase.instance.client` globális singletont!
+      - Használd a Tipsterino `supabaseConfigProvider`-t (mint `app/lib/src/core/clients/supabase_provider.dart`)
+      - Riverpod `Provider` pattern: repository-t a `chatRepositoryProvider`-ból kérd le
+      - A Tipsterino `UserEventsRepository` mintát kövesd:
+        `app/lib/src/features/events/data/user_events_repository.dart`
+      
+      Megtartandó viselkedés:
+      - `watchConversation()` — realtime stream (Supabase `stream()`)
+      - `sendMessage()` — insert a `messages` táblába
+      - Auth guard: üres userId esetén üres stream-et adj vissza
+      - Error handling: `ChatException` dobása Hibás működés esetén
+    outputs:
+      - "app/lib/src/features/chat/data/chat_repository.dart"
+
+  - name: "CP4 — Provider réteg migrálása: chat_providers.dart (Tipsterino adapter)"
+    description: >
+      Migráld a TippmixApp chat provider-öket a Tipsterino `app/lib/src/features/chat/providers/`
+      könyvtárba, és adaptereld a Tipsterino auth provider-re.
+      
+      Forrás: `tippmixapp/lib/features/chat/providers/chat_providers.dart`
+      Cél: `app/lib/src/features/chat/providers/chat_providers.dart`
+      
+      Adapter változtatások:
+      - `authProvider`-t használj a felhasználó ID lekérdezéséhez
+        (Tipsterino: `app/lib/src/features/auth/presentation/state/auth_provider.dart`)
+      - Ne használj `tippmixapp/providers/auth_provider.dart`-t
+      - Riverpod `Provider` + `StreamProvider.autoDispose.family` minta
+      - TippmixApp chatRepositoryProvider-t cseréld le a saját `chatRepositoryProvider`-re (CP3)
+      
+      Megtartandó Riverpod struktúra:
+      - `chatRepositoryProvider` 
+      - `chatMessagesProvider` (StreamProvider.autoDispose.family)
+    outputs:
+      - "app/lib/src/features/chat/providers/chat_providers.dart"
+
+  - name: "CP5 — Chat screen létrehozása Tipsterino-native módon"
+    description: >
+      Hozd létre a chat screen-t Tipsterino style guide szerint.
+      Ez NEM másolás a TippmixApp-ből — a Tipsterino konvenciók alapján új implementáció.
+      
+      Cél: `app/lib/src/features/chat/presentation/screens/chat_screen.dart`
+      
+      Forrási inspiráció (NEM másolás): `tippmixapp/lib/features/chat/presentation/chat_screen.dart`
+      Tipsterino screen minta: `app/lib/src/features/events/presentation/screens/events_inbox_screen.dart`
+      
+      Kötelező elemek:
+      - `ConsumerStatefulWidget` vagy `ConsumerWidget` (Riverpod)
+      - `AppLocalizations.of(context)!` minden UI szöveghez
+      - Scaffold + AppBar + üzenetlista + szövegbeviteli mező
+      - Üzenet lista: `ListView.builder` vagy `CustomScrollView`
+      - Riverpod: `ref.watch(chatMessagesProvider(friendId))` a stream-re
+      - Üzenet küldés: `ref.read(chatRepositoryProvider).sendMessage(...)`
+      - `autoDispose`: screen dispose-kor cleanup
+      - Tipsterino theme: `Theme.of(context)` + `ColorScheme` (NEM hardcoded színek)
+      - Safe area kezelés
+      
+      Nem része az initial scope-nak (következő taskban):
+      - navigation to chat (honnan érik el a chat screen-t)
+    outputs:
+      - "app/lib/src/features/chat/presentation/screens/chat_screen.dart"
+
+  - name: "CP6 — GoRouter route regisztráció"
+    description: >
+      Regisztráld a chat screen-t a Tipsterino router-ben.
+      
+      Fájl: `app/lib/src/app/router/app_router.dart`
+      
+      Új GoRoute hozzáadása:
+      - Path: `/chat/:friendId` (paraméteres route)
+      - Builder: `ChatScreen` (friendId-t a route state-ből kapja)
+      - Auth guard: csak authenticated felhasználók érik el
+        (a meglévő `isGuestRoute` + `redirect` logikát kövesd)
+      
+      Alternatíva: ha a chat csak deep-linkről lesz elérhető,
+      a route regisztrációt a következő feladatban (friends completion) végzed.
+      Döntés: a jelenlegi scope-ba tartozik a route definíció, 
+      de a bottom-nav ba illesztés NEM.
+    outputs:
+      - "app/lib/src/app/router/app_router.dart"
+
+  - name: "CP7 — ARB kulcsok bővítése HU és EN nyelven"
+    description: >
+      Adj hozzá chat-specifikus lokalizációs kulcsokat mindkét ARB fájlhoz.
+      
+      Fájlok:
+      - `app/lib/l10n/app_en.arb`
+      - `app/lib/l10n/app_hu.arb`
+      
+      Kulcsok (legalább):
+      - `chat_title` — "Chat" / "Csevegés"
+      - `chat_message_hint` — "Type a message..." / "Írj üzenetet..."
+      - `chat_send` — "Send" / "Küldés"
+      - `chat_empty_state` — "No messages yet" / "Még nincs üzenet"
+      - `chat_error_empty` — "Cannot send empty message" / "Üres üzenet nem küldhető"
+      - `chat_error_too_long` — "Message too long (max 2000 chars)" / "Üzenet túl hosszú (max 2000 karakter)"
+      - `chat_error_generic` — "Failed to send message" / "Üzenet küldése sikertelen"
+      
+      Minden kulcs mindkét fájlban szerepeljen, `@@locale` után.
+      A `flutter gen-l10n` után az `AppLocalizations` frissül.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+
+  - name: "CP8 — Widget teszt létrehozása chat screen-hez"
+    description: >
+      Hozz létre minimális widget tesztet a chat screen-hez.
+      
+      Fájl: `app/test/widgets/chat_screen_test.dart`
+      Minta: `app/test/widgets/l10n_test.dart` (ha létezik) vagy 
+      `app/test/widgets/events_inbox_screen_test.dart`
+      
+      Tesztelj:
+      - Chat screen renderelődik-e
+      - Az üres állapot jelenik meg, ha nincs üzenet
+      - ARB kulcsok helyesen töltődnek-e
+      
+      Használj mock-ot a `chatRepositoryProvider`-hez:
+      `chatRepositoryProvider` → `chatMessagesProvider` → `StreamProvider.autoDispose.family`
+      
+      Fontos: ne használj valós Supabase klienst tesztben!
+    outputs:
+      - "app/test/widgets/chat_screen_test.dart"
+
+  - name: "CP9 — Repo gate: verify.sh futtatása"
+    description: >
+      Futtasd a Tipsterino standard ellenőrzést és frissítsd a reportot.
+      
+      Parancs:
+      `./scripts/verify.sh --report codex/reports/migration/chat_feature_migration.md`
+      
+      Ez lefuttatja:
+      - `flutter analyze lib test integration_test bin tool`
+      - `flutter test`
+      - log-ot ment a `codex/reports/migration/chat_feature_migration.verify.log` fájlba
+      - a report automatikusan frissül az AUTO_VERIFY blokkal
+      
+      Ha `verify.sh` nem elérhető (nincs teljes Flutter app), használd helyette:
+      `flutter analyze lib test --no-fatal-infos`
+    outputs:
+      - "codex/reports/migration/chat_feature_migration.md"
+      - "codex/reports/migration/chat_feature_migration.verify.log"
+
+  - name: "CP10 — Checklist kipipálása és report lezárása"
+    description: >
+      Frissítsd a `codex/codex_checklist/migration/chat_feature_migration.md` checklistát:
+      pipálj ki minden elkészült checkpointot.
+      
+      Ezután frissítsd a report fájlt (`codex/reports/migration/chat_feature_migration.md`):
+      - DoD → Evidence Matrix kitöltése (minden létrehozott fájl path + sorsáv)
+      - Verifikációs parancsok eredménye
+      - Advisory notes (ha vannak)
+      
+      Végső státusz: PASS vagy PASS_WITH_NOTES
+    outputs:
+      - "codex/codex_checklist/migration/chat_feature_migration.md"
+      - "codex/reports/migration/chat_feature_migration.md"

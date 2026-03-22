@@ -105,5 +105,12 @@
   "daily_bonus_body_not_configured": "A napi bónusz nem elérhető (nincs beállítva).",
   "daily_bonus_body_rate_limited": "Túl sok igénylési kísérlet történt. Próbáld újra hamarosan.",
   "daily_bonus_body_offline": "Úgy tűnik, nincs internetkapcsolat. Próbáld újra.",
-  "daily_bonus_cta_retry": "Újrapróbálás"
+  "daily_bonus_cta_retry": "Újrapróbálás",
+  "chat_title": "Csevegés",
+  "chat_message_hint": "Írj üzenetet...",
+  "chat_send": "Küldés",
+  "chat_empty_state": "Még nincs üzenet",
+  "chat_error_empty": "Üres üzenet nem küldhető.",
+  "chat_error_too_long": "Az üzenet túl hosszú (max 2000 karakter).",
+  "chat_error_generic": "Az üzenet küldése sikertelen. Próbáld újra."
 }

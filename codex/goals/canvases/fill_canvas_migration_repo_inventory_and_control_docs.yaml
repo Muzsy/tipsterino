@@ -1,0 +1,138 @@
+# Goal YAML: fill_canvas_migration_repo_inventory_and_control_docs
+
+steps:
+  - name: "Required reading — Tipsterino codebase docs"
+    description: >
+      Olvasd el a következő fájlokat a Tipsterino repóban, és jegyezd fel a kulcs megállapításokat:
+      - AGENTS.md (repo szabályok, app/ mint egyetlen fejlesztési célpont, Codex workflow)
+      - docs/codex/overview.md (canvas+yaml+kontroll artefakt kötelező körforgás, DoD szabályok)
+      - docs/codex/yaml_schema.md (elfogadott goal YAML séma, outputs szabály)
+      - docs/codex/report_standard.md (Report Standard v2: státusz, DoD→Evidence Matrix, Advisory)
+      - docs/architect/project_structure.md (feature-first mappaszerkezet, lib/src/features/)
+      - docs/architect/service_dependencies.md (Supabase-only stack, UI→service→repo→client rétegek)
+      - docs/localization/localization_logic.md (ARB HU+EN, feature-first kulcsnév konvenció)
+      A Tipsterino egy clean foundation, ahol az app/lib/ üres scaffold.
+    outputs:
+      - "repos/tipsterino/AGENTS.md"
+      - "repos/tipsterino/docs/codex/overview.md"
+      - "repos/tipsterino/docs/codex/yaml_schema.md"
+      - "repos/tipsterino/docs/codex/report_standard.md"
+      - "repos/tipsterino/docs/architect/project_structure.md"
+      - "repos/tipsterino/docs/architect/service_dependencies.md"
+      - "repos/tipsterino/docs/localization/localization_logic.md"
+
+  - name: "Required reading — TippmixApp codebase docs"
+    description: >
+      Olvasd el a következő fájlokat a TippmixApp repóban:
+      - AGENTS.md (Codex policy, Firebase+Supabase hybrid stack, sandbox env szabály)
+      - DEV.md (Flutter + pnpm + Supabase CLI + Deno stack, CI pipeline, Codex workflow)
+      - codex_docs/codex_readme_en.md (Codex integráció, canvas+yaml kötelező fájlok)
+      - codex_docs/service_dependencies_en.md (DataSource→Repository→Service→UI rétegek)
+      A TippmixApp egy teljesen implementált app referenciaforrás.
+    outputs:
+      - "repos/tippmixapp/AGENTS.md"
+      - "repos/tippmixapp/DEV.md"
+      - "repos/tippmixapp/codex_docs/codex_readme_en.md"
+      - "repos/tippmixapp/codex_docs/service_dependencies_en.md"
+
+  - name: "Checkpoint 1 — Repo szerepkörök rögzítése"
+    description: >
+      Mielőtt fájlt hozol létre, rögzítsd a checkpoint eredményeit:
+      1. Tipsterino szerepkép: mi az egyetlen fejlesztési célpont, mi a stack, mi a workflow minta
+      2. TippmixApp szerepkép: mi a forrás, mi a teljes implementáció státusza, mi kerülendo
+      3. Legfontosabb mappák a migráció vezérléséhez mindkét repóban
+      Ezeket a report fájl megfelelő szekciójába írd (Section 3 — Repo Inventory Findings).
+      Ha a kép nem áll össze egyértelműen, állj meg és jelezd.
+    outputs:
+      - "repos/tipsterino/codex/reports/openclaw/migration_repo_inventory_and_control_docs.2026-03-21_231512.report.md"
+
+  - name: "Checkpoint 2 — Difference mapping"
+    description: >
+      Készíts különbséglistát legalább ezek mentén (konkrét fájlokra/mappákra hivatkozva):
+      - Repo struktúra: tipsterino app/lib/ vs tippmixapp lib/
+      - Dokumentációs réteg: tipsterino docs/ canonical fa vs tippmixapp docs/ + root artifact halmaz
+      - Codex workflow: hasonló struktúra, de külön repók
+      - Backend: tipsterino Supabase-only vs tippmixapp Firebase+Supabase hybrid
+      - Flutter app elhelyezés: tipsterino app/ vs tippmixapp root szint
+      - CI/belépési pontok: tipsterino wrapper scripttek vs tippmixapp pnpm + Firebase
+      Ha túl általános a lista, finomítsd konkrét útvonalakra.
+    outputs:
+      - "repos/tipsterino/codex/reports/openclaw/migration_repo_inventory_and_control_docs.2026-03-21_231512.report.md"
+
+  - name: "Checkpoint 3 — Control-doc design ellenőrzés"
+    description: >
+      Mielőtt fájlt hozol létre, ellenőrizd:
+      1. A javasolt útvonalak illeszkednek-e a Tipsterino meglévő canvases/, codex/ struktúrájához
+      2. Nem nyitsz-e párhuzamos, fölösleges második workflow-rendszert
+      3. A canvas, goal YAML, task prompt, checklist, report útvonalak konzisztensek-e egymással
+      A checkpoint eredményét a report Section 6-ba írd.
+    outputs:
+      - "repos/tipsterino/codex/reports/openclaw/migration_repo_inventory_and_control_docs.2026-03-21_231512.report.md"
+
+  - name: "Create canvas — migration_repo_inventory_and_control_docs.md"
+    description: >
+      Hozd létre a canvas fájlt a Tipsterino repóban.
+      Tartalom: cél, nem-cél, érintett modulok (tipsterino + tippmixapp), 
+      5 phases feladatlistája pipálható checkboxes-szal, kockázatok, rollback terv.
+      Útvonal: repos/tipsterino/canvases/migration_repo_inventory_and_control_docs.md
+    outputs:
+      - "repos/tipsterino/canvases/migration_repo_inventory_and_control_docs.md"
+
+  - name: "Create goal YAML — fill_canvas_migration_repo_inventory_and_control_docs.yaml"
+    description: >
+      Hozd létre a goal YAML fájlt a Tipsterino codex/ struktúrában.
+      6 steps: required reading (tipsterino) → required reading (tippmixapp) → checkpoint 1 → 
+      checkpoint 2 → checkpoint 3 → create canvas → create goal yaml → create task prompt → 
+      create checklist → create report stub → repo gate.
+      Minden stepnek legyen name, description (> multiline), és outputs (string lista).
+      Az utolsó step a repo gate: ./scripts/verify.sh --report codex/reports/openclaw/...
+    outputs:
+      - "repos/tipsterino/codex/goals/canvases/fill_canvas_migration_repo_inventory_and_control_docs.yaml"
+
+  - name: "Create OpenClaw task prompt — migration_control_docs.task.md"
+    description: >
+      Hozd létre az OpenClaw task prompt fájlt a repos/tipsterino/codex/prompts/openclaw/ mappában.
+      A prompt legyen hosszú, többfázisú, checkpointos, és a fájl-output szabályokat kövesse.
+      A promptban rögzítsd:
+      - Kötelező olvasmányok listáját (tipsterino + tippmixapp AGENTS, codex overview, dev docs)
+      - 5 phases leírását (inventory → delta → design → control → verify)
+      - 3 checkpoint kötelező rögzítési pontot
+      - File output rules: timestampes report, minden checkpoint után frissítés, terminálra csak rövid status
+      - Verification gates
+      - Stop conditions (FAIL/PASS_WITH_NOTES kritériumok)
+    outputs:
+      - "repos/tipsterino/codex/prompts/openclaw/migration_control_docs.task.md"
+
+  - name: "Create checklist — migration_repo_inventory_and_control_docs.md"
+    description: >
+      Hozd létre a pipálható checklistet a repos/tipsterino/codex/codex_checklist/ mappában.
+      Evidence-fókuszú: minden DoD ponthoz fájl útvonal + sorszám + ellenőrzési mód.
+      Sections: repo inventory, difference mapping, control-doc design, created files, verification.
+    outputs:
+      - "repos/tipsterino/codex/codex_checklist/migration_repo_inventory_and_control_docs.md"
+
+  - name: "Create / finalize report stub"
+    description: >
+      Hozd létre vagy frissítsd a report fájlt minden kötelező szekcióval:
+      1. Status (PASS/FAIL/PASS_WITH_NOTES)
+      2. Summary (2-3 mondat)
+      3. Repo inventory findings (tipsterino + tippmixapp szerepkörök)
+      4. Difference mapping (6 dimenziós összehasonlítás táblázatban)
+      5. Created or modified files (5 fájl, útvonal + szerep)
+      6. Checkpoint results (3 checkpoint rögzítése)
+      7. Verification (verify.sh vagy dokumentált ok, hogy nem fut)
+      8. Risks / Open items (4 kockázat)
+      9. Recommended next task (migration_app_structure_and_feature_mapping)
+      10. Appendix (control doc skeletonok)
+    outputs:
+      - "repos/tipsterino/codex/reports/openclaw/migration_repo_inventory_and_control_docs.2026-03-21_231512.report.md"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Futtasd a standard ellenőrzést és frissítsd automatikusan a reportot.
+      ./scripts/verify.sh --report codex/reports/openclaw/migration_repo_inventory_and_control_docs.2026-03-21_231512.report.md
+      Megjegyzés: mivel a Tipsterino app/ scaffold üres, a verify.sh valószínűleg nem fut le sikeresen.
+      Ebben az esetben dokumentáld az okot a report Verification szekciójában.
+      outputs:
+      - "repos/tipsterino/codex/reports/openclaw/migration_repo_inventory_and_control_docs.2026-03-21_231512.report.md"
+      - "repos/tipsterino/codex/reports/openclaw/migration_repo_inventory_and_control_docs.2026-03-21_231512.verify.log"

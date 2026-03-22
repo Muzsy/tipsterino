@@ -8,6 +8,7 @@ import 'package:tipsterino/src/features/auth/presentation/screens/login_screen.d
 import 'package:tipsterino/src/features/auth/presentation/screens/verify_email_pending_screen.dart';
 import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
 import 'package:tipsterino/src/features/events/presentation/screens/events_inbox_screen.dart';
+import 'package:tipsterino/src/features/chat/presentation/screens/chat_screen.dart';
 import 'package:tipsterino/src/features/bets/presentation/screens/bets_screen.dart';
 import 'package:tipsterino/src/features/forum/presentation/screens/forum_screen.dart';
 import 'package:tipsterino/src/features/guest_info/presentation/screens/guest_info_screen.dart';
@@ -95,6 +96,16 @@ GoRouter createAppRouter(Ref ref, {String initialLocation = '/home'}) {
         path: '/leaderboard',
         name: 'leaderboardRedirect',
         redirect: (context, state) => '/home',
+      ),
+      // Chat — 1:1 direct messaging (auth-gated via global redirect).
+      // Not in the guest allowlist, so unauthenticated users are redirected to /auth/login.
+      GoRoute(
+        path: '/chat/:friendId',
+        name: 'chat',
+        builder: (context, state) {
+          final friendId = state.pathParameters['friendId'] ?? '';
+          return ChatScreen(friendId: friendId);
+        },
       ),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
