@@ -9,6 +9,7 @@ import 'package:tipsterino/src/features/auth/presentation/screens/verify_email_p
 import 'package:tipsterino/src/features/auth/presentation/screens/sign_up_wizard_screen.dart';
 import 'package:tipsterino/src/features/events/presentation/screens/events_inbox_screen.dart';
 import 'package:tipsterino/src/features/chat/presentation/screens/chat_screen.dart';
+import 'package:tipsterino/src/features/friends/presentation/screens/friends_screen.dart';
 import 'package:tipsterino/src/features/bets/presentation/screens/bets_screen.dart';
 import 'package:tipsterino/src/features/forum/presentation/screens/forum_screen.dart';
 import 'package:tipsterino/src/features/guest_info/presentation/screens/guest_info_screen.dart';
@@ -106,6 +107,12 @@ GoRouter createAppRouter(Ref ref, {String initialLocation = '/home'}) {
           final friendId = state.pathParameters['friendId'] ?? '';
           return ChatScreen(friendId: friendId);
         },
+      ),
+      // Friends — auth-gated (not in guest allowlist, so redirect applies).
+      GoRoute(
+        path: '/friends',
+        name: 'friends',
+        builder: (context, state) => const FriendsScreen(),
       ),
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),

@@ -1,0 +1,134 @@
+# Goal YAML: Friends Feature Migration
+# Task slug: friends_feature_migration
+
+steps:
+  - name: "Friends DB migration"
+    description: >
+      Create `supabase/migrations/<timestamp>_friends_table.sql` with:
+      - `friends` table: user_id, friend_id, status (pending/accepted/rejected), created_at
+      - composite primary key or unique constraint on (user_id, friend_id)
+      - no self-relationship check
+      - RLS policies: select/update/delete for participants; insert restricted to requester
+      - indexes on user_id, friend_id, status
+      - No followers or friend_requests table
+      Use Tipsterino's existing migration naming pattern (YYYYMMDD_HHMMSS).
+    outputs:
+      - "supabase/migrations/20260322_132100_friends_table.sql"
+
+  - name: "Friends domain models"
+    description: >
+      Create all domain models in `app/lib/src/features/friends/domain/`:
+      - `friend_status.dart`: FriendStatus enum (pending/accepted/rejected) with value getter and fromString()
+      - `friend_profile.dart`: FriendProfile with id, nickname, avatarKey fields (Tipsterino profile contract: NO avatar_url, NO score)
+      - `friend_search_result.dart`: FriendSearchResult wrapping FriendProfile + optional status + isRequester flag
+      - `friendship.dart`: Friendship with userId, friendId, status, createdAt, profile, isRequester
+      - `friend_operation_exception.dart`: FriendOperationException (narrow exception, ChatException-style, no AppError/AppErrorMapper)
+      All models must be @immutable where appropriate.
+    outputs:
+      - "app/lib/src/features/friends/domain/friend_status.dart"
+      - "app/lib/src/features/friends/domain/friend_profile.dart"
+      - "app/lib/src/features/friends/domain/friend_search_result.dart"
+      - "app/lib/src/features/friends/domain/friendship.dart"
+      - "app/lib/src/features/friends/domain/friend_operation_exception.dart"
+
+  - name: "Friends repository"
+    description: >
+      Create `app/lib/src/features/friends/data/friends_repository.dart`:
+      - Constructor accepts SupabaseConfiguration (Tipsterino pattern — no global singleton)
+      - Uses `supabaseConfigProvider`-compatible client access
+      - watchAcceptedFriends(currentUserId): Stream<List<Friendship>>
+      - watchPendingRequests(currentUserId): Stream<List<Friendship>> (incoming only, not outgoing)
+      - searchProfiles(query, currentUserId): Future<List<FriendSearchResult>> — searches public_profiles by nickname ilike, excludes current user
+      - sendFriendRequest(currentUserId, targetUserId)
+      - respondToFriendRequest(currentUserId, requesterId, accept: bool)
+      - removeFriendship(currentUserId, friendUserId)
+      - NO notification service calls
+      - NO AppError/AppErrorMapper — throw FriendOperationException directly
+      - Use same Supabase PostgREST filter API style proven in chat_repository.dart
+    outputs:
+      - "app/lib/src/features/friends/data/friends_repository.dart"
+
+  - name: "Friends providers"
+    description: >
+      Create `app/lib/src/features/friends/providers/friends_providers.dart`:
+      - friendsRepositoryProvider: Provider<FriendsRepository> using supabaseConfigProvider
+      - acceptedFriendsProvider: StreamProvider.autoDispose<List<Friendship>> (uses authNotifierProvider for current user ID)
+      - incomingFriendRequestsProvider: StreamProvider.autoDispose<List<Friendship>> (filters isRequester==false)
+      - friendSearchQueryProvider: StateProvider.autoDispose<String>
+      - friendSearchResultsProvider: FutureProvider.autoDispose<List<FriendSearchResult>>
+      Follow the same pattern as chat_providers.dart for autoDispose and auth access.
+    outputs:
+      - "app/lib/src/features/friends/providers/friends_providers.dart"
+
+  - name: "Friends presentation widgets"
+    description: >
+      Create presentation widgets:
+      - `app/lib/src/features/friends/presentation/widgets/friend_list_item.dart`: Shows accepted friend (nickname, avatar fallback), chat action button, remove action
+      - `app/lib/src/features/friends/presentation/widgets/friend_request_item.dart`: Shows incoming request (nickname, avatar fallback), accept/decline buttons with loading states
+      - `app/lib/src/features/friends/presentation/widgets/friend_search_result_item.dart`: Shows search result profile, send request button (or pending/accepted status), chat action if accepted
+      All use Material 3 / ColorScheme / TextTheme. No hardcoded colors. Avatar fallback = initials from nickname (no network image).
+    outputs:
+      - "app/lib/src/features/friends/presentation/widgets/friend_list_item.dart"
+      - "app/lib/src/features/friends/presentation/widgets/friend_request_item.dart"
+      - "app/lib/src/features/friends/presentation/widgets/friend_search_result_item.dart"
+
+  - name: "FriendsScreen"
+    description: >
+      Create `app/lib/src/features/friends/presentation/screens/friends_screen.dart`:
+      - Scaffold with AppBar (localized title)
+      - Search TextField at top (min 2 chars, 300ms debounce)
+      - Incoming requests section (collapsible or always visible)
+      - Accepted friends section
+      - Empty states for all three sections
+      - Loading and error states with retry
+      - All strings via AppLocalizations
+      - All styling via ColorScheme/TextTheme
+      - Tap on accepted friend → context.pushNamed('chat', pathParameters: {'friendId': friendId})
+      - Follow the same pattern as ChatScreen for error handling and state management
+    outputs:
+      - "app/lib/src/features/friends/presentation/screens/friends_screen.dart"
+
+  - name: "Router and ProfileScreen entry point"
+    description: >
+      Update two files:
+      1. `app/lib/src/app/router/app_router.dart`: Add GoRoute for /friends (name: 'friends'), builder returns FriendsScreen, path: '/friends'. NOT inside ShellRoute. NOT in guestAllowlist so auth-gating is automatic.
+      2. `app/lib/src/features/profile/presentation/screens/profile_screen.dart`: Add a minimal button/list tile linking to /friends (e.g., a ListTile with Icons.group and localized label). Do NOT redesign the whole profile screen.
+    outputs:
+      - "app/lib/src/app/router/app_router.dart"
+      - "app/lib/src/features/profile/presentation/screens/profile_screen.dart"
+
+  - name: "Localization ARB keys"
+    description: >
+      Add all friends-related localization keys to both ARB files:
+      - friends_title, friends_search_placeholder, friends_search_clear
+      - friends_section_friends, friends_empty_state
+      - friends_requests_title, friends_requests_empty
+      - friends_challenge_placeholder (or similar placeholder text)
+      - friends_remove_confirm_title, friends_remove_confirm_message (with {nickname} param), friends_remove_confirm_yes, friends_remove_confirm_no
+      - friends_request_sent, friends_accept_success, friends_decline_success, friends_remove_success, friends_remove_error
+      - friends_request_error, unknown_error_try_again (re-use existing if available)
+      All keys must be in both app_en.arb and app_hu.arb.
+    outputs:
+      - "app/lib/l10n/app_en.arb"
+      - "app/lib/l10n/app_hu.arb"
+
+  - name: "Widget test for FriendsScreen"
+    description: >
+      Create `app/test/widgets/friends_screen_test.dart`:
+      - Test: FriendsScreen renders with AppBar title
+      - Test: authenticated route access path (router smoke test)
+      - Test: empty state visible when no data
+      - Test: accepted friend row shows chat action
+      Use the same testing pattern as chat_screen_test.dart.
+      Mock the repository and auth provider appropriately.
+    outputs:
+      - "app/test/widgets/friends_screen_test.dart"
+
+  - name: "Repo gate (automatikus verify)"
+    description: >
+      Run `./scripts/verify.sh --report codex/reports/migration/friends_feature_migration.md`
+      This will run flutter analyze + flutter test and update the report automatically.
+      If Flutter SDK is unavailable, document the exact blocker and use PASS_WITH_NOTES.
+    outputs:
+      - "codex/reports/migration/friends_feature_migration.md"
+      - "codex/reports/migration/friends_feature_migration.verify.log"
