@@ -2,24 +2,27 @@
 ///
 /// These are intentionally narrow — scoped to the 1:1 messaging
 /// bounded context defined in the frozen scope.
+///
+/// NOTE: `toLocalizedMessage()` was removed from domain — localization
+/// must be handled at the presentation layer using AppLocalizations.
 class ChatException implements Exception {
   const ChatException(this.code);
 
   /// Machine-readable error code.
   final String code;
 
-  /// Returns a human-readable message for the given error code.
-  String toLocalizedMessage() {
+  /// ARB key for AppLocalizations lookup at presentation layer.
+  String get localizedKey {
     switch (code) {
       case 'empty':
-        return 'Cannot send an empty message.';
+        return 'chat_error_empty';
       case 'too_long':
-        return 'Message is too long (max 2000 characters).';
+        return 'chat_error_too_long';
       case 'invalid_participants':
-        return 'Invalid sender or receiver.';
+        return 'chat_error_generic';
       case 'send_failed':
       default:
-        return 'Failed to send message. Please try again.';
+        return 'chat_error_generic';
     }
   }
 

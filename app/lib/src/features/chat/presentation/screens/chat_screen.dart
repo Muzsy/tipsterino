@@ -60,7 +60,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _scrollToBottom();
     } on ChatException catch (e) {
       if (!mounted) return;
-      _showError(e.toLocalizedMessage());
+      final loc = AppLocalizations.of(context)!;
+      final key = e.localizedKey;
+      final message = key == 'chat_error_empty'
+          ? loc.chatErrorEmpty
+          : key == 'chat_error_too_long'
+              ? loc.chatErrorTooLong
+              : loc.chatErrorGeneric;
+      _showError(message);
     } catch (_) {
       if (!mounted) return;
       _showError(AppLocalizations.of(context)!.chatErrorGeneric);
