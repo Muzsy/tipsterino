@@ -71,8 +71,8 @@ void main() {
     await _pumpInitialScreen(tester);
 
     final loc = await AppLocalizations.delegate.load(const Locale('en'));
-    expect(find.text(loc.eventDailyBonusTitle), findsOneWidget);
-    expect(find.text(loc.eventDailyBonusBody(50)), findsOneWidget);
+    expect(find.text(loc.event_daily_bonus_title), findsOneWidget);
+    expect(find.text(loc.event_daily_bonus_body(50)), findsOneWidget);
 
     final tileFinder = find.byType(ListTile);
     expect(tileFinder, findsOneWidget);

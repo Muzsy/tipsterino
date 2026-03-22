@@ -383,7 +383,7 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen>
         return loc.eventSignupBonusTitle;
       }
       if (event.code == 'daily_bonus') {
-        return loc.eventDailyBonusTitle;
+        return loc.event_daily_bonus_title;
       }
     }
     return _fallbackText(event);
@@ -395,7 +395,7 @@ class _EventsInboxScreenState extends ConsumerState<EventsInboxScreen>
         return loc.eventSignupBonusBody(event.amount?.toString() ?? '0');
       }
       if (event.code == 'daily_bonus') {
-        return loc.eventDailyBonusBody(event.amount?.toString() ?? '0');
+        return loc.event_daily_bonus_body(event.amount?.toString() ?? '0');
       }
     }
     return _fallbackText(event);
