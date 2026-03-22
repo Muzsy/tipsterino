@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide Provider;
 
 import 'package:tipsterino/src/app/app.dart';
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
@@ -10,6 +11,22 @@ import 'package:tipsterino/src/features/chat/providers/chat_providers.dart';
 import 'package:tipsterino/src/features/chat/data/chat_repository.dart';
 import 'package:tipsterino/src/features/chat/domain/chat_message.dart';
 import 'package:tipsterino/l10n/app_localizations.dart';
+
+/// Builds a minimal test Session with the given userId.
+Session _buildTestSession(String userId) {
+  return Session.fromJson({
+    'access_token': 'test-token',
+    'refresh_token': 'test-refresh',
+    'token_type': 'bearer',
+    'aud': 'authenticated',
+    'user': {
+      'id': userId,
+      'app_metadata': <String, dynamic>{},
+      'aud': 'authenticated',
+      'created_at': '2024-01-01T00:00:00Z',
+    },
+  })!;
+}
 
 /// A fake ChatRepository that records whether markConversationAsRead was called.
 class FakeChatRepository implements ChatRepository {
@@ -45,14 +62,20 @@ class FakeChatRepository implements ChatRepository {
   }) async {}
 }
 
-Widget _buildChatScreen({required String friendId, ChatRepository? repository}) {
+Widget _buildChatScreen({
+  required String friendId,
+  ChatRepository? repository,
+  String userId = 'current-user-123',
+}) {
+  final session = _buildTestSession(userId);
   return ProviderScope(
     overrides: [
       authNotifierProvider.overrideWith(
         (ref) => AuthNotifier(
           ref,
-          initialState: const AuthViewState(
+          initialState: AuthViewState(
             status: AuthStatus.authenticated,
+            session: session,
           ),
           autoListen: false,
         ),
