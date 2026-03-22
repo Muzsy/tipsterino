@@ -6,7 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:tipsterino/src/app/app.dart';
 import 'package:tipsterino/src/core/clients/supabase_provider.dart';
 import 'package:tipsterino/src/features/auth/presentation/state/auth_provider.dart';
+import 'package:tipsterino/src/features/chat/providers/chat_providers.dart';
 import 'package:tipsterino/src/features/chat/data/chat_repository.dart';
+import 'package:tipsterino/src/features/chat/domain/chat_message.dart';
 import 'package:tipsterino/l10n/app_localizations.dart';
 
 /// A fake ChatRepository that records whether markConversationAsRead was called.
@@ -28,11 +30,11 @@ class FakeChatRepository implements ChatRepository {
   }
 
   @override
-  Stream<List<dynamic>> watchConversation({
+  Stream<List<ChatMessage>> watchConversation({
     required String currentUserId,
     required String otherUserId,
   }) {
-    return Stream.value([]);
+    return Stream.value(const <ChatMessage>[]);
   }
 
   @override
