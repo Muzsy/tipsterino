@@ -189,14 +189,14 @@ jobs:
 
       - name: Run bonus RPC integration test (core reasons)
         run: |
-          ./scripts/flutter.sh test integration_test/bonus_rpc_integration_test.dart -d linux \
+          ./scripts/flutter.sh test test/unit/bonus_rpc_integration_test.dart \
             --plain-name="Signup and daily bonus RPC reasons stay deterministic" \
             --dart-define=BONUS_TEST_EMAIL="${BONUS_TEST_EMAIL}" \
             --dart-define=BONUS_TEST_PASSWORD="${BONUS_TEST_PASSWORD}"
 
       - name: Run bonus RPC integration test (rate_limited branch)
         run: |
-          ./scripts/flutter.sh test integration_test/bonus_rpc_integration_test.dart -d linux \
+          ./scripts/flutter.sh test test/unit/bonus_rpc_integration_test.dart \
             --plain-name="Bonus RPC rate_limited branch stays deterministic" \
             --dart-define=BONUS_RATE_LIMIT_TEST_EMAIL="${BONUS_RATE_LIMIT_TEST_EMAIL}" \
             --dart-define=BONUS_RATE_LIMIT_TEST_PASSWORD="${BONUS_RATE_LIMIT_TEST_PASSWORD}"
