@@ -30,6 +30,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isSending = false;
   bool _readMarked = false;
+  bool _userIsAtBottom = true;
 
   @override
   void initState() {
@@ -129,6 +130,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // Listen for realtime message updates and auto-scroll if user is at bottom.
+    ref.listen<AsyncValue<List<ChatMessage>>>(
+      chatMessagesProvider(widget.friendId),
+      (previous, next) {
+        if (previous?.valueOrNull != null &&
+            next.hasValue &&
+            next.value!.length > previous!.value!.length &&
+            _userIsAtBottom) {
+          _scrollToBottom();
+        }
+      },
+    );
+
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.chat_title),
@@ -154,20 +168,29 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       ),
                     );
                   }
-                  return ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      return _MessageBubble(
-                        message: messages[index],
-                        isMine: messages[index].senderId ==
-                            ref.read(authNotifierProvider).session?.user.id,
-                      );
+                  return NotificationListener<ScrollNotification>(
+                    onNotification: (notification) {
+                      if (!_scrollController.hasClients) return false;
+                      final atBottom = _scrollController.position.pixels >=
+                          _scrollController.position.maxScrollExtent - 50;
+                      _userIsAtBottom = atBottom;
+                      return false;
                     },
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        return _MessageBubble(
+                          message: messages[index],
+                          isMine: messages[index].senderId ==
+                              ref.read(authNotifierProvider).session?.user.id,
+                        );
+                      },
+                    ),
                   );
                 },
                 loading: () => const Center(

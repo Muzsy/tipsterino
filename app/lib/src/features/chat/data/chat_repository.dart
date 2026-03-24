@@ -113,7 +113,7 @@ class ChatRepository {
     try {
       await client.from('messages').update({
         'read_at': DateTime.now().toUtc().toIso8601String(),
-      }).eq('receiver_id', currentUserId).eq('sender_id', friendId).isFilter('read_at', null);
+      }).eq('receiver_id', currentUserId).eq('sender_id', friendId).is('read_at', null);
     } catch (_) {
       // Silently ignore errors — read marking is best-effort.
     }

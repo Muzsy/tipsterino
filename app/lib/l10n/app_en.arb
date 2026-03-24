@@ -109,7 +109,6 @@
   "daily_bonus_cta_retry": "Retry",
   "chat_title": "Chat",
   "chat_message_hint": "Type a message...",
-  "chat_send": "Send",
   "chat_empty_state": "No messages yet",
   "chat_error_empty": "Cannot send an empty message.",
   "chat_error_too_long": "Message is too long (max 2000 characters).",
