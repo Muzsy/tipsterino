@@ -19,11 +19,17 @@
 
 ## Overall Status: `PASS_WITH_FIXES`
 
-**Fixes applied in `c3a5411`:**
-- ✅ CRITICAL-1 fixed: `.isFilter()` → `.is()` in `chat_repository.dart:116`
-- ✅ MEDIUM-2 fixed: realtime-aware auto-scroll via `ref.listen` + `NotificationListener` in `chat_screen.dart`
-- ✅ MEDIUM-3 fixed: 9 new widget tests added covering send interaction, error states, multiple messages, loading state
-- ✅ CLEANUP done: `chat_send` dead ARB key removed from EN and HU
+**Fixes applied:**
+- ✅ MEDIUM-2 fixed: realtime-aware auto-scroll via `ref.listen` + `NotificationListener` in `chat_screen.dart` (`c3a5411`)
+- ✅ MEDIUM-3 fixed: 9 new widget tests added covering send interaction, error states, multiple messages, loading state (`c3a5411`)
+- ✅ CLEANUP done: `chat_send` dead ARB key removed from EN and HU (`c3a5411`)
+- ✅ MEDIUM-3 fixed (unit): 30 new unit tests added covering validation, domain model, and edge cases (`b32da64`)
+
+**CRITICAL-1 clarification (no code change):**
+`isFilter('read_at', null)` is the **correct** API in `postgrest 2.6.0`.
+`isFilter(String column, bool? value)` — passing `null` as `bool?` correctly generates SQL `IS NULL`.
+The audit claim that `.is()` would be the correct form was incorrect; `.is()` does not exist in this API.
+Audit was wrong to flag this as CRITICAL. Corrected in `b32da64`.
 
 ---
 
@@ -267,9 +273,9 @@ The `send_failed` code returns the same as the default. This is fine in practice
 | Auth / routing | ✅ PASS | Correctly gated |
 | DB migration | ✅ PASS | Solid RLS, constraints, indexes |
 | Domain model | ✅ PASS | Immutable, correct equality |
-| Repository | ✅ FIXED | Wrong filter API → FIXED (c3a5411); performance deferred (MEDIUM-1) |
+| Repository | ✅ PASS | isFilter(null) confirmed correct; performance deferred (MEDIUM-1) |
 | Presentation | ✅ FIXED | Realtime auto-scroll added (c3a5411) |
-| Tests | ✅ FIXED | 9 new tests added (c3a5411) |
+| Tests | ✅ FIXED | 9 widget + 30 unit tests (c3a5411 + b32da64) |
 | Localization | ✅ PASS (minor) | `chat_send` key unused |
 | No Firebase | ✅ PASS | Clean Supabase-only |
 | Architecture patterns | ✅ PASS | Correct SupabaseConfiguration, autoDispose |
@@ -278,9 +284,9 @@ The `send_failed` code returns the same as the default. This is fine in practice
 
 ## 10. Recommended Fixes (Priority Order)
 
-1. ~~**FIX CRITICAL-1**~~ ✅ **DONE** (`c3a5411`) — `.isFilter` → `.is` in `chat_repository.dart:116`
+1. ~~**FIX CRITICAL-1**~~ ✅ **RETACTED** — `isFilter('read_at', null)` is the correct API (postgrest 2.6.0). Audit was wrong; no code change needed.
 2. ~~**FIX MEDIUM-2**~~ ✅ **DONE** (`c3a5411`) — `ref.listen` + `NotificationListener` for realtime auto-scroll
-3. ~~**FIX MEDIUM-3**~~ ✅ **DONE** (`c3a5411`) — 9 new widget tests covering send, errors, loading, multiple messages
+3. ~~**FIX MEDIUM-3**~~ ✅ **DONE** (`c3a5411` + `b32da64`) — 9 widget + 30 unit tests
 4. ~~**CLEANUP**~~ ✅ **DONE** (`c3a5411`) — `chat_send` dead key removed from EN/HU ARB
 5. **CONSIDER MEDIUM-1** — If conversation volume is expected to be high, revisit `watchConversation` stream filtering strategy
 
